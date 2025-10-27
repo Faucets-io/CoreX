@@ -3,36 +3,39 @@
 @tailwind utilities;
 
 :root {
-  --background: 210 11% 6%; /* Deep navy blue */
+  --background: 220 18% 8%; /* Deep dark blue-gray */
   --foreground: 0 0% 98%;
-  --muted: 215 15% 12%;
-  --muted-foreground: 215 8% 65%;
-  --popover: 210 11% 8%;
+  --muted: 220 15% 14%;
+  --muted-foreground: 220 8% 65%;
+  --popover: 220 18% 10%;
   --popover-foreground: 0 0% 98%;
-  --card: 210 11% 8%;
+  --card: 220 18% 10%;
   --card-foreground: 0 0% 98%;
-  --border: 215 15% 16%;
-  --input: 215 15% 16%;
-  --primary: 25 95% 53%; /* Bitcoin orange */
+  --border: 220 15% 18%;
+  --input: 220 15% 18%;
+  --primary: 195 100% 50%; /* FluxTrade electric cyan */
   --primary-foreground: 0 0% 2%;
-  --secondary: 215 15% 12%;
+  --secondary: 220 15% 14%;
   --secondary-foreground: 0 0% 98%;
-  --accent: 215 15% 12%;
+  --accent: 220 15% 14%;
   --accent-foreground: 0 0% 98%;
   --destructive: 0 62.8% 50%;
   --destructive-foreground: 0 0% 98%;
-  --ring: 25 95% 53%;
+  --ring: 195 100% 50%;
   --radius: 0.75rem;
   --bitcoin: 25 95% 53%; /* #F7931A */
   --bitcoin-dark: 25 91% 48%; /* #E8850F */
   --bitcoin-light: 25 100% 65%;
+  --flux-cyan: 195 100% 50%; /* #00BFFF */
+  --flux-blue: 210 100% 56%; /* #1E90FF */
+  --flux-purple: 260 60% 65%; /* #9D7EFF */
   --gold: 51 100% 50%; /* #FFD700 */
   --emerald: 158 64% 52%; /* #10B981 */
   --ruby: 0 84% 60%; /* #EF4444 */
   --sapphire: 221 83% 53%; /* #3B82F6 */
-  --gradient-primary: linear-gradient(135deg, hsl(25 95% 53%) 0%, hsl(25 91% 48%) 50%, hsl(51 100% 50%) 100%);
-  --gradient-secondary: linear-gradient(135deg, hsl(210 11% 8%) 0%, hsl(215 15% 12%) 100%);
-  --gradient-accent: linear-gradient(135deg, hsl(158 64% 52%) 0%, hsl(221 83% 53%) 100%);
+  --gradient-primary: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(210 100% 56%) 50%, hsl(260 60% 65%) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(220 18% 10%) 0%, hsl(220 15% 14%) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(260 60% 65%) 100%);
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -50,7 +53,7 @@
   --card-foreground: 20 14.3% 4.1%;
   --border: 20 5.9% 90%;
   --input: 20 5.9% 90%;
-  --primary: 25 95% 53%; /* Bitcoin orange */
+  --primary: 195 100% 50%; /* FluxTrade electric cyan */
   --primary-foreground: 0 0% 98%;
   --secondary: 60 4.8% 95.9%;
   --secondary-foreground: 24 9.8% 10%;
@@ -108,6 +111,38 @@
   
   .glow-bitcoin {
     box-shadow: 0 0 20px rgba(247, 147, 26, 0.3), 0 0 40px rgba(247, 147, 26, 0.2);
+  }
+
+  .glow-flux {
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.4), 0 0 40px rgba(0, 191, 255, 0.3);
+  }
+
+  .text-flux-cyan {
+    color: hsl(var(--flux-cyan));
+  }
+
+  .text-flux-blue {
+    color: hsl(var(--flux-blue));
+  }
+
+  .text-flux-purple {
+    color: hsl(var(--flux-purple));
+  }
+
+  .bg-flux-cyan {
+    background-color: hsl(var(--flux-cyan));
+  }
+
+  .bg-flux-blue {
+    background-color: hsl(var(--flux-blue));
+  }
+
+  .bg-flux-purple {
+    background-color: hsl(var(--flux-purple));
+  }
+
+  .border-flux-cyan {
+    border-color: hsl(var(--flux-cyan));
   }
   
   .glow-emerald {
@@ -198,9 +233,9 @@
 
 @keyframes glow {
   from {
-    box-shadow: 0 0 20px rgba(247, 147, 26, 0.2);
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.3);
   }
   to {
-    box-shadow: 0 0 30px rgba(247, 147, 26, 0.4), 0 0 40px rgba(247, 147, 26, 0.3);
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 0 40px rgba(0, 191, 255, 0.4);
   }
 }
