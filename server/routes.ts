@@ -1616,5 +1616,40 @@ You are now on the free plan and will no longer receive automatic profit updates
     }
   });
 
+  // All trades endpoint for live order book
+  app.get('/api/trades/all', async (req, res) => {
+    try {
+      const token = req.query.token as string || 'BTC';
+      
+      // Get all users' transactions
+      const allUsers = await storage.getAllUsers();
+      const allTrades: any[] = [];
+
+      for (const user of allUsers) {
+        const transactions = await storage.getUserTransactions(user.id);
+        const trades = transactions
+          .filter(t => (t.type === 'trade_buy' || t.type === 'trade_sell') && t.notes?.includes(token))
+          .map(trade => ({
+            id: trade.id,
+            type: trade.type === 'trade_buy' ? 'buy' : 'sell',
+            amount: trade.amount,
+            status: trade.status,
+            createdAt: trade.createdAt
+          }));
+        allTrades.push(...trades);
+      }
+
+      // Sort by most recent and limit to last 20 trades
+      const recentTrades = allTrades
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 20);
+
+      res.json(recentTrades);
+    } catch (error: any) {
+      console.error('Error fetching all trades:', error);
+      res.status(500).json({ message: 'Failed to fetch trades' });
+    }
+  });
+
   return httpServer;
 }

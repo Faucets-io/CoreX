@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { useLocation } from "wouter";
@@ -8,15 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowUpRight, ArrowDownLeft, Activity } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Activity, TrendingUp } from 'lucide-react';
 import { formatBitcoin } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { useBitcoinPrice } from '@/hooks/use-bitcoin-price';
 import { useCurrency } from '@/hooks/use-currency';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useEffect } from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface TradeOrder {
   id: number;
@@ -32,17 +31,18 @@ interface Token {
   symbol: string;
   name: string;
   tradingViewSymbol: string;
+  coinGeckoId: string;
 }
 
 const SUPPORTED_TOKENS: Token[] = [
-  { symbol: 'BTC', name: 'Bitcoin', tradingViewSymbol: 'BINANCE:BTCUSDT' },
-  { symbol: 'ETH', name: 'Ethereum', tradingViewSymbol: 'BINANCE:ETHUSDT' },
-  { symbol: 'BNB', name: 'BNB', tradingViewSymbol: 'BINANCE:BNBUSDT' },
-  { symbol: 'XRP', name: 'Ripple', tradingViewSymbol: 'BINANCE:XRPUSDT' },
-  { symbol: 'TRUMP', name: 'TRUMP', tradingViewSymbol: 'BINANCE:TRUMPUSDT' },
-  { symbol: 'SOL', name: 'Solana', tradingViewSymbol: 'BINANCE:SOLUSDT' },
-  { symbol: 'ADA', name: 'Cardano', tradingViewSymbol: 'BINANCE:ADAUSDT' },
-  { symbol: 'DOGE', name: 'Dogecoin', tradingViewSymbol: 'BINANCE:DOGEUSDT' },
+  { symbol: 'BTC', name: 'Bitcoin', tradingViewSymbol: 'BINANCE:BTCUSDT', coinGeckoId: 'bitcoin' },
+  { symbol: 'ETH', name: 'Ethereum', tradingViewSymbol: 'BINANCE:ETHUSDT', coinGeckoId: 'ethereum' },
+  { symbol: 'BNB', name: 'BNB', tradingViewSymbol: 'BINANCE:BNBUSDT', coinGeckoId: 'binancecoin' },
+  { symbol: 'XRP', name: 'Ripple', tradingViewSymbol: 'BINANCE:XRPUSDT', coinGeckoId: 'ripple' },
+  { symbol: 'TRUMP', name: 'TRUMP', tradingViewSymbol: 'BINANCE:TRUMPUSDT', coinGeckoId: 'official-trump' },
+  { symbol: 'SOL', name: 'Solana', tradingViewSymbol: 'BINANCE:SOLUSDT', coinGeckoId: 'solana' },
+  { symbol: 'ADA', name: 'Cardano', tradingViewSymbol: 'BINANCE:ADAUSDT', coinGeckoId: 'cardano' },
+  { symbol: 'DOGE', name: 'Dogecoin', tradingViewSymbol: 'BINANCE:DOGEUSDT', coinGeckoId: 'dogecoin' },
 ];
 
 export default function Trade() {
@@ -50,18 +50,39 @@ export default function Trade() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { data: bitcoinPrice } = useBitcoinPrice();
   const { currency } = useCurrency();
 
   const [buyAmount, setBuyAmount] = useState('');
   const [sellAmount, setSellAmount] = useState('');
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [selectedToken, setSelectedToken] = useState<Token>(SUPPORTED_TOKENS[0]);
+  const [tokenPrice, setTokenPrice] = useState<number>(0);
+  const [priceChange24h, setPriceChange24h] = useState<number>(0);
 
-  // Get current price based on selected currency
-  const currentPrice = bitcoinPrice 
-    ? (currency === 'USD' ? bitcoinPrice.usd.price : bitcoinPrice.gbp.price)
-    : 0;
+  // Fetch token price from CoinGecko
+  useEffect(() => {
+    const fetchTokenPrice = async () => {
+      try {
+        const response = await fetch(
+          `https://api.coingecko.com/api/v3/simple/price?ids=${selectedToken.coinGeckoId}&vs_currencies=usd&include_24hr_change=true`
+        );
+        const data = await response.json();
+        const tokenData = data[selectedToken.coinGeckoId];
+        if (tokenData) {
+          setTokenPrice(tokenData.usd);
+          setPriceChange24h(tokenData.usd_24h_change || 0);
+        }
+      } catch (error) {
+        console.error('Failed to fetch token price:', error);
+      }
+    };
+
+    fetchTokenPrice();
+    const interval = setInterval(fetchTokenPrice, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
+  }, [selectedToken]);
+
+  const currentPrice = tokenPrice;
 
   // Load TradingView widget
   useEffect(() => {
@@ -105,6 +126,13 @@ export default function Trade() {
     queryKey: ['/api/trades/history', user?.id],
     queryFn: () => fetch(`/api/trades/history/${user?.id}`).then(res => res.json()),
     enabled: !!user?.id,
+    refetchInterval: 5000, // Refresh every 5 seconds for live updates
+  });
+
+  const { data: allTrades } = useQuery<TradeOrder[]>({
+    queryKey: ['/api/trades/all', selectedToken.symbol],
+    queryFn: () => fetch(`/api/trades/all?token=${selectedToken.symbol}`).then(res => res.json()),
+    refetchInterval: 3000, // Refresh every 3 seconds for live order flow
   });
 
   const executeTradeMutation = useMutation({
@@ -227,11 +255,16 @@ export default function Trade() {
             <div>
               <p className="text-sm text-muted-foreground mb-1">{selectedToken.name} Price</p>
               <p className="text-3xl font-bold text-foreground">
-                ${currentPrice.toLocaleString()}
+                ${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
               </p>
+              <div className="flex items-center gap-2 mt-2">
+                <Badge variant={priceChange24h >= 0 ? "default" : "destructive"} className="text-xs">
+                  {priceChange24h >= 0 ? '+' : ''}{priceChange24h.toFixed(2)}% (24h)
+                </Badge>
+              </div>
             </div>
             <div className="w-16 h-16 rounded-xl bg-bitcoin bg-opacity-20 flex items-center justify-center">
-              <Activity className="w-8 h-8 text-bitcoin" />
+              <TrendingUp className={`w-8 h-8 ${priceChange24h >= 0 ? 'text-emerald' : 'text-ruby'}`} />
             </div>
           </div>
         </Card>
@@ -366,9 +399,58 @@ export default function Trade() {
         </Tabs>
       </div>
 
-      {/* Trade History */}
+      {/* Live Order Book */}
+      <div className="relative px-6 mb-6">
+        <h3 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
+          <Activity className="w-5 h-5 animate-pulse text-emerald" />
+          Live Trades ({selectedToken.symbol})
+        </h3>
+        <Card className="neo-card rounded-xl overflow-hidden">
+          <ScrollArea className="h-64">
+            <div className="p-4 space-y-2">
+              {allTrades && allTrades.length > 0 ? (
+                allTrades.map((trade, index) => (
+                  <div key={trade.id} className={`flex items-center justify-between p-3 rounded-lg transition-all ${
+                    index === 0 ? 'bg-emerald/10 animate-pulse' : 'hover:bg-muted/50'
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <Badge variant={trade.type === 'buy' ? 'default' : 'destructive'} className="w-12 text-center">
+                        {trade.type.toUpperCase()}
+                      </Badge>
+                      <div>
+                        <p className="font-mono text-sm font-semibold text-foreground">
+                          {parseFloat(trade.amount).toFixed(6)} {selectedToken.symbol}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(trade.createdAt).toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-foreground">
+                        ${(parseFloat(trade.amount) * currentPrice).toFixed(2)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        @${currentPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Activity className="w-12 h-12 mx-auto text-muted-foreground mb-3 opacity-50" />
+                  <p className="text-sm text-muted-foreground">No live trades yet</p>
+                  <p className="text-xs text-muted-foreground mt-1">Be the first to trade {selectedToken.symbol}</p>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </Card>
+      </div>
+
+      {/* Your Trade History */}
       <div className="relative px-6 mb-20">
-        <h3 className="text-lg font-semibold mb-4 text-foreground">Recent Trades</h3>
+        <h3 className="text-lg font-semibold mb-4 text-foreground">Your Recent Trades</h3>
         <div className="space-y-3">
           {tradeHistory && tradeHistory.length > 0 ? (
             tradeHistory.slice(0, 5).map((trade) => (
