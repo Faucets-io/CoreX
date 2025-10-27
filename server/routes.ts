@@ -482,78 +482,141 @@ function startAutomaticUpdates(): void {
   console.log('Automatic updates will run every 10 minutes');
 }
 
-// Simulated live trading system
-async function generateSimulatedTrade(): Promise<void> {
+// Market simulation storage - keeps track of simulated market activity
+const marketSimulationData = {
+  lastTrades: new Map<string, any[]>(), // Store last trades per token
+  systemUserId: 1, // Use system user ID for simulated trades
+};
+
+// Simulated market maker trading system (Binance/Bybit style)
+async function generateSimulatedMarketTrade(): Promise<void> {
   try {
     const tokens = ['BTC', 'ETH', 'BNB', 'XRP', 'TRUMP', 'SOL', 'ADA', 'DOGE'];
-    const tradeTypes = ['buy', 'sell'];
-    
-    // Random token
     const token = tokens[Math.floor(Math.random() * tokens.length)];
-    const type = tradeTypes[Math.floor(Math.random() * tradeTypes.length)] as 'buy' | 'sell';
     
-    // Generate realistic trade amounts based on token
-    let amount: number;
+    // Simulate realistic trader behavior with varying position sizes
+    const traderTypes = [
+      { name: 'whale', probability: 0.05, sizeMultiplier: 5.0 },
+      { name: 'large', probability: 0.15, sizeMultiplier: 2.5 },
+      { name: 'medium', probability: 0.30, sizeMultiplier: 1.0 },
+      { name: 'small', probability: 0.50, sizeMultiplier: 0.3 },
+    ];
+    
+    const rand = Math.random();
+    let cumulativeProbability = 0;
+    let selectedTrader = traderTypes[traderTypes.length - 1];
+    
+    for (const trader of traderTypes) {
+      cumulativeProbability += trader.probability;
+      if (rand <= cumulativeProbability) {
+        selectedTrader = trader;
+        break;
+      }
+    }
+    
+    // Generate realistic trade amounts based on token and trader type
+    let baseAmount: number;
     switch(token) {
       case 'BTC':
-        amount = parseFloat((Math.random() * 0.5 + 0.001).toFixed(8)); // 0.001 - 0.5 BTC
+        baseAmount = (Math.random() * 0.15 + 0.005) * selectedTrader.sizeMultiplier;
         break;
       case 'ETH':
-        amount = parseFloat((Math.random() * 5 + 0.01).toFixed(6)); // 0.01 - 5 ETH
+        baseAmount = (Math.random() * 2 + 0.05) * selectedTrader.sizeMultiplier;
         break;
       case 'BNB':
       case 'SOL':
-        amount = parseFloat((Math.random() * 10 + 0.1).toFixed(4)); // 0.1 - 10
+        baseAmount = (Math.random() * 5 + 0.5) * selectedTrader.sizeMultiplier;
         break;
       case 'XRP':
       case 'ADA':
       case 'DOGE':
-        amount = parseFloat((Math.random() * 1000 + 10).toFixed(2)); // 10 - 1000
+        baseAmount = (Math.random() * 500 + 50) * selectedTrader.sizeMultiplier;
         break;
       case 'TRUMP':
-        amount = parseFloat((Math.random() * 100 + 1).toFixed(3)); // 1 - 100
+        baseAmount = (Math.random() * 50 + 5) * selectedTrader.sizeMultiplier;
         break;
       default:
-        amount = parseFloat((Math.random() * 1 + 0.001).toFixed(8));
+        baseAmount = (Math.random() * 0.5 + 0.01) * selectedTrader.sizeMultiplier;
     }
-
-    // Get a random existing user (or use a system user)
-    const users = await storage.getAllUsers();
-    const randomUser = users[Math.floor(Math.random() * users.length)];
     
-    if (randomUser) {
-      // Create simulated trade transaction
-      await storage.createTransaction({
-        userId: randomUser.id,
-        type: type === 'buy' ? 'trade_buy' : 'trade_sell',
-        amount: amount.toString(),
-        status: 'completed',
-        notes: `Simulated ${type} ${amount} ${token}`,
-      });
-      
-      console.log(`🤖 Simulated ${type} trade: ${amount} ${token}`);
+    // Format amount with appropriate precision
+    const amount = token === 'BTC' 
+      ? parseFloat(baseAmount.toFixed(8))
+      : token === 'ETH'
+      ? parseFloat(baseAmount.toFixed(6))
+      : parseFloat(baseAmount.toFixed(4));
+    
+    // Slightly favor buys over sells for market optimism (55/45 split)
+    const type = Math.random() < 0.55 ? 'buy' : 'sell';
+    
+    // Create simulated market trade
+    const trade = {
+      userId: marketSimulationData.systemUserId,
+      type: type === 'buy' ? 'trade_buy' : 'trade_sell',
+      amount: amount.toString(),
+      status: 'completed',
+      notes: `Market ${type} ${amount} ${token}`,
+    };
+    
+    await storage.createTransaction(trade);
+    
+    // Store in memory for quick access
+    if (!marketSimulationData.lastTrades.has(token)) {
+      marketSimulationData.lastTrades.set(token, []);
     }
+    const trades = marketSimulationData.lastTrades.get(token)!;
+    trades.unshift({ ...trade, createdAt: new Date() });
+    if (trades.length > 50) trades.pop(); // Keep last 50 trades per token
+    
+    const emoji = type === 'buy' ? '🟢' : '🔴';
+    const traderEmoji = selectedTrader.name === 'whale' ? '🐋' : 
+                        selectedTrader.name === 'large' ? '🦈' : 
+                        selectedTrader.name === 'medium' ? '🐟' : '🐠';
+    
+    console.log(`${emoji} ${traderEmoji} Market ${type}: ${amount} ${token}`);
   } catch (error) {
-    console.error('Error generating simulated trade:', error);
+    console.error('Error generating simulated market trade:', error);
   }
 }
 
-function startSimulatedTrading(): void {
-  console.log('🚀 Starting simulated live trading system...');
+// Multiple concurrent market makers for different activity levels
+function startSimulatedMarketMaking(): void {
+  console.log('🚀 Starting market maker simulation (Binance/Bybit style)...');
   
-  // Generate a trade every 5-15 seconds randomly
-  function scheduleNextTrade() {
-    const delay = Math.random() * 10000 + 5000; // Random 5-15 seconds
+  // High frequency market maker (every 2-5 seconds)
+  function scheduleHighFrequencyTrade() {
+    const delay = Math.random() * 3000 + 2000; // 2-5 seconds
     setTimeout(async () => {
-      await generateSimulatedTrade();
-      scheduleNextTrade(); // Schedule next trade
+      await generateSimulatedMarketTrade();
+      scheduleHighFrequencyTrade();
     }, delay);
   }
   
-  // Start the first trade
-  scheduleNextTrade();
+  // Medium frequency market maker (every 5-10 seconds)
+  function scheduleMediumFrequencyTrade() {
+    const delay = Math.random() * 5000 + 5000; // 5-10 seconds
+    setTimeout(async () => {
+      await generateSimulatedMarketTrade();
+      scheduleMediumFrequencyTrade();
+    }, delay);
+  }
   
-  console.log('✅ Simulated trading active - generating random trades every 5-15 seconds');
+  // Low frequency large trades (every 15-30 seconds)
+  function scheduleLowFrequencyTrade() {
+    const delay = Math.random() * 15000 + 15000; // 15-30 seconds
+    setTimeout(async () => {
+      await generateSimulatedMarketTrade();
+      scheduleLowFrequencyTrade();
+    }, delay);
+  }
+  
+  // Start all market makers
+  scheduleHighFrequencyTrade();
+  scheduleMediumFrequencyTrade();
+  scheduleLowFrequencyTrade();
+  
+  console.log('✅ Market makers active - simulating realistic order flow');
+  console.log('📊 High frequency: 2-5s | Medium: 5-10s | Large trades: 15-30s');
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1564,8 +1627,8 @@ You are now on the free plan and will no longer receive automatic profit updates
   // Start the automatic price update system
   startAutomaticUpdates();
 
-  // Start simulated live trading
-  startSimulatedTrading();
+  // Start simulated market making (Binance/Bybit style)
+  startSimulatedMarketMaking();
 
   // Trade execution endpoint
   app.post('/api/trades/execute', async (req, res) => {
@@ -1693,45 +1756,43 @@ You are now on the free plan and will no longer receive automatic profit updates
     }
   });
 
-  // All trades endpoint for live order book
+  // All trades endpoint for live order book (market simulation only)
   app.get('/api/trades/all', async (req, res) => {
     try {
       const token = req.query.token as string || 'BTC';
       
-      // Get all users' transactions
-      const allUsers = await storage.getAllUsers();
-      const allTrades: any[] = [];
-
-      for (const user of allUsers) {
-        const transactions = await storage.getUserTransactions(user.id);
-        const trades = transactions
-          .filter(t => (t.type === 'trade_buy' || t.type === 'trade_sell'))
-          .filter(t => {
-            // Filter by token if mentioned in notes
-            if (t.notes) {
-              return t.notes.includes(token);
-            }
-            // If no notes, include all trades (backward compatibility)
-            return true;
-          })
-          .map(trade => ({
-            id: trade.id,
-            type: trade.type === 'trade_buy' ? 'buy' : 'sell',
-            amount: trade.amount,
-            status: trade.status,
-            createdAt: trade.createdAt
-          }));
-        allTrades.push(...trades);
+      // Only get simulated market trades (not real user trades)
+      const systemUser = await storage.getUser(marketSimulationData.systemUserId);
+      if (!systemUser) {
+        return res.json([]);
       }
 
-      // Sort by most recent and limit to last 30 trades for better activity
-      const recentTrades = allTrades
+      const transactions = await storage.getUserTransactions(marketSimulationData.systemUserId);
+      const marketTrades = transactions
+        .filter(t => (t.type === 'trade_buy' || t.type === 'trade_sell'))
+        .filter(t => {
+          // Filter by token if mentioned in notes
+          if (t.notes) {
+            return t.notes.includes(token);
+          }
+          return false;
+        })
+        .map(trade => ({
+          id: trade.id,
+          type: trade.type === 'trade_buy' ? 'buy' : 'sell',
+          amount: trade.amount,
+          status: trade.status,
+          createdAt: trade.createdAt
+        }));
+
+      // Sort by most recent and limit to last 40 trades for active order book
+      const recentTrades = marketTrades
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 30);
+        .slice(0, 40);
 
       res.json(recentTrades);
     } catch (error: any) {
-      console.error('Error fetching all trades:', error);
+      console.error('Error fetching market trades:', error);
       res.status(500).json({ message: 'Failed to fetch trades' });
     }
   });
