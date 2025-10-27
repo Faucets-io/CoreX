@@ -82,8 +82,8 @@ export default function Home() {
             <span className="text-black text-lg font-bold">₿</span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground bg-gradient-to-r from-bitcoin to-gold bg-clip-text text-transparent">
-              CoreX
+            <h1 className="text-2xl font-bold text-foreground bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">
+              FluxTrade
             </h1>
             <p className="text-sm text-muted-foreground font-medium">{user.email}</p>
           </div>

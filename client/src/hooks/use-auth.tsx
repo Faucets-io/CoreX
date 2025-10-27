@@ -18,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check for stored user data
-    const storedUser = localStorage.getItem('corex_user');
+    const storedUser = localStorage.getItem('fluxtrade_user');
     console.log('AuthProvider initializing, stored user:', storedUser ? 'found' : 'not found');
     if (storedUser) {
       try {
@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(userData);
       } catch (error) {
         console.error('Error parsing stored user data:', error);
-        localStorage.removeItem('corex_user');
+        localStorage.removeItem('fluxtrade_user');
       }
     }
     setIsLoading(false);
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('Login successful for user:', userData.email);
 
     // Store in localStorage first
-    localStorage.setItem('corex_user', JSON.stringify(userData));
+    localStorage.setItem('fluxtrade_user', JSON.stringify(userData));
     // Then update state synchronously
     setUser(userData);
 
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const userData = await response.json();
     setUser(userData);
-    localStorage.setItem('corex_user', JSON.stringify(userData));
+    localStorage.setItem('fluxtrade_user', JSON.stringify(userData));
   };
 
   const refreshUser = async () => {
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const updatedUser = await response.json();
         setUser(updatedUser);
-        localStorage.setItem('corex_user', JSON.stringify(updatedUser));
+        localStorage.setItem('fluxtrade_user', JSON.stringify(updatedUser));
       }
     } catch (error) {
       console.error('Error refreshing user:', error);
@@ -98,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('corex_user');
+    localStorage.removeItem('fluxtrade_user');
   };
 
   return (

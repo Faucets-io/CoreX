@@ -58,8 +58,8 @@ export default function Login() {
           <div className="w-20 h-20 mx-auto mb-6 rounded-3xl gradient-primary flex items-center justify-center animate-glow">
             <span className="text-3xl font-bold text-black">₿</span>
           </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-bitcoin to-gold bg-clip-text text-transparent mb-2">
-            Welcome to CoreX
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent mb-2">
+            Welcome to FluxTrade
           </CardTitle>
           <CardDescription className="text-lg text-muted-foreground">
             Secure access to your Bitcoin investment platform
@@ -91,7 +91,7 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder="Enter your email address"
-                  className="pl-12 h-12 rounded-xl border-border bg-card hover:border-bitcoin focus:border-bitcoin transition-all duration-300"
+                  className="pl-12 h-12 rounded-xl border-border bg-card hover:border-flux-cyan focus:border-flux-cyan transition-all duration-300"
                 />
               </div>
             </div>
@@ -107,7 +107,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="Enter your password"
-                  className="pl-12 pr-12 h-12 rounded-xl border-border bg-card hover:border-bitcoin focus:border-bitcoin transition-all duration-300"
+                  className="pl-12 pr-12 h-12 rounded-xl border-border bg-card hover:border-flux-cyan focus:border-flux-cyan transition-all duration-300"
                 />
                 <Button
                   type="button"
@@ -147,14 +147,14 @@ export default function Login() {
           <div className="text-center space-y-4">
             <div className="flex items-center gap-4">
               <div className="flex-1 h-px bg-border"></div>
-              <span className="text-sm text-muted-foreground">New to CoreX?</span>
+              <span className="text-sm text-muted-foreground">New to FluxTrade?</span>
               <div className="flex-1 h-px bg-border"></div>
             </div>
             
             <Link href="/register">
               <Button 
                 variant="outline" 
-                className="w-full h-12 rounded-xl border-bitcoin text-bitcoin hover:bg-bitcoin hover:text-black transition-all duration-300"
+                className="w-full h-12 rounded-xl border-flux-cyan text-flux-cyan hover:bg-flux-cyan hover:text-black transition-all duration-300"
               >
                 Create Account
               </Button>

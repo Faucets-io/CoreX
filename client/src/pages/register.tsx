@@ -55,7 +55,7 @@ export default function Register() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-bitcoin flex items-center justify-center">
             <span className="text-2xl font-bold text-black">₿</span>
           </div>
-          <CardTitle className="text-2xl font-bold">Join CoreX</CardTitle>
+          <CardTitle className="text-2xl font-bold">Join FluxTrade</CardTitle>
           <CardDescription>
             Create your account and get a Bitcoin wallet instantly
           </CardDescription>
