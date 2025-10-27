@@ -1492,136 +1492,126 @@ You are now on the free plan and will no longer receive automatic profit updates
 
   // Trade execution endpoint
   app.post('/api/trades/execute', async (req, res) => {
-  try {
-    const { userId, type, amount, price } = req.body;
+    try {
+      const { userId, type, amount, price } = req.body;
 
-    if (!userId || !type || !amount || !price) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, userId)
-    });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const tradeAmount = parseFloat(amount);
-    const totalCost = tradeAmount * price;
-
-    if (type === 'buy') {
-      // For buy orders, we'll just add to balance (simulated purchase)
-      const newBalance = parseFloat(user.balance) + tradeAmount;
-      
-      await db.update(users)
-        .set({ balance: newBalance.toFixed(8) })
-        .where(eq(users.id, userId));
-
-      // Create transaction record
-      await db.insert(transactions).values({
-        userId,
-        type: 'trade_buy',
-        amount: amount,
-        status: 'completed',
-        notes: `Bought ${amount} BTC at $${price.toLocaleString()}`
-      });
-
-      // Send notification
-      await db.insert(notifications).values({
-        userId,
-        title: 'Trade Executed',
-        message: `Successfully bought ${amount} BTC for $${totalCost.toFixed(2)}`,
-        type: 'success'
-      });
-
-      res.json({ 
-        type: 'buy', 
-        amount,
-        price,
-        total: totalCost,
-        status: 'completed',
-        createdAt: new Date().toISOString()
-      });
-
-    } else if (type === 'sell') {
-      // For sell orders, check if user has enough balance
-      if (parseFloat(user.balance) < tradeAmount) {
-        return res.status(400).json({ message: 'Insufficient balance' });
+      if (!userId || !type || !amount || !price) {
+        return res.status(400).json({ message: 'Missing required fields' });
       }
 
-      const newBalance = parseFloat(user.balance) - tradeAmount;
-      
-      await db.update(users)
-        .set({ balance: newBalance.toFixed(8) })
-        .where(eq(users.id, userId));
+      const user = await storage.getUser(userId);
 
-      // Create transaction record
-      await db.insert(transactions).values({
-        userId,
-        type: 'trade_sell',
-        amount: amount,
-        status: 'completed',
-        notes: `Sold ${amount} BTC at $${price.toLocaleString()}`
-      });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
 
-      // Send notification
-      await db.insert(notifications).values({
-        userId,
-        title: 'Trade Executed',
-        message: `Successfully sold ${amount} BTC for $${totalCost.toFixed(2)}`,
-        type: 'success'
-      });
+      const tradeAmount = parseFloat(amount);
+      const totalCost = tradeAmount * price;
 
-      res.json({ 
-        type: 'sell', 
-        amount,
-        price,
-        total: totalCost,
-        status: 'completed',
-        createdAt: new Date().toISOString()
-      });
-    } else {
-      res.status(400).json({ message: 'Invalid trade type' });
+      if (type === 'buy') {
+        // For buy orders, add to balance (simulated purchase)
+        const newBalance = parseFloat(user.balance) + tradeAmount;
+        
+        await storage.updateUserBalance(userId, newBalance.toFixed(8));
+
+        // Create transaction record
+        await storage.createTransaction({
+          userId,
+          type: 'trade_buy',
+          amount: amount,
+          status: 'completed',
+          notes: `Bought ${amount} BTC at $${price.toLocaleString()}`
+        });
+
+        // Send notification
+        await storage.createNotification({
+          userId,
+          title: 'Trade Executed',
+          message: `Successfully bought ${amount} BTC for $${totalCost.toFixed(2)}`,
+          type: 'success',
+          isRead: false
+        });
+
+        res.json({ 
+          type: 'buy', 
+          amount,
+          price,
+          total: totalCost,
+          status: 'completed',
+          createdAt: new Date().toISOString()
+        });
+
+      } else if (type === 'sell') {
+        // For sell orders, check if user has enough balance
+        if (parseFloat(user.balance) < tradeAmount) {
+          return res.status(400).json({ message: 'Insufficient balance' });
+        }
+
+        const newBalance = parseFloat(user.balance) - tradeAmount;
+        
+        await storage.updateUserBalance(userId, newBalance.toFixed(8));
+
+        // Create transaction record
+        await storage.createTransaction({
+          userId,
+          type: 'trade_sell',
+          amount: amount,
+          status: 'completed',
+          notes: `Sold ${amount} BTC at $${price.toLocaleString()}`
+        });
+
+        // Send notification
+        await storage.createNotification({
+          userId,
+          title: 'Trade Executed',
+          message: `Successfully sold ${amount} BTC for $${totalCost.toFixed(2)}`,
+          type: 'success',
+          isRead: false
+        });
+
+        res.json({ 
+          type: 'sell', 
+          amount,
+          price,
+          total: totalCost,
+          status: 'completed',
+          createdAt: new Date().toISOString()
+        });
+      } else {
+        res.status(400).json({ message: 'Invalid trade type' });
+      }
+    } catch (error: any) {
+      console.error('Trade execution error:', error);
+      res.status(500).json({ message: error.message || 'Failed to execute trade' });
     }
-  } catch (error: any) {
-    console.error('Trade execution error:', error);
-    res.status(500).json({ message: error.message || 'Failed to execute trade' });
-  }
-});
+  });
 
-// Trade history endpoint
-app.get('/api/trades/history/:userId', async (req, res) => {
-  try {
-    const userId = parseInt(req.params.userId);
+  // Trade history endpoint
+  app.get('/api/trades/history/:userId', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
 
-    const tradeHistory = await db.query.transactions.findMany({
-      where: and(
-        eq(transactions.userId, userId),
-        or(
-          eq(transactions.type, 'trade_buy'),
-          eq(transactions.type, 'trade_sell')
-        )
-      ),
-      orderBy: desc(transactions.createdAt),
-      limit: 50
-    });
+      const allTransactions = await storage.getUserTransactions(userId);
+      
+      // Filter for trade transactions
+      const tradeHistory = allTransactions
+        .filter(t => t.type === 'trade_buy' || t.type === 'trade_sell')
+        .slice(0, 50)
+        .map(trade => ({
+          id: trade.id,
+          type: trade.type === 'trade_buy' ? 'buy' : 'sell',
+          amount: trade.amount,
+          price: 0, // Price would need to be stored separately if needed
+          total: 0,
+          status: trade.status,
+          createdAt: trade.createdAt
+        }));
 
-    const formattedHistory = tradeHistory.map(trade => ({
-      id: trade.id,
-      type: trade.type === 'trade_buy' ? 'buy' : 'sell',
-      amount: trade.amount,
-      price: 0, // This would need to be extracted from notes or stored separately
-      total: 0,
-      status: trade.status,
-      createdAt: trade.createdAt
-    }));
-
-    res.json(formattedHistory);
-  } catch (error: any) {
-    console.error('Error fetching trade history:', error);
-    res.status(500).json({ message: 'Failed to fetch trade history' });
-  }
+      res.json(tradeHistory);
+    } catch (error: any) {
+      console.error('Error fetching trade history:', error);
+      res.status(500).json({ message: 'Failed to fetch trade history' });
+    }
   });
 
   return httpServer;
