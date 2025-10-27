@@ -31,12 +31,17 @@ export default function Trade() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { currentPrice } = useBitcoinPrice();
+  const { data: bitcoinPrice } = useBitcoinPrice();
   const { currency } = useCurrency();
 
   const [buyAmount, setBuyAmount] = useState('');
   const [sellAmount, setSellAmount] = useState('');
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
+
+  // Get current price based on selected currency
+  const currentPrice = bitcoinPrice 
+    ? (currency === 'USD' ? bitcoinPrice.usd.price : bitcoinPrice.gbp.price)
+    : 0;
 
   if (!user) {
     setLocation('/login');
