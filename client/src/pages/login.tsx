@@ -50,13 +50,13 @@ export default function Login() {
     <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background opacity-50"></div>
-      <div className="absolute top-20 right-20 w-96 h-96 bg-bitcoin opacity-5 rounded-full blur-3xl animate-pulse-slow"></div>
-      <div className="absolute bottom-20 left-20 w-64 h-64 bg-emerald opacity-5 rounded-full blur-3xl animate-float"></div>
+      <div className="absolute top-20 right-20 w-96 h-96 bg-flux-cyan opacity-5 rounded-full blur-3xl animate-pulse-slow"></div>
+      <div className="absolute bottom-20 left-20 w-64 h-64 bg-flux-purple opacity-5 rounded-full blur-3xl animate-float"></div>
       
       <Card className="w-full max-w-md relative z-10 neo-card border-0 shadow-2xl">
         <CardHeader className="text-center pb-8">
           <div className="w-20 h-20 mx-auto mb-6 rounded-3xl gradient-primary flex items-center justify-center animate-glow">
-            <span className="text-3xl font-bold text-black">₿</span>
+            <span className="text-3xl font-bold text-black">FT</span>
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent mb-2">
             Welcome to FluxTrade

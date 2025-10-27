@@ -61,7 +61,7 @@ export default function WalletSetup() {
       {/* Header */}
       <header className="px-4 py-6 border-b dark-border">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-bitcoin flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center">
             <Wallet className="w-4 h-4 text-black" />
           </div>
           <div>

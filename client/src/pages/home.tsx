@@ -72,14 +72,14 @@ export default function Home() {
     <div className="max-w-sm mx-auto bg-background min-h-screen relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background opacity-50"></div>
-      <div className="absolute top-0 right-0 w-64 h-64 bg-bitcoin opacity-5 rounded-full blur-3xl animate-pulse-slow"></div>
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald opacity-5 rounded-full blur-3xl animate-pulse-slow"></div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-flux-cyan opacity-5 rounded-full blur-3xl animate-pulse-slow"></div>
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-flux-purple opacity-5 rounded-full blur-3xl animate-pulse-slow"></div>
 
       {/* Header */}
       <header className="relative px-6 py-4 flex justify-between items-center backdrop-blur-sm">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center animate-glow shadow-lg">
-            <span className="text-black text-lg font-bold">₿</span>
+            <span className="text-black text-lg font-bold">FT</span>
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">

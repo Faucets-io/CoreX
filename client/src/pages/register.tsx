@@ -52,8 +52,8 @@ export default function Register() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-bitcoin flex items-center justify-center">
-            <span className="text-2xl font-bold text-black">₿</span>
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full gradient-primary flex items-center justify-center">
+            <span className="text-2xl font-bold text-black">FT</span>
           </div>
           <CardTitle className="text-2xl font-bold">Join FluxTrade</CardTitle>
           <CardDescription>
@@ -99,7 +99,7 @@ export default function Register() {
             </div>
             <Button 
               type="submit" 
-              className="w-full bg-bitcoin hover:bg-bitcoin/90 text-black font-semibold"
+              className="w-full gradient-primary text-black font-semibold hover:scale-105 transition-all duration-300"
               disabled={isLoading}
             >
               {isLoading ? "Creating Account..." : "Create Account"}
@@ -108,7 +108,7 @@ export default function Register() {
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="text-bitcoin hover:underline font-medium">
+              <Link href="/login" className="text-flux-cyan hover:underline font-medium">
                 Sign in
               </Link>
             </p>
