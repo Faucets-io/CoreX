@@ -482,6 +482,80 @@ function startAutomaticUpdates(): void {
   console.log('Automatic updates will run every 10 minutes');
 }
 
+// Simulated live trading system
+async function generateSimulatedTrade(): Promise<void> {
+  try {
+    const tokens = ['BTC', 'ETH', 'BNB', 'XRP', 'TRUMP', 'SOL', 'ADA', 'DOGE'];
+    const tradeTypes = ['buy', 'sell'];
+    
+    // Random token
+    const token = tokens[Math.floor(Math.random() * tokens.length)];
+    const type = tradeTypes[Math.floor(Math.random() * tradeTypes.length)] as 'buy' | 'sell';
+    
+    // Generate realistic trade amounts based on token
+    let amount: number;
+    switch(token) {
+      case 'BTC':
+        amount = parseFloat((Math.random() * 0.5 + 0.001).toFixed(8)); // 0.001 - 0.5 BTC
+        break;
+      case 'ETH':
+        amount = parseFloat((Math.random() * 5 + 0.01).toFixed(6)); // 0.01 - 5 ETH
+        break;
+      case 'BNB':
+      case 'SOL':
+        amount = parseFloat((Math.random() * 10 + 0.1).toFixed(4)); // 0.1 - 10
+        break;
+      case 'XRP':
+      case 'ADA':
+      case 'DOGE':
+        amount = parseFloat((Math.random() * 1000 + 10).toFixed(2)); // 10 - 1000
+        break;
+      case 'TRUMP':
+        amount = parseFloat((Math.random() * 100 + 1).toFixed(3)); // 1 - 100
+        break;
+      default:
+        amount = parseFloat((Math.random() * 1 + 0.001).toFixed(8));
+    }
+
+    // Get a random existing user (or use a system user)
+    const users = await storage.getAllUsers();
+    const randomUser = users[Math.floor(Math.random() * users.length)];
+    
+    if (randomUser) {
+      // Create simulated trade transaction
+      await storage.createTransaction({
+        userId: randomUser.id,
+        type: type === 'buy' ? 'trade_buy' : 'trade_sell',
+        amount: amount.toString(),
+        status: 'completed',
+        notes: `Simulated ${type} ${amount} ${token}`,
+      });
+      
+      console.log(`🤖 Simulated ${type} trade: ${amount} ${token}`);
+    }
+  } catch (error) {
+    console.error('Error generating simulated trade:', error);
+  }
+}
+
+function startSimulatedTrading(): void {
+  console.log('🚀 Starting simulated live trading system...');
+  
+  // Generate a trade every 5-15 seconds randomly
+  function scheduleNextTrade() {
+    const delay = Math.random() * 10000 + 5000; // Random 5-15 seconds
+    setTimeout(async () => {
+      await generateSimulatedTrade();
+      scheduleNextTrade(); // Schedule next trade
+    }, delay);
+  }
+  
+  // Start the first trade
+  scheduleNextTrade();
+  
+  console.log('✅ Simulated trading active - generating random trades every 5-15 seconds');
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Admin configuration routes
   app.get("/api/admin/config", async (req, res) => {
@@ -1490,6 +1564,9 @@ You are now on the free plan and will no longer receive automatic profit updates
   // Start the automatic price update system
   startAutomaticUpdates();
 
+  // Start simulated live trading
+  startSimulatedTrading();
+
   // Trade execution endpoint
   app.post('/api/trades/execute', async (req, res) => {
   try {
@@ -1628,7 +1705,15 @@ You are now on the free plan and will no longer receive automatic profit updates
       for (const user of allUsers) {
         const transactions = await storage.getUserTransactions(user.id);
         const trades = transactions
-          .filter(t => (t.type === 'trade_buy' || t.type === 'trade_sell') && t.notes?.includes(token))
+          .filter(t => (t.type === 'trade_buy' || t.type === 'trade_sell'))
+          .filter(t => {
+            // Filter by token if mentioned in notes
+            if (t.notes) {
+              return t.notes.includes(token);
+            }
+            // If no notes, include all trades (backward compatibility)
+            return true;
+          })
           .map(trade => ({
             id: trade.id,
             type: trade.type === 'trade_buy' ? 'buy' : 'sell',
@@ -1639,10 +1724,10 @@ You are now on the free plan and will no longer receive automatic profit updates
         allTrades.push(...trades);
       }
 
-      // Sort by most recent and limit to last 20 trades
+      // Sort by most recent and limit to last 30 trades for better activity
       const recentTrades = allTrades
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 20);
+        .slice(0, 30);
 
       res.json(recentTrades);
     } catch (error: any) {
