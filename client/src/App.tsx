@@ -21,6 +21,7 @@ import Withdraw from "@/pages/withdraw";
 import Deposit from "@/pages/deposit";
 import ImportWallet from "@/pages/import-wallet";
 import WalletSetup from "@/pages/wallet-setup";
+import Trade from "@/pages/trade"; // Import the new Trade component
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -42,7 +43,7 @@ function Router() {
       <Route path="/withdraw" component={Withdraw} />
       <Route path="/deposit" component={Deposit} />
       <Route path="/import-wallet" component={ImportWallet} />
-      <Route path="/wallet-setup" component={WalletSetup} />
+      <Route path="/trade" component={Trade} /> {/* Add the new trade route */}
       <Route component={NotFound} />
     </Switch>
   );

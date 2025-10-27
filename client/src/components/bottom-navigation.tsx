@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, TrendingUp, History, Settings, Shield } from "lucide-react";
+import { Home, TrendingUp, History, Settings, Shield, BarChart3 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 export function BottomNavigation() {
@@ -8,6 +8,7 @@ export function BottomNavigation() {
 
   const navItems = [
     { path: "/", icon: Home, label: "Wallet" },
+    { path: "/trade", icon: BarChart3, label: "Trade" },
     { path: "/investment", icon: TrendingUp, label: "Invest" },
     { path: "/history", icon: History, label: "History" },
     { path: "/settings", icon: Settings, label: "Settings" },
@@ -24,7 +25,7 @@ export function BottomNavigation() {
           {navItems.map((item) => {
             const isActive = location === item.path;
             const Icon = item.icon;
-            
+
             return (
               <Link key={item.path} href={item.path}>
                 <div className={`flex flex-col items-center py-3 px-4 rounded-2xl transition-all duration-300 transform hover:scale-105 ${
