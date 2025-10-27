@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Configure session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'corex-secret-key-change-in-production',
+  secret: process.env.SESSION_SECRET || 'fluxtrade-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
   cookie: {

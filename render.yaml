@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: corex-app
+    name: fluxtrade-app
     env: node
     plan: free
     buildCommand: npm ci --include=dev && npm run build && node post-build.js
@@ -10,12 +10,12 @@ services:
         value: production
       - key: DATABASE_URL
         fromDatabase:
-          name: corex-database
+          name: fluxtrade-database
           property: connectionString
     autoDeploy: false
 
 databases:
-  - name: corex-database
-    databaseName: corex
-    user: corex_user
+  - name: fluxtrade-database
+    databaseName: fluxtrade
+    user: fluxtrade_user
     plan: free
