@@ -194,6 +194,10 @@ async function syncUserBitcoinBalance(userId: number): Promise<void> {
       throw new Error('User not found');
     }
 
+    if (!user.bitcoinAddress) {
+      return; // Skip sync if user doesn't have a Bitcoin address
+    }
+
     const realBalance = await checkBitcoinBalance(user.bitcoinAddress);
     const currentBalance = parseFloat(user.balance);
     const newBalance = parseFloat(realBalance);
@@ -938,8 +942,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.createUser({
         ...userData,
         password: hashedPassword,
-        bitcoinAddress: null,
-        privateKey: null,
       });
 
       // Don't return password in response
