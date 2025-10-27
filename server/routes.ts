@@ -1490,12 +1490,8 @@ You are now on the free plan and will no longer receive automatic profit updates
   // Start the automatic price update system
   startAutomaticUpdates();
 
-  return httpServer;
-}
-
-
-// Trade execution endpoint
-app.post('/api/trades/execute', async (req, res) => {
+  // Trade execution endpoint
+  app.post('/api/trades/execute', async (req, res) => {
   try {
     const { userId, type, amount, price } = req.body;
 
@@ -1626,4 +1622,7 @@ app.get('/api/trades/history/:userId', async (req, res) => {
     console.error('Error fetching trade history:', error);
     res.status(500).json({ message: 'Failed to fetch trade history' });
   }
-});
+  });
+
+  return httpServer;
+}
