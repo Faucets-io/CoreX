@@ -399,52 +399,134 @@ export default function Trade() {
         </Tabs>
       </div>
 
-      {/* Live Order Book */}
+      {/* Order Book - Binance/Bybit Style */}
       <div className="relative px-6 mb-6">
-        <h3 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
-          <Activity className="w-5 h-5 animate-pulse text-emerald" />
-          Live Trades ({selectedToken.symbol})
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+            <Activity className="w-5 h-5 animate-pulse text-emerald" />
+            Order Book
+          </h3>
+          <Badge variant="outline" className="text-xs">
+            {allTrades?.length || 0} Live Orders
+          </Badge>
+        </div>
+        
         <Card className="neo-card rounded-xl overflow-hidden">
-          <ScrollArea className="h-64">
-            <div className="p-4 space-y-2">
-              {allTrades && allTrades.length > 0 ? (
-                allTrades.map((trade, index) => (
-                  <div key={trade.id} className={`flex items-center justify-between p-3 rounded-lg transition-all ${
-                    index === 0 ? 'bg-emerald/10 animate-pulse' : 'hover:bg-muted/50'
-                  }`}>
-                    <div className="flex items-center gap-3">
-                      <Badge variant={trade.type === 'buy' ? 'default' : 'destructive'} className="w-12 text-center">
-                        {trade.type.toUpperCase()}
-                      </Badge>
-                      <div>
-                        <p className="font-mono text-sm font-semibold text-foreground">
-                          {parseFloat(trade.amount).toFixed(6)} {selectedToken.symbol}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(trade.createdAt).toLocaleTimeString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-foreground">
-                        ${(parseFloat(trade.amount) * currentPrice).toFixed(2)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        @${currentPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <Activity className="w-12 h-12 mx-auto text-muted-foreground mb-3 opacity-50" />
-                  <p className="text-sm text-muted-foreground">No live trades yet</p>
-                  <p className="text-xs text-muted-foreground mt-1">Be the first to trade {selectedToken.symbol}</p>
-                </div>
-              )}
+          <div className="p-4">
+            {/* Header */}
+            <div className="grid grid-cols-3 gap-2 pb-3 border-b border-border/50 text-xs text-muted-foreground font-medium">
+              <div className="text-left">Price (USD)</div>
+              <div className="text-right">Amount ({selectedToken.symbol})</div>
+              <div className="text-right">Total (USD)</div>
             </div>
-          </ScrollArea>
+
+            {/* Asks (Sell Orders) - Red */}
+            <ScrollArea className="h-48 mt-2">
+              <div className="space-y-1">
+                {allTrades && allTrades.length > 0 ? (
+                  allTrades
+                    .filter(trade => trade.type === 'sell')
+                    .slice(0, 15)
+                    .map((trade, index) => {
+                      const amount = parseFloat(trade.amount);
+                      const total = amount * currentPrice;
+                      const depth = Math.min((amount / 10) * 100, 100); // Visual depth indicator
+                      
+                      return (
+                        <div
+                          key={trade.id}
+                          className={`relative grid grid-cols-3 gap-2 py-1.5 px-2 text-sm hover:bg-ruby/5 transition-all ${
+                            index === 0 ? 'animate-pulse' : ''
+                          }`}
+                        >
+                          {/* Depth visualization */}
+                          <div 
+                            className="absolute right-0 top-0 bottom-0 bg-ruby/10 transition-all"
+                            style={{ width: `${depth}%` }}
+                          />
+                          
+                          <div className="text-ruby font-mono font-semibold relative z-10">
+                            ${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </div>
+                          <div className="text-foreground text-right font-mono relative z-10">
+                            {amount.toFixed(6)}
+                          </div>
+                          <div className="text-muted-foreground text-right font-mono relative z-10">
+                            ${total.toFixed(2)}
+                          </div>
+                        </div>
+                      );
+                    })
+                ) : (
+                  <div className="py-4 text-center text-sm text-muted-foreground">
+                    No sell orders
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+
+            {/* Current Price Ticker */}
+            <div className="my-3 py-3 px-4 bg-gradient-to-r from-flux-cyan/10 to-flux-purple/10 rounded-lg border border-flux-cyan/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">Current Price</p>
+                  <p className={`text-2xl font-bold font-mono ${priceChange24h >= 0 ? 'text-emerald' : 'text-ruby'}`}>
+                    ${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <Badge variant={priceChange24h >= 0 ? "default" : "destructive"} className="text-xs">
+                    {priceChange24h >= 0 ? '↑' : '↓'} {Math.abs(priceChange24h).toFixed(2)}%
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            {/* Bids (Buy Orders) - Green */}
+            <ScrollArea className="h-48">
+              <div className="space-y-1">
+                {allTrades && allTrades.length > 0 ? (
+                  allTrades
+                    .filter(trade => trade.type === 'buy')
+                    .slice(0, 15)
+                    .map((trade, index) => {
+                      const amount = parseFloat(trade.amount);
+                      const total = amount * currentPrice;
+                      const depth = Math.min((amount / 10) * 100, 100);
+                      
+                      return (
+                        <div
+                          key={trade.id}
+                          className={`relative grid grid-cols-3 gap-2 py-1.5 px-2 text-sm hover:bg-emerald/5 transition-all ${
+                            index === 0 ? 'animate-pulse' : ''
+                          }`}
+                        >
+                          {/* Depth visualization */}
+                          <div 
+                            className="absolute right-0 top-0 bottom-0 bg-emerald/10 transition-all"
+                            style={{ width: `${depth}%` }}
+                          />
+                          
+                          <div className="text-emerald font-mono font-semibold relative z-10">
+                            ${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </div>
+                          <div className="text-foreground text-right font-mono relative z-10">
+                            {amount.toFixed(6)}
+                          </div>
+                          <div className="text-muted-foreground text-right font-mono relative z-10">
+                            ${total.toFixed(2)}
+                          </div>
+                        </div>
+                      );
+                    })
+                ) : (
+                  <div className="py-4 text-center text-sm text-muted-foreground">
+                    No buy orders
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
         </Card>
       </div>
 
