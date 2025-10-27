@@ -1,9 +1,10 @@
+
 services:
   - type: web
     name: fluxtrade-app
     env: node
     plan: free
-    buildCommand: npm ci --include=dev && npm run build && node post-build.js
+    buildCommand: npm ci && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -12,7 +13,9 @@ services:
         fromDatabase:
           name: fluxtrade-database
           property: connectionString
-    autoDeploy: false
+      - key: SESSION_SECRET
+        generateValue: true
+    autoDeploy: true
 
 databases:
   - name: fluxtrade-database
