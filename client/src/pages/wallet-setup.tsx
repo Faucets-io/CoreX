@@ -76,12 +76,12 @@ export default function WalletSetup() {
         <Card className="dark-card dark-border">
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-bitcoin/10 flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-8 h-8 text-bitcoin" />
+              <div className="w-16 h-16 rounded-full bg-flux-cyan/10 flex items-center justify-center mx-auto mb-4">
+                <Shield className="w-8 h-8 text-flux-cyan" />
               </div>
-              <h3 className="text-lg font-semibold mb-2 text-foreground">Welcome to CoreX</h3>
+              <h3 className="text-lg font-semibold mb-2 text-foreground">Welcome to FluxTrade</h3>
               <p className="text-sm text-muted-foreground">
-                To start using CoreX, you need to set up your Bitcoin wallet. Choose one of the options below to continue.
+                To start using FluxTrade, you need to set up your Bitcoin wallet. Choose one of the options below to continue.
               </p>
             </div>
           </CardContent>
@@ -91,7 +91,7 @@ export default function WalletSetup() {
         <Card className="dark-card dark-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Plus className="w-5 h-5 text-bitcoin" />
+              <Plus className="w-5 h-5 text-flux-cyan" />
               Create New Wallet
             </CardTitle>
           </CardHeader>
@@ -111,7 +111,7 @@ export default function WalletSetup() {
               <Button 
                 onClick={() => createWalletMutation.mutate()}
                 disabled={createWalletMutation.isPending}
-                className="w-full bg-bitcoin hover:bg-bitcoin/90 text-black font-semibold"
+                className="w-full gradient-primary text-black font-semibold hover:scale-105 transition-all duration-300"
               >
                 {createWalletMutation.isPending ? "Creating Wallet..." : "Create New Wallet"}
               </Button>
@@ -123,7 +123,7 @@ export default function WalletSetup() {
         <Card className="dark-card dark-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Download className="w-5 h-5 text-bitcoin" />
+              <Download className="w-5 h-5 text-flux-cyan" />
               Import Existing Wallet
             </CardTitle>
           </CardHeader>
