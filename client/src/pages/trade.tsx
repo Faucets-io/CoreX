@@ -8,13 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowUpRight, ArrowDownLeft, TrendingUp, TrendingDown, Activity, DollarSign } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Activity } from 'lucide-react';
 import { formatBitcoin } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { useBitcoinPrice } from '@/hooks/use-bitcoin-price';
 import { useCurrency } from '@/hooks/use-currency';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useEffect } from 'react';
 
 interface TradeOrder {
   id: number;
@@ -25,6 +27,23 @@ interface TradeOrder {
   status: 'completed' | 'pending' | 'failed';
   createdAt: string;
 }
+
+interface Token {
+  symbol: string;
+  name: string;
+  tradingViewSymbol: string;
+}
+
+const SUPPORTED_TOKENS: Token[] = [
+  { symbol: 'BTC', name: 'Bitcoin', tradingViewSymbol: 'BINANCE:BTCUSDT' },
+  { symbol: 'ETH', name: 'Ethereum', tradingViewSymbol: 'BINANCE:ETHUSDT' },
+  { symbol: 'BNB', name: 'BNB', tradingViewSymbol: 'BINANCE:BNBUSDT' },
+  { symbol: 'XRP', name: 'Ripple', tradingViewSymbol: 'BINANCE:XRPUSDT' },
+  { symbol: 'TRUMP', name: 'TRUMP', tradingViewSymbol: 'BINANCE:TRUMPUSDT' },
+  { symbol: 'SOL', name: 'Solana', tradingViewSymbol: 'BINANCE:SOLUSDT' },
+  { symbol: 'ADA', name: 'Cardano', tradingViewSymbol: 'BINANCE:ADAUSDT' },
+  { symbol: 'DOGE', name: 'Dogecoin', tradingViewSymbol: 'BINANCE:DOGEUSDT' },
+];
 
 export default function Trade() {
   const { user, refreshUser } = useAuth();
@@ -37,11 +56,45 @@ export default function Trade() {
   const [buyAmount, setBuyAmount] = useState('');
   const [sellAmount, setSellAmount] = useState('');
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
+  const [selectedToken, setSelectedToken] = useState<Token>(SUPPORTED_TOKENS[0]);
 
   // Get current price based on selected currency
   const currentPrice = bitcoinPrice 
     ? (currency === 'USD' ? bitcoinPrice.usd.price : bitcoinPrice.gbp.price)
     : 0;
+
+  // Load TradingView widget
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://s3.tradingview.com/tv.js';
+    script.async = true;
+    script.onload = () => {
+      if (window.TradingView) {
+        new window.TradingView.widget({
+          autosize: true,
+          symbol: selectedToken.tradingViewSymbol,
+          interval: "D",
+          timezone: "Etc/UTC",
+          theme: "dark",
+          style: "1",
+          locale: "en",
+          toolbar_bg: "#0a0e1a",
+          enable_publishing: false,
+          hide_side_toolbar: false,
+          allow_symbol_change: true,
+          container_id: "tradingview_chart",
+          backgroundColor: "#0a0e1a",
+          gridColor: "#1a1e2e",
+          height: 400,
+        });
+      }
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, [selectedToken]);
 
   if (!user) {
     setLocation('/login');
@@ -63,7 +116,8 @@ export default function Trade() {
           userId: user.id, 
           type: data.type,
           amount: data.amount,
-          price: currentPrice
+          price: currentPrice,
+          token: selectedToken.symbol
         }),
       });
       
@@ -77,7 +131,7 @@ export default function Trade() {
     onSuccess: (data) => {
       toast({
         title: "Trade Executed",
-        description: `Successfully ${data.type === 'buy' ? 'bought' : 'sold'} ${data.amount} BTC`,
+        description: `Successfully ${data.type === 'buy' ? 'bought' : 'sold'} ${data.amount} ${selectedToken.symbol}`,
       });
       queryClient.invalidateQueries({ queryKey: ['/api/trades/history'] });
       refreshUser();
@@ -121,7 +175,7 @@ export default function Trade() {
   const sellTotal = sellAmount ? (parseFloat(sellAmount) * currentPrice).toFixed(2) : '0.00';
 
   return (
-    <div className="max-w-sm mx-auto bg-background min-h-screen relative">
+    <div className="max-w-sm mx-auto bg-background min-h-screen relative pb-20">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background opacity-50"></div>
       <div className="absolute top-0 right-0 w-64 h-64 bg-flux-cyan opacity-5 rounded-full blur-3xl animate-pulse-slow"></div>
@@ -132,16 +186,46 @@ export default function Trade() {
           <h1 className="text-2xl font-bold text-foreground bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">
             Spot Trading
           </h1>
-          <p className="text-sm text-muted-foreground font-medium">Buy and sell Bitcoin instantly</p>
+          <p className="text-sm text-muted-foreground font-medium">Trade popular cryptocurrencies</p>
         </div>
       </header>
+
+      {/* Token Selector */}
+      <div className="relative px-6 mb-4">
+        <Label className="text-sm text-muted-foreground mb-2 block">Select Token</Label>
+        <Select value={selectedToken.symbol} onValueChange={(value) => {
+          const token = SUPPORTED_TOKENS.find(t => t.symbol === value);
+          if (token) setSelectedToken(token);
+        }}>
+          <SelectTrigger className="neo-card rounded-xl h-12">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {SUPPORTED_TOKENS.map((token) => (
+              <SelectItem key={token.symbol} value={token.symbol}>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold">{token.symbol}</span>
+                  <span className="text-muted-foreground text-sm">- {token.name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* TradingView Chart */}
+      <div className="relative px-6 mb-6">
+        <Card className="neo-card rounded-2xl overflow-hidden">
+          <div id="tradingview_chart" style={{ height: '400px' }}></div>
+        </Card>
+      </div>
 
       {/* Current Price Card */}
       <div className="relative px-6 mb-6">
         <Card className="neo-card rounded-2xl p-6 hover:glow-bitcoin transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Bitcoin Price</p>
+              <p className="text-sm text-muted-foreground mb-1">{selectedToken.name} Price</p>
               <p className="text-3xl font-bold text-foreground">
                 ${currentPrice.toLocaleString()}
               </p>
@@ -157,7 +241,7 @@ export default function Trade() {
       <div className="relative px-6 mb-6">
         <div className="grid grid-cols-2 gap-4">
           <Card className="neo-card rounded-xl p-4">
-            <p className="text-xs text-muted-foreground mb-2">BTC Balance</p>
+            <p className="text-xs text-muted-foreground mb-2">{selectedToken.symbol} Balance</p>
             <p className="text-lg font-bold text-foreground">{formatBitcoin(user.balance)}</p>
           </Card>
           <Card className="neo-card rounded-xl p-4">
@@ -193,7 +277,7 @@ export default function Trade() {
             <Card className="neo-card rounded-2xl p-6">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="buy-amount" className="text-foreground">Amount (BTC)</Label>
+                  <Label htmlFor="buy-amount" className="text-foreground">Amount ({selectedToken.symbol})</Label>
                   <Input
                     id="buy-amount"
                     type="number"
@@ -207,7 +291,7 @@ export default function Trade() {
 
                 <div className="glass-card rounded-xl p-4 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Price per BTC</span>
+                    <span className="text-muted-foreground">Price per {selectedToken.symbol}</span>
                     <span className="text-foreground font-medium">${currentPrice.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
@@ -221,7 +305,7 @@ export default function Trade() {
                   disabled={executeTradeMutation.isPending || !buyAmount}
                   className="w-full bg-emerald hover:bg-emerald/90 text-white font-semibold rounded-xl h-12 hover:scale-105 transition-all duration-300"
                 >
-                  {executeTradeMutation.isPending ? 'Processing...' : 'Buy Bitcoin'}
+                  {executeTradeMutation.isPending ? 'Processing...' : `Buy ${selectedToken.symbol}`}
                 </Button>
 
                 <div className="text-xs text-muted-foreground space-y-1">
@@ -237,7 +321,7 @@ export default function Trade() {
             <Card className="neo-card rounded-2xl p-6">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="sell-amount" className="text-foreground">Amount (BTC)</Label>
+                  <Label htmlFor="sell-amount" className="text-foreground">Amount ({selectedToken.symbol})</Label>
                   <Input
                     id="sell-amount"
                     type="number"
@@ -248,13 +332,13 @@ export default function Trade() {
                     className="mt-2 font-mono"
                   />
                   <p className="text-xs text-muted-foreground mt-2">
-                    Available: {formatBitcoin(user.balance)} BTC
+                    Available: {formatBitcoin(user.balance)} {selectedToken.symbol}
                   </p>
                 </div>
 
                 <div className="glass-card rounded-xl p-4 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Price per BTC</span>
+                    <span className="text-muted-foreground">Price per {selectedToken.symbol}</span>
                     <span className="text-foreground font-medium">${currentPrice.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
@@ -268,7 +352,7 @@ export default function Trade() {
                   disabled={executeTradeMutation.isPending || !sellAmount}
                   className="w-full bg-ruby hover:bg-ruby/90 text-white font-semibold rounded-xl h-12 hover:scale-105 transition-all duration-300"
                 >
-                  {executeTradeMutation.isPending ? 'Processing...' : 'Sell Bitcoin'}
+                  {executeTradeMutation.isPending ? 'Processing...' : `Sell ${selectedToken.symbol}`}
                 </Button>
 
                 <div className="text-xs text-muted-foreground space-y-1">
@@ -303,7 +387,7 @@ export default function Trade() {
                       )}
                     </div>
                     <div>
-                      <p className="font-semibold text-foreground capitalize">{trade.type} BTC</p>
+                      <p className="font-semibold text-foreground capitalize">{trade.type} {selectedToken.symbol}</p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(trade.createdAt).toLocaleDateString()}
                       </p>
