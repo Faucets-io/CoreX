@@ -17,7 +17,7 @@ export function WalletBalance() {
 
   const priceData = bitcoinPrice ? (currency === 'USD' ? bitcoinPrice.usd : bitcoinPrice.gbp) : null;
   const btcAmount = parseFloat(user.balance);
-  const usdValue = priceData ? btcToUsd(btcAmount, priceData.usd.price) : 0;
+  const usdValue = priceData?.price ? btcToUsd(btcAmount, priceData.price) : 0;
 
   return (
     <div className="px-6 mb-8">

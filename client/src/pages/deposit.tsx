@@ -194,19 +194,19 @@ export default function Deposit() {
               <div>
                 <Label htmlFor="amount">Amount (USD)</Label>
                 <Input
-                  id="amount"
-                  type="number"
-                  step="0.01"
-                  placeholder="100.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="mt-1"
-                />
-                {amount && priceData && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    ≈ {usdToBtc(amount, priceData.usd.price)} BTC
-                  </p>
-                )}
+                id="amount"
+                type="number"
+                step="0.01"
+                placeholder="100.00"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="mt-1"
+              />
+              {amount && priceData?.usd?.price && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  ≈ {usdToBtc(amount, priceData.usd.price)} BTC
+                </p>
+              )}
               </div>
               <div>
                 <Label htmlFor="txHash">Transaction Hash (Optional)</Label>

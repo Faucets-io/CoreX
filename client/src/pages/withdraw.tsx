@@ -25,7 +25,7 @@ export default function Withdraw() {
   const withdrawMutation = useMutation({
     mutationFn: async (data: { address: string; amount: string }) => {
       // Convert USD to BTC before sending
-      const btcAmount = priceData ? usdToBtc(data.amount, priceData.usd.price) : data.amount;
+      const btcAmount = priceData?.usd?.price ? usdToBtc(data.amount, priceData.usd.price) : data.amount;
       const response = await fetch('/api/withdraw', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,7 +66,7 @@ export default function Withdraw() {
 
     const amountNum = parseFloat(amount);
     // Assuming user balance is in BTC, convert to USD for comparison
-    const userBalanceUsd = priceData ? btcToUsd(user?.balance || "0", priceData.usd.price) : parseFloat(user?.balance || "0");
+    const userBalanceUsd = priceData?.usd?.price ? btcToUsd(user?.balance || "0", priceData.usd.price) : parseFloat(user?.balance || "0");
 
     if (amountNum <= 0) {
       toast({
@@ -121,7 +121,7 @@ export default function Withdraw() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-bitcoin">
-              {priceData ? formatUsd(btcToUsd(user.balance, priceData.usd.price)) : `${user.balance} BTC`}
+              {priceData?.usd?.price ? formatUsd(btcToUsd(user.balance, priceData.usd.price)) : `${user.balance} BTC`}
             </p>
           </CardContent>
         </Card>
@@ -156,9 +156,9 @@ export default function Withdraw() {
                 className="mt-1"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Available: {priceData ? formatUsd(btcToUsd(user.balance, priceData.usd.price)) : `${user.balance} BTC`}
+                Available: {priceData?.usd?.price ? formatUsd(btcToUsd(user.balance, priceData.usd.price)) : `${user.balance} BTC`}
               </p>
-              {amount && priceData && (
+              {amount && priceData?.usd?.price && (
                 <p className="text-xs text-muted-foreground mt-1">
                   ≈ {usdToBtc(amount, priceData.usd.price)} BTC
                 </p>
@@ -168,7 +168,7 @@ export default function Withdraw() {
             <div className="pt-4">
               <Button
                 onClick={handleWithdraw}
-                disabled={withdrawMutation.isPending || !address || !amount || !priceData}
+                disabled={withdrawMutation.isPending || !address || !amount || !priceData?.usd?.price}
                 className="w-full bg-bitcoin hover:bg-bitcoin/90 text-black font-semibold"
               >
                 {withdrawMutation.isPending ? (
