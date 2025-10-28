@@ -85,12 +85,12 @@ export default function Investment() {
                 <Card key={transaction.id} className="dark-card rounded-xl p-4 dark-border">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h4 className="font-semibold text-orange-400">{getPlanName(transaction.planId || 1)}</h4>
+                      <h4 className="font-semibold text-flux-cyan">{getPlanName(transaction.planId || 1)}</h4>
                       <p className="text-muted-foreground text-sm">
                         Submitted: {formatDate(new Date(transaction.createdAt))}
                       </p>
                     </div>
-                    <span className="bg-orange-500 bg-opacity-20 text-orange-400 px-2 py-1 rounded-full text-xs">
+                    <span className="bg-flux-cyan bg-opacity-20 text-flux-cyan px-2 py-1 rounded-full text-xs">
                       Pending
                     </span>
                   </div>
@@ -171,7 +171,7 @@ export default function Investment() {
                   <Card key={investment.id} className="dark-card rounded-xl p-4 dark-border">
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <h4 className="font-semibold text-gold">{getPlanName(investment.planId)}</h4>
+                        <h4 className="font-semibold text-flux-cyan">{getPlanName(investment.planId)}</h4>
                         <p className="text-muted-foreground text-sm">
                           Started: {formatDate(new Date(investment.startDate))}
                         </p>

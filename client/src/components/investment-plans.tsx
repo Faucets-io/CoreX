@@ -27,6 +27,7 @@ export function InvestmentPlans() {
         body: JSON.stringify({
           planId,
           amount,
+          userId: user?.id,
         }),
       });
 
@@ -84,23 +85,19 @@ export function InvestmentPlans() {
   const getGradientClass = (color: string) => {
     switch (color) {
       case 'orange':
-        return 'bg-gradient-to-r from-yellow-600 to-yellow-500';
+        return 'bg-gradient-to-r from-flux-cyan to-flux-blue';
       case 'gray':
-        return 'bg-gradient-to-r from-gray-600 to-gray-500';
+        return 'bg-gradient-to-r from-flux-blue to-sapphire';
       case 'gold':
-        return 'bg-gradient-to-r from-yellow-500 to-yellow-400';
+        return 'bg-gradient-to-r from-flux-cyan to-flux-purple';
       default:
-        return 'bg-gradient-to-r from-gray-600 to-gray-500';
+        return 'bg-gradient-to-r from-flux-blue to-sapphire';
     }
   };
 
   const getTextColorClass = (color: string) => {
-    switch (color) {
-      case 'gold':
-        return 'text-yellow-900';
-      default:
-        return 'text-white';
-    }
+    // All plans now use white text for better contrast
+    return 'text-white';
   };
 
   return (

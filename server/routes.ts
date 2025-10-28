@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 
-// Extend Express Request type to include session
+// Extend Express Session type to include session
 declare module 'express-session' {
   interface SessionData {
     userId: number;
@@ -493,7 +493,7 @@ async function generateSimulatedMarketTrade(): Promise<void> {
   try {
     const tokens = ['BTC', 'ETH', 'BNB', 'XRP', 'TRUMP', 'SOL', 'ADA', 'DOGE'];
     const token = tokens[Math.floor(Math.random() * tokens.length)];
-    
+
     // Simulate realistic trader behavior with varying position sizes
     const traderTypes = [
       { name: 'whale', probability: 0.05, sizeMultiplier: 5.0 },
@@ -501,11 +501,11 @@ async function generateSimulatedMarketTrade(): Promise<void> {
       { name: 'medium', probability: 0.30, sizeMultiplier: 1.0 },
       { name: 'small', probability: 0.50, sizeMultiplier: 0.3 },
     ];
-    
+
     const rand = Math.random();
     let cumulativeProbability = 0;
     let selectedTrader = traderTypes[traderTypes.length - 1];
-    
+
     for (const trader of traderTypes) {
       cumulativeProbability += trader.probability;
       if (rand <= cumulativeProbability) {
@@ -513,7 +513,7 @@ async function generateSimulatedMarketTrade(): Promise<void> {
         break;
       }
     }
-    
+
     // Generate realistic trade amounts based on token and trader type
     let baseAmount: number;
     switch(token) {
@@ -538,17 +538,17 @@ async function generateSimulatedMarketTrade(): Promise<void> {
       default:
         baseAmount = (Math.random() * 0.5 + 0.01) * selectedTrader.sizeMultiplier;
     }
-    
+
     // Format amount with appropriate precision
     const amount = token === 'BTC' 
       ? parseFloat(baseAmount.toFixed(8))
       : token === 'ETH'
       ? parseFloat(baseAmount.toFixed(6))
       : parseFloat(baseAmount.toFixed(4));
-    
+
     // Slightly favor buys over sells for market optimism (55/45 split)
     const type = Math.random() < 0.55 ? 'buy' : 'sell';
-    
+
     // Create simulated market trade
     const trade = {
       userId: marketSimulationData.systemUserId,
@@ -557,9 +557,9 @@ async function generateSimulatedMarketTrade(): Promise<void> {
       status: 'completed',
       notes: `Market ${type} ${amount} ${token}`,
     };
-    
+
     await storage.createTransaction(trade);
-    
+
     // Store in memory for quick access
     if (!marketSimulationData.lastTrades.has(token)) {
       marketSimulationData.lastTrades.set(token, []);
@@ -567,12 +567,12 @@ async function generateSimulatedMarketTrade(): Promise<void> {
     const trades = marketSimulationData.lastTrades.get(token)!;
     trades.unshift({ ...trade, createdAt: new Date() });
     if (trades.length > 50) trades.pop(); // Keep last 50 trades per token
-    
+
     const emoji = type === 'buy' ? '🟢' : '🔴';
     const traderEmoji = selectedTrader.name === 'whale' ? '🐋' : 
                         selectedTrader.name === 'large' ? '🦈' : 
                         selectedTrader.name === 'medium' ? '🐟' : '🐠';
-    
+
     console.log(`${emoji} ${traderEmoji} Market ${type}: ${amount} ${token}`);
   } catch (error) {
     console.error('Error generating simulated market trade:', error);
@@ -582,7 +582,7 @@ async function generateSimulatedMarketTrade(): Promise<void> {
 // Multiple concurrent market makers for different activity levels
 function startSimulatedMarketMaking(): void {
   console.log('🚀 Starting market maker simulation (Binance/Bybit style)...');
-  
+
   // High frequency market maker (every 2-5 seconds)
   function scheduleHighFrequencyTrade() {
     const delay = Math.random() * 3000 + 2000; // 2-5 seconds
@@ -591,7 +591,7 @@ function startSimulatedMarketMaking(): void {
       scheduleHighFrequencyTrade();
     }, delay);
   }
-  
+
   // Medium frequency market maker (every 5-10 seconds)
   function scheduleMediumFrequencyTrade() {
     const delay = Math.random() * 5000 + 5000; // 5-10 seconds
@@ -600,7 +600,7 @@ function startSimulatedMarketMaking(): void {
       scheduleMediumFrequencyTrade();
     }, delay);
   }
-  
+
   // Low frequency large trades (every 15-30 seconds)
   function scheduleLowFrequencyTrade() {
     const delay = Math.random() * 15000 + 15000; // 15-30 seconds
@@ -609,12 +609,12 @@ function startSimulatedMarketMaking(): void {
       scheduleLowFrequencyTrade();
     }, delay);
   }
-  
+
   // Start all market makers
   scheduleHighFrequencyTrade();
   scheduleMediumFrequencyTrade();
   scheduleLowFrequencyTrade();
-  
+
   console.log('✅ Market makers active - simulating realistic order flow');
   console.log('📊 High frequency: 2-5s | Medium: 5-10s | Large trades: 15-30s');
 }
@@ -699,13 +699,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/invest", async (req, res) => {
+  // Investment endpoint
+  app.post('/api/invest', async (req, res) => {
     try {
-      if (!req.session?.userId) {
-        return res.status(401).json({ error: "Authentication required" });
-      }
-
       const { planId, amount, transactionHash } = investmentTransactionSchema.parse(req.body);
+
+      // Get user from session or body
+      const userId = req.body.userId || req.session?.userId;
+
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
 
       // Verify plan exists
       const plan = await storage.getInvestmentPlan(planId);
@@ -714,7 +718,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const transaction = await storage.createTransaction({
-        userId: req.session.userId,
+        userId,
         type: "investment",
         amount,
         planId,
@@ -723,7 +727,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create notification for user
       await storage.createNotification({
-        userId: req.session.userId,
+        userId,
         title: "Investment Pending",
         message: `Your investment of ${amount} BTC in ${plan.name} is pending confirmation. You will be notified once it's processed.`,
         type: "info"
@@ -1800,7 +1804,7 @@ You are now on the free plan and will no longer receive automatic profit updates
   app.get('/api/trades/all', async (req, res) => {
     try {
       const token = req.query.token as string || 'BTC';
-      
+
       // Only get simulated market trades (not real user trades)
       const systemUser = await storage.getUser(marketSimulationData.systemUserId);
       if (!systemUser) {

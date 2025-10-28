@@ -77,13 +77,13 @@
   --radius: 0.75rem;
   
   /* Trading Colors */
-  --bitcoin: 25 95% 53%; /* #F7931A */
-  --bitcoin-dark: 25 91% 48%; /* #E8850F */
-  --bitcoin-light: 25 100% 65%;
+  --bitcoin: 195 100% 50%; /* Using FluxTrade cyan for Bitcoin */
+  --bitcoin-dark: 195 100% 45%;
+  --bitcoin-light: 195 100% 60%;
   --flux-cyan: 195 100% 50%; /* #00BFFF - Primary brand color */
   --flux-blue: 210 100% 56%; /* #1E90FF */
   --flux-purple: 260 60% 65%; /* #9D7EFF */
-  --gold: 45 93% 58%; /* #F0B90B - Binance gold */
+  --gold: 195 100% 50%; /* Using FluxTrade cyan instead of gold */
   --emerald: 141 71% 48%; /* #16C784 - CoinMarketCap green */
   --ruby: 0 91% 71%; /* #FC466B - Modern red */
   --sapphire: 221 83% 53%; /* #3B82F6 */
@@ -123,13 +123,13 @@
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 60 9.1% 97.8%;
   --ring: 20 14.3% 4.1%;
-  --bitcoin: 25 95% 53%; /* #F7931A */
-  --bitcoin-dark: 25 91% 48%; /* #E8850F */
-  --bitcoin-light: 25 100% 65%;
+  --bitcoin: 195 100% 45%; /* Using FluxTrade cyan for Bitcoin */
+  --bitcoin-dark: 195 100% 40%;
+  --bitcoin-light: 195 100% 55%;
   --flux-cyan: 195 100% 45%; /* Darker for light mode */
   --flux-blue: 210 100% 50%;
   --flux-purple: 260 60% 55%;
-  --gold: 45 93% 48%; /* Darker gold for light mode */
+  --gold: 195 100% 45%; /* Using FluxTrade cyan instead of gold */
   --emerald: 141 71% 38%; /* Darker emerald for light mode */
   --ruby: 0 91% 61%;
   --sapphire: 221 83% 43%;
