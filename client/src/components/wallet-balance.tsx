@@ -22,16 +22,16 @@ export function WalletBalance() {
     <div className="px-6 mb-8">
       <Card className="gradient-primary rounded-3xl p-8 relative overflow-hidden border-0 shadow-2xl animate-glow">
         {/* Background decorative elements */}
-        <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -translate-y-20 translate-x-20 animate-pulse-slow"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full translate-y-16 -translate-x-16 animate-float"></div>
+        <div className="absolute top-0 right-0 w-40 h-40 bg-white dark:bg-white opacity-10 rounded-full -translate-y-20 translate-x-20 animate-pulse-slow"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white dark:bg-white opacity-5 rounded-full translate-y-16 -translate-x-16 animate-float"></div>
         
         {/* Security indicators */}
         <div className="absolute top-4 right-4 flex gap-2">
-          <div className="w-8 h-8 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
-            <Shield className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-full bg-white dark:bg-white bg-opacity-20 dark:bg-opacity-20 flex items-center justify-center">
+            <Shield className="w-4 h-4 text-white dark:text-white" />
           </div>
-          <div className="w-8 h-8 rounded-full bg-white bg-opacity-20 flex items-center justify-center animate-pulse">
-            <Zap className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-full bg-white dark:bg-white bg-opacity-20 dark:bg-opacity-20 flex items-center justify-center animate-pulse">
+            <Zap className="w-4 h-4 text-white dark:text-white" />
           </div>
         </div>
 

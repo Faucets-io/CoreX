@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/use-auth";
 import { useCurrency } from "@/hooks/use-currency";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +12,7 @@ import { Link } from "wouter";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Settings() {
   const { user, logout } = useAuth();
@@ -100,13 +100,13 @@ export default function Settings() {
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
-            
+
             return (
-              <Card 
+              <Card
                 key={item.id}
                 className={`cursor-pointer transition-all duration-300 border-0 shadow-sm hover:shadow-md ${
-                  isActive 
-                    ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20' 
+                  isActive
+                    ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'
                     : 'bg-card hover:bg-primary/5'
                 }`}
                 onClick={() => setActiveTab(item.id)}
@@ -134,6 +134,9 @@ export default function Settings() {
 
         {/* Content Area */}
         <div className="space-y-6">
+          {/* Theme Toggle Section */}
+          <ThemeToggle />
+
           {activeTab === "account" && (
             <Card className="border-0 shadow-lg">
               <CardHeader className="pb-4">
@@ -155,9 +158,9 @@ export default function Settings() {
                       Verified
                     </Badge>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
                     <div className="flex items-center gap-3">
                       <Globe className="w-5 h-5 text-muted-foreground" />
@@ -198,12 +201,12 @@ export default function Settings() {
                       <p className="font-medium text-foreground">Push Notifications</p>
                       <p className="text-sm text-muted-foreground">Receive alerts and updates</p>
                     </div>
-                    <Switch 
-                      checked={notifications} 
+                    <Switch
+                      checked={notifications}
                       onCheckedChange={setNotifications}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
                     <div>
                       <p className="font-medium text-foreground">Price Alerts</p>
@@ -211,7 +214,7 @@ export default function Settings() {
                     </div>
                     <Switch defaultChecked />
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
                     <div>
                       <p className="font-medium text-foreground">Investment Updates</p>
@@ -219,7 +222,7 @@ export default function Settings() {
                     </div>
                     <Switch defaultChecked />
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
                     <div>
                       <p className="font-medium text-foreground">Security Alerts</p>
@@ -227,7 +230,7 @@ export default function Settings() {
                     </div>
                     <Switch defaultChecked />
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
                     <div>
                       <p className="font-medium text-foreground">Marketing</p>
@@ -254,7 +257,7 @@ export default function Settings() {
         {/* Logout Section */}
         <Card className="mt-6 border-0 shadow-lg bg-gradient-to-r from-red-50 to-red-100 dark:from-red-950/20 dark:to-red-900/20">
           <CardContent className="p-6">
-            <Button 
+            <Button
               onClick={handleLogout}
               variant="destructive"
               className="w-full h-12 rounded-xl bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg transition-all duration-300 group"
