@@ -1674,7 +1674,7 @@ You are now on the free plan and will no longer receive automatic profit updates
   // Start simulated market making (Binance/Bybit style)
   startSimulatedMarketMaking();
 
-  // Trade execution endpoint
+  // Trade execution endpoint - SIMULATED ONLY (NO DATABASE STORAGE)
   app.post('/api/trades/execute', async (req, res) => {
   try {
     const { userId, type, amount, price, token = 'BTC' } = req.body;
@@ -1693,30 +1693,9 @@ You are now on the free plan and will no longer receive automatic profit updates
     const totalCost = tradeAmount * price;
 
     if (type === 'buy') {
-      // For buy orders, add to balance (simulated purchase)
-      const newBalance = parseFloat(user.balance) + tradeAmount;
-
-      await storage.updateUserBalance(userId, newBalance.toFixed(8));
-
-      // Record the trade
-      await storage.createTransaction({
-        userId,
-        type: 'trade_buy',
-        amount: amount,
-        status: 'completed',
-        notes: `Bought ${amount} ${token} at $${price}`,
-      });
-
-      // Send notification
-      await storage.createNotification({
-        userId,
-        title: 'Trade Executed',
-        message: `Successfully bought ${amount} ${token} for $${totalCost.toFixed(2)}`,
-        type: 'success',
-        isRead: false
-      });
-
+      // Simulated buy order - returns data for UI only, no database changes
       res.json({ 
+        id: Date.now(), // Temporary ID for UI
         type: 'buy', 
         token,
         amount,
@@ -1727,34 +1706,9 @@ You are now on the free plan and will no longer receive automatic profit updates
       });
 
     } else if (type === 'sell') {
-      // For sell orders, check if user has enough balance
-      if (parseFloat(user.balance) < tradeAmount) {
-        return res.status(400).json({ message: 'Insufficient balance' });
-      }
-
-      const newBalance = parseFloat(user.balance) - tradeAmount;
-
-      await storage.updateUserBalance(userId, newBalance.toFixed(8));
-
-      // Record the trade
-      await storage.createTransaction({
-        userId,
-        type: 'trade_sell',
-        amount: amount,
-        status: 'completed',
-        notes: `Sold ${amount} ${token} at $${price}`,
-      });
-
-      // Send notification
-      await storage.createNotification({
-        userId,
-        title: 'Trade Executed',
-        message: `Successfully sold ${amount} ${token} for $${totalCost.toFixed(2)}`,
-        type: 'success',
-        isRead: false
-      });
-
+      // Simulated sell order - returns data for UI only, no database changes
       res.json({ 
+        id: Date.now(), // Temporary ID for UI
         type: 'sell', 
         token,
         amount,
@@ -1772,28 +1726,11 @@ You are now on the free plan and will no longer receive automatic profit updates
   }
 });
 
-  // Trade history endpoint
+  // Trade history endpoint - Returns empty since trades are now UI-only
   app.get('/api/trades/history/:userId', async (req, res) => {
     try {
-      const userId = parseInt(req.params.userId);
-
-      const allTransactions = await storage.getUserTransactions(userId);
-
-      // Filter for trade transactions
-      const tradeHistory = allTransactions
-        .filter(t => t.type === 'trade_buy' || t.type === 'trade_sell')
-        .slice(0, 50)
-        .map(trade => ({
-          id: trade.id,
-          type: trade.type === 'trade_buy' ? 'buy' : 'sell',
-          amount: trade.amount,
-          price: 0, // Price would need to be stored separately if needed
-          total: 0,
-          status: trade.status,
-          createdAt: trade.createdAt
-        }));
-
-      res.json(tradeHistory);
+      // Return empty array since trades are now simulated and UI-only
+      res.json([]);
     } catch (error: any) {
       console.error('Error fetching trade history:', error);
       res.status(500).json({ message: 'Failed to fetch trade history' });

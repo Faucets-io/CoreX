@@ -352,6 +352,23 @@
   .animate-glow {
     animation: glow 2s ease-in-out infinite alternate;
   }
+  
+  /* Theme-aware utility classes */
+  .dark-bg {
+    @apply bg-background;
+  }
+  
+  .dark-text {
+    @apply text-foreground;
+  }
+  
+  .dark-border {
+    @apply border-border;
+  }
+  
+  .dark-card {
+    @apply bg-card text-card-foreground border-border;
+  }
 }
 
 @keyframes float {

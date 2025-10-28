@@ -1,7 +1,7 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { WalletBalance } from "@/components/wallet-balance";
-import { BottomNavigation } from "@/components/bottom-navigation";
+import { AppLayout } from "@/components/app-layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Bell, User, ArrowUpRight, ArrowDownLeft, TrendingUp, Activity, Zap } from "lucide-react";
@@ -14,7 +14,7 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [, setLocation] = useLocation();
 
   const { data: investments } = useQuery<Investment[]>({
@@ -64,41 +64,48 @@ export default function Home() {
     : null;
 
   return (
-    <div className="max-w-sm mx-auto bg-background min-h-screen pb-24">
-      {/* Clean Header */}
-      <header className="px-6 pt-6 pb-4">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">
-              FluxTrade
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
+    <AppLayout maxWidth="2xl">
+      <div className="p-4 lg:p-6">
+        {/* Header */}
+        <header className="mb-6">
+          <div className="flex items-center justify-between">
+            <div className="lg:hidden">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">
+                Dashboard
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
+            </div>
+            <div className="hidden lg:block">
+              <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+              <p className="text-sm text-muted-foreground mt-1">Welcome back, {user.email}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-xl relative hover:bg-muted" 
+                onClick={() => setLocation('/notifications')}
+                data-testid="button-notifications"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount && unreadCount.count > 0 && (
+                  <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center">
+                    {unreadCount.count > 9 ? '9+' : unreadCount.count}
+                  </Badge>
+                )}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-xl hover:bg-muted" 
+                onClick={() => setLocation('/profile')}
+                data-testid="button-profile"
+              >
+                <User className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="rounded-xl relative hover:bg-muted" 
-              onClick={() => setLocation('/notifications')}
-            >
-              <Bell className="w-5 h-5" />
-              {unreadCount && unreadCount.count > 0 && (
-                <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center">
-                  {unreadCount.count > 9 ? '9+' : unreadCount.count}
-                </Badge>
-              )}
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="rounded-xl hover:bg-muted" 
-              onClick={() => setLocation('/profile')}
-            >
-              <User className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
+        </header>
 
       {/* Wallet Balance - Hero Section */}
       <WalletBalance />
@@ -280,8 +287,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Bottom Navigation */}
-      <BottomNavigation />
-    </div>
+      </div>
+    </AppLayout>
   );
 }
