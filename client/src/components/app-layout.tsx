@@ -1,4 +1,5 @@
 import { AppNavigation } from "@/components/app-navigation";
+import { BottomNavigation } from "@/components/bottom-navigation";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -25,6 +26,9 @@ export function AppLayout({ children, maxWidth = "full" }: AppLayoutProps) {
           {children}
         </div>
       </main>
+      
+      {/* Bottom Navigation for mobile */}
+      <BottomNavigation />
     </div>
   );
 }
