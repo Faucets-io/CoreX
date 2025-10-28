@@ -49,49 +49,43 @@ export default function Settings() {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-flux-cyan/10 to-flux-purple/10 rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-flux-blue/10 to-sapphire/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
-      </div>
-
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl bg-background/60 border-b border-white/10">
-        <div className="max-w-sm mx-auto px-6 py-5">
+      <div className="sticky top-0 z-50 backdrop-blur-lg bg-background/80 border-b border-border/50">
+        <div className="max-w-sm mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
             <Link href="/">
-              <Button variant="ghost" size="icon" className="rounded-2xl hover:bg-white/10 backdrop-blur-sm border border-white/10 transition-all hover:scale-110">
+              <Button variant="ghost" size="icon" className="rounded-xl hover:bg-primary/10">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">Settings</h1>
-              <p className="text-sm text-muted-foreground font-medium">Manage your account</p>
+              <h1 className="text-xl font-semibold text-foreground">Settings</h1>
+              <p className="text-sm text-muted-foreground">Manage your account</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="relative max-w-sm mx-auto px-6 pb-24">
+      <div className="max-w-sm mx-auto px-6 pb-24">
         {/* Profile Summary Card */}
-        <Card className="mt-8 mb-10 overflow-hidden border-0 shadow-2xl bg-gradient-to-br from-flux-cyan/20 via-flux-purple/15 to-flux-blue/20 backdrop-blur-sm hover:shadow-flux-cyan/30 transition-all">
-          <CardContent className="p-7">
-            <div className="flex items-center gap-5">
-              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-flux-cyan to-flux-purple flex items-center justify-center shadow-2xl">
-                <User className="w-10 h-10 text-white" />
+        <Card className="mt-6 mb-8 overflow-hidden border-0 shadow-lg bg-gradient-to-br from-primary/5 to-primary/10">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
+                <User className="w-8 h-8 text-white" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-foreground">{user.email.split('@')[0]}</h3>
-                <p className="text-sm text-muted-foreground font-medium mt-1">{user.email}</p>
-                <div className="flex items-center gap-2 mt-3">
+                <h3 className="text-lg font-semibold text-foreground">{user.email.split('@')[0]}</h3>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
+                <div className="flex items-center gap-2 mt-2">
                   {user.isAdmin ? (
-                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 px-3 py-1 rounded-full shadow-lg">
+                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
                       <Crown className="w-3 h-3 mr-1" />
                       Manager
                     </Badge>
                   ) : (
-                    <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30 px-3 py-1 rounded-full">
+                    <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                       Member
                     </Badge>
                   )}
@@ -102,7 +96,7 @@ export default function Settings() {
         </Card>
 
         {/* Navigation Menu */}
-        <div className="space-y-4 mb-10">
+        <div className="space-y-3 mb-8">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -110,23 +104,23 @@ export default function Settings() {
             return (
               <Card
                 key={item.id}
-                className={`cursor-pointer transition-all duration-300 border-0 shadow-lg hover:shadow-2xl ${
+                className={`cursor-pointer transition-all duration-300 border-0 shadow-sm hover:shadow-md ${
                   isActive
-                    ? 'bg-gradient-to-r from-flux-cyan/20 via-flux-purple/15 to-flux-blue/20 hover:scale-105'
-                    : 'bg-card/80 backdrop-blur-sm hover:bg-primary/10 hover:scale-105'
+                    ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'
+                    : 'bg-card hover:bg-primary/5'
                 }`}
                 onClick={() => setActiveTab(item.id)}
               >
-                <CardContent className="p-5">
+                <CardContent className="p-4">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${
-                      isActive ? 'bg-gradient-to-br from-primary/30 to-primary/10' : 'bg-muted/50'
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      isActive ? 'bg-primary/20' : 'bg-muted'
                     }`}>
-                      <Icon className={`w-6 h-6 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <Icon className={`w-5 h-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-bold text-foreground">{item.label}</h4>
-                      <p className="text-sm text-muted-foreground font-medium">{item.description}</p>
+                      <h4 className="font-medium text-foreground">{item.label}</h4>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
                     </div>
                     <ChevronRight className={`w-5 h-5 transition-transform ${
                       isActive ? 'text-primary rotate-90' : 'text-muted-foreground'

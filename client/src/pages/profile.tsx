@@ -63,25 +63,19 @@ export default function Profile() {
   const accountAge = Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24));
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-flux-cyan/10 to-flux-purple/10 rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-flux-blue/10 to-sapphire/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
-      </div>
-
+    <div className="min-h-screen dark-bg">
       {/* Navigation Header */}
-      <div className="sticky top-0 z-10 bg-background/60 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-4xl mx-auto px-4 py-5">
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b dark-border">
+        <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
             <Link href="/">
-              <Button variant="ghost" size="sm" className="h-10 w-10 p-0 rounded-2xl hover:bg-white/10 backdrop-blur-sm border border-white/10 transition-all hover:scale-110">
+              <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">Profile</h1>
-              <p className="text-muted-foreground text-sm font-medium">Your account overview</p>
+              <h1 className="text-xl font-bold dark-text">Profile</h1>
+              <p className="text-muted-foreground text-sm">Your account overview</p>
             </div>
           </div>
         </div>
