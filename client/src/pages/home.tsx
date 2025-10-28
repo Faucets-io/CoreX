@@ -1,8 +1,6 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { WalletBalance } from "@/components/wallet-balance";
-import { BitcoinPrice } from "@/components/bitcoin-price";
-import { BitcoinSync } from "@/components/bitcoin-sync";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -127,12 +125,37 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Bitcoin Price */}
-      <BitcoinPrice />
-
-      {/* Bitcoin Sync Status */}
+      {/* Market Overview */}
       <div className="px-6 mb-6">
-        <BitcoinSync />
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Market Overview</h3>
+        <Card className="border-0 bg-gradient-to-br from-flux-cyan/5 to-flux-purple/5 p-5 rounded-2xl">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-bitcoin/20 flex items-center justify-center">
+                  <span className="text-lg font-bold text-bitcoin">₿</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Bitcoin</p>
+                  <p className="text-xs text-muted-foreground">BTC</p>
+                </div>
+              </div>
+              <Badge className="bg-emerald/20 text-emerald border-emerald/30 text-xs" variant="outline">
+                Live Trading
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Active Investments</p>
+                <p className="text-lg font-bold text-foreground">{activeInvestments.length}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Total Return</p>
+                <p className="text-lg font-bold text-emerald">+{formatBitcoin(totalProfit.toString())}</p>
+              </div>
+            </div>
+          </div>
+        </Card>
       </div>
 
       {/* Portfolio Stats */}
