@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { useCurrency } from "@/hooks/use-currency";
-import { Clock, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft, ArrowLeft, DollarSign } from "lucide-react";
+import { Clock, TrendingUp, TrendingDown, ArrowUpRight, ArrowLeft, DollarSign } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,11 +13,13 @@ import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
 import { formatBitcoin, formatCurrency, calculateInvestmentProgress, formatDate } from "@/lib/utils";
 import type { Investment, Transaction, Notification } from "@shared/schema";
 import { useLocation } from "wouter";
+import { AppLayout } from "@/components/app-layout";
 
 export default function History() {
   const { user } = useAuth();
   const { currency } = useCurrency();
   const { data: bitcoinPrice } = useBitcoinPrice();
+  const [, setLocation] = useLocation();
 
   const { data: investments, isLoading } = useQuery<Investment[]>({
     queryKey: ['/api/investments/user', user?.id],
@@ -37,32 +39,20 @@ export default function History() {
   });
 
   if (!user) {
-    return <div>Please log in to view your history</div>;
+    setLocation('/login');
+    return null;
   }
 
-  return (
-    <div className="min-h-screen dark-bg">
-      {/* Navigation Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b dark-border">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold dark-text">History</h1>
-              <p className="text-muted-foreground text-sm">Transaction history</p>
-            </div>
-          </div>
-        </div>
-      </div>
+  const sortedInvestments = investments?.sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  ) || [];
 
-      <div className="max-w-4xl mx-auto p-4 space-y-6 pb-20">
+  return (
+    <AppLayout>
+      <div className="p-4 lg:p-6">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold dark-text mb-2">Transaction History</h1>
-          <p className="text-muted-foreground">Your investment and transaction history</p>
+          <h1 className="text-3xl font-bold text-foreground">Investment History</h1>
+          <p className="text-sm text-muted-foreground mt-1">Track your investments</p>
         </div>
 
         {isLoading || loadingNotifications || loadingTransactions ? (
@@ -86,7 +76,7 @@ export default function History() {
                   const getTransactionIcon = () => {
                     switch (transaction.type) {
                       case 'deposit':
-                        return <ArrowDownLeft className="w-5 h-5 text-green-500" />;
+                        return <ArrowLeft className="w-5 h-5 text-green-500" />;
                       case 'withdrawal':
                         return <ArrowUpRight className="w-5 h-5 text-red-500" />;
                       case 'investment':
@@ -212,7 +202,7 @@ export default function History() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {isReceived ? (
-                            <ArrowDownLeft className="w-5 h-5 text-green-500" />
+                            <ArrowLeft className="w-5 h-5 text-green-500" />
                           ) : (
                             <ArrowUpRight className="w-5 h-5 text-red-500" />
                           )}
@@ -264,9 +254,9 @@ export default function History() {
               })}
 
             {/* Investment History */}
-            {investments && investments.length > 0 ? (
+            {sortedInvestments && sortedInvestments.length > 0 ? (
               <div className="space-y-4">
-                {investments.map((investment) => {
+                {sortedInvestments.map((investment) => {
                   const progress = calculateInvestmentProgress(new Date(investment.startDate), new Date(investment.endDate));
                   const currentValue = parseFloat(investment.amount) + parseFloat(investment.currentProfit);
                   const currencyPrice = currency === 'USD' ? bitcoinPrice?.usd.price : bitcoinPrice?.gbp.price;
@@ -374,8 +364,6 @@ export default function History() {
           </div>
         )}
       </div>
-
-      <BottomNavigation />
-    </div>
+    </AppLayout>
   );
 }
