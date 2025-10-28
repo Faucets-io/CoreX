@@ -31,21 +31,21 @@
 @media (prefers-color-scheme: light) {
   :root {
     --background: 0 0% 100%;
-    --foreground: 20 14.3% 4.1%;
+    --foreground: 0 0% 10%; /* Darker for better contrast */
     --muted: 60 4.8% 95.9%;
-    --muted-foreground: 25 5.3% 44.7%;
+    --muted-foreground: 0 0% 35%; /* Darker for better readability */
     --popover: 0 0% 100%;
-    --popover-foreground: 20 14.3% 4.1%;
+    --popover-foreground: 0 0% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 20 14.3% 4.1%;
+    --card-foreground: 0 0% 10%; /* Darker for better contrast */
     --border: 20 5.9% 90%;
     --input: 20 5.9% 90%;
     --primary: 195 100% 45%; /* FluxTrade electric cyan - slightly darker for light mode */
     --primary-foreground: 0 0% 98%;
     --secondary: 60 4.8% 95.9%;
-    --secondary-foreground: 24 9.8% 10%;
+    --secondary-foreground: 0 0% 10%; /* Darker for better contrast */
     --accent: 60 4.8% 95.9%;
-    --accent-foreground: 24 9.8% 10%;
+    --accent-foreground: 0 0% 10%; /* Darker for better contrast */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 9.1% 97.8%;
     --ring: 20 14.3% 4.1%;
@@ -105,21 +105,21 @@
 
 .light {
   --background: 0 0% 100%;
-  --foreground: 20 14.3% 4.1%;
+  --foreground: 0 0% 10%; /* Darker for better contrast */
   --muted: 60 4.8% 95.9%;
-  --muted-foreground: 25 5.3% 44.7%;
+  --muted-foreground: 0 0% 35%; /* Darker for better readability */
   --popover: 0 0% 100%;
-  --popover-foreground: 20 14.3% 4.1%;
+  --popover-foreground: 0 0% 10%;
   --card: 0 0% 100%;
-  --card-foreground: 20 14.3% 4.1%;
+  --card-foreground: 0 0% 10%; /* Darker for better contrast */
   --border: 20 5.9% 90%;
   --input: 20 5.9% 90%;
   --primary: 195 100% 45%; /* FluxTrade electric cyan - darker for light mode */
   --primary-foreground: 0 0% 98%;
   --secondary: 60 4.8% 95.9%;
-  --secondary-foreground: 24 9.8% 10%;
+  --secondary-foreground: 0 0% 10%; /* Darker for better contrast */
   --accent: 60 4.8% 95.9%;
-  --accent-foreground: 24 9.8% 10%;
+  --accent-foreground: 0 0% 10%; /* Darker for better contrast */
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 60 9.1% 97.8%;
   --ring: 20 14.3% 4.1%;
@@ -368,6 +368,15 @@
   
   .dark-card {
     @apply bg-card text-card-foreground border-border;
+  }
+  
+  /* Ensure text visibility in both light and dark modes */
+  .theme-text {
+    @apply text-foreground;
+  }
+  
+  .theme-muted {
+    @apply text-muted-foreground;
   }
 }
 
