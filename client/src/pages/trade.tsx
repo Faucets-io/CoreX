@@ -151,8 +151,8 @@ export default function Trade() {
       setLocalTradeHistory(prev => [{...data, token: selectedToken.symbol}, ...prev].slice(0, 50));
       
       toast({
-        title: "Trade Simulated",
-        description: `Simulated ${data.type === 'buy' ? 'buy' : 'sell'} of ${data.amount} ${selectedToken.symbol} (UI only)`,
+        title: "Trade Executed",
+        description: `Successfully ${data.type === 'buy' ? 'bought' : 'sold'} ${data.amount} ${selectedToken.symbol}`,
       });
       
       setBuyAmount('');
@@ -401,11 +401,6 @@ export default function Trade() {
                     >
                       {executeTradeMutation.isPending ? 'Processing...' : `Buy ${selectedToken.symbol}`}
                     </Button>
-
-                    <div className="flex items-start gap-2 text-xs text-muted-foreground bg-primary/5 p-3 rounded-lg">
-                      <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <p>Simulated trading - Orders are not saved to your history and do not affect your actual balance.</p>
-                    </div>
                   </TabsContent>
 
                   <TabsContent value="sell" className="space-y-4">
@@ -445,11 +440,6 @@ export default function Trade() {
                     >
                       {executeTradeMutation.isPending ? 'Processing...' : `Sell ${selectedToken.symbol}`}
                     </Button>
-
-                    <div className="flex items-start gap-2 text-xs text-muted-foreground bg-primary/5 p-3 rounded-lg">
-                      <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <p>Simulated trading - Orders are not saved to your history and do not affect your actual balance.</p>
-                    </div>
                   </TabsContent>
                 </Tabs>
               </CardContent>
@@ -460,8 +450,8 @@ export default function Trade() {
           <div className="lg:col-span-12">
             <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-lg">Recent Simulated Trades</CardTitle>
-                <p className="text-sm text-muted-foreground">These trades are for UI demonstration only and not saved to database</p>
+                <CardTitle className="text-lg">Recent Trades</CardTitle>
+                <p className="text-sm text-muted-foreground">Your latest trading activity</p>
               </CardHeader>
               <CardContent>
                 {localTradeHistory && localTradeHistory.length > 0 ? (
@@ -497,7 +487,7 @@ export default function Trade() {
                 ) : (
                   <div className="text-center py-12">
                     <Activity className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-                    <p className="text-sm text-muted-foreground">No simulated trades yet</p>
+                    <p className="text-sm text-muted-foreground">No trades yet</p>
                     <p className="text-xs text-muted-foreground mt-1">Start trading to see your order history here</p>
                   </div>
                 )}
