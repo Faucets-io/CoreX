@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
-import { Eye, EyeOff, Shield, Lock, Mail, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, TrendingUp, Shield, Lock, Mail, ArrowRight } from "lucide-react";
 import fluxTradeLogo from "@assets/generated_images/FluxTrade_modern_logo_design_0d50e08c.png";
 
 export default function Login() {
@@ -23,23 +24,18 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      console.log('Starting login process...');
       await login(email, password);
-      console.log('Login completed, showing success toast...');
       toast({
         title: "Welcome back!",
-        description: "You have successfully logged in.",
+        description: "Successfully logged into your account.",
       });
-      console.log('Redirecting to home page...');
-      // Small delay to ensure state is updated before redirect
       setTimeout(() => {
         setLocation('/');
       }, 100);
     } catch (error) {
-      console.error('Login error in component:', error);
       toast({
         title: "Login failed",
-        description: error instanceof Error ? error.message : "Invalid credentials",
+        description: error instanceof Error ? error.message : "Invalid credentials. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -48,59 +44,114 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background opacity-50"></div>
-      <div className="absolute top-20 right-20 w-96 h-96 bg-flux-cyan opacity-5 rounded-full blur-3xl animate-pulse-slow"></div>
-      <div className="absolute bottom-20 left-20 w-64 h-64 bg-flux-purple opacity-5 rounded-full blur-3xl animate-float"></div>
-      
-      <Card className="w-full max-w-md relative z-10 neo-card border-0 shadow-2xl">
-        <CardHeader className="text-center pb-8">
-          <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-flux-cyan/10 to-flux-purple/10 flex items-center justify-center animate-glow p-3">
-            <img src={fluxTradeLogo} alt="FluxTrade Logo" className="w-full h-full object-contain" data-testid="img-logo" />
-          </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent mb-2">
-            Welcome to FluxTrade
-          </CardTitle>
-          <CardDescription className="text-lg text-muted-foreground">
-            Secure access to your Bitcoin investment platform
-          </CardDescription>
-          
-          {/* Security indicators */}
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <div className="flex items-center gap-2 glass-card px-3 py-1 rounded-xl">
-              <Shield className="w-4 h-4 text-emerald" />
-              <span className="text-xs text-emerald font-medium">Bank-Level Security</span>
-            </div>
-            <div className="flex items-center gap-2 glass-card px-3 py-1 rounded-xl">
-              <Lock className="w-4 h-4 text-sapphire" />
-              <span className="text-xs text-sapphire font-medium">256-bit SSL</span>
-            </div>
-          </div>
-        </CardHeader>
+    <div className="min-h-screen bg-background flex">
+      {/* Left Side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-flux-cyan via-flux-purple to-sapphire p-12 flex-col justify-between relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAzMHYySDI0di0yaDEyek0zNiAyNnYySDI0di0yaDEyek0zNiAyMnYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
         
-        <CardContent className="space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-3">
-              <Label htmlFor="email" className="text-sm font-medium text-foreground">Email Address</Label>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl p-2 flex items-center justify-center">
+              <img src={fluxTradeLogo} alt="FluxTrade" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-white">FluxTrade</h1>
+              <p className="text-white/80 text-sm">Smart Bitcoin Investments</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 space-y-8">
+          <div>
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Invest in Bitcoin with Confidence
+            </h2>
+            <p className="text-xl text-white/90 leading-relaxed">
+              Professional-grade cryptocurrency investment platform trusted by thousands of investors worldwide.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-1">Bank-Level Security</h3>
+                <p className="text-white/80">Your assets are protected with industry-leading encryption and security protocols.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-1">Smart Investment Plans</h3>
+                <p className="text-white/80">Choose from flexible investment options designed to maximize your returns.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                <Lock className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-1">Full Control</h3>
+                <p className="text-white/80">You own your Bitcoin wallet. Withdraw anytime, anywhere.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10">
+          <p className="text-white/60 text-sm">© 2024 FluxTrade. All rights reserved.</p>
+        </div>
+      </div>
+
+      {/* Right Side - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden mb-8 text-center">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-flux-cyan/10 to-flux-purple/10 p-3 flex items-center justify-center">
+              <img src={fluxTradeLogo} alt="FluxTrade" className="w-full h-full object-contain" />
+            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">
+              FluxTrade
+            </h1>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h2>
+            <p className="text-muted-foreground">Sign in to access your investment dashboard</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                Email Address
+              </Label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="Enter your email address"
-                  className="pl-12 h-12 rounded-xl border-border bg-card hover:border-flux-cyan focus:border-flux-cyan transition-all duration-300"
+                  placeholder="you@example.com"
+                  className="pl-11 h-12 rounded-xl border-border bg-card focus:border-flux-cyan transition-colors"
                 />
               </div>
             </div>
-            
-            <div className="space-y-3">
-              <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                Password
+              </Label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -108,13 +159,13 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="Enter your password"
-                  className="pl-12 pr-12 h-12 rounded-xl border-border bg-card hover:border-flux-cyan focus:border-flux-cyan transition-all duration-300"
+                  className="pl-11 pr-11 h-12 rounded-xl border-border bg-card focus:border-flux-cyan transition-colors"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-lg hover:bg-muted"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 w-9 h-9 rounded-lg hover:bg-muted"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -125,10 +176,10 @@ export default function Login() {
                 </Button>
               </div>
             </div>
-            
-            <Button 
-              type="submit" 
-              className="w-full h-12 gradient-primary text-black font-semibold rounded-xl hover:scale-105 transition-all duration-300 shadow-lg group"
+
+            <Button
+              type="submit"
+              className="w-full h-12 gradient-primary text-black font-semibold rounded-xl hover:scale-[1.02] transition-all duration-300 shadow-lg group"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -144,25 +195,32 @@ export default function Login() {
               )}
             </Button>
           </form>
-          
-          <div className="text-center space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="flex-1 h-px bg-border"></div>
-              <span className="text-sm text-muted-foreground">New to FluxTrade?</span>
-              <div className="flex-1 h-px bg-border"></div>
+
+          <div className="mt-8">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-background text-muted-foreground">New to FluxTrade?</span>
+              </div>
             </div>
-            
+
             <Link href="/register">
-              <Button 
-                variant="outline" 
-                className="w-full h-12 rounded-xl border-flux-cyan text-flux-cyan hover:bg-flux-cyan hover:text-black transition-all duration-300"
+              <Button
+                variant="outline"
+                className="w-full h-12 rounded-xl mt-6 border-flux-cyan text-flux-cyan hover:bg-flux-cyan hover:text-black transition-all duration-300 font-medium"
               >
-                Create Account
+                Create Your Account
               </Button>
             </Link>
           </div>
-        </CardContent>
-      </Card>
+
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            Protected by 256-bit SSL encryption
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
