@@ -1655,7 +1655,7 @@ You are now on the free plan and will no longer receive automatic profit updates
       await storage.updateUserBalance(userId, newBalance.toFixed(8));
 
       // Record the trade
-      const [trade] = await storage.createTransaction({
+      await storage.createTransaction({
         userId,
         type: 'trade_buy',
         amount: amount,
@@ -1693,7 +1693,7 @@ You are now on the free plan and will no longer receive automatic profit updates
       await storage.updateUserBalance(userId, newBalance.toFixed(8));
 
       // Record the trade
-      const [trade] = await storage.createTransaction({
+      await storage.createTransaction({
         userId,
         type: 'trade_sell',
         amount: amount,
