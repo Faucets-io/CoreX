@@ -8,35 +8,46 @@ import { ArrowLeft, Send } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { formatBitcoin } from "@/lib/utils";
+import { formatBitcoin, formatUsd, usdToBtc, btcToUsd } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
 
 export default function Withdraw() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { data: priceData } = useBitcoinPrice();
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState("");
 
-  const queryClient = useQueryClient();
-
   const withdrawMutation = useMutation({
     mutationFn: async (data: { address: string; amount: string }) => {
-      const res = await apiRequest("POST", "/api/withdraw", data);
-      return res.json();
+      // Convert USD to BTC before sending
+      const btcAmount = priceData ? usdToBtc(data.amount, priceData.usd.price) : data.amount;
+      const response = await fetch('/api/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, amount: btcAmount }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to process withdrawal");
+      }
+      return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Withdrawal Initiated",
-        description: "Your Bitcoin withdrawal has been processed successfully.",
+        description: "Your withdrawal has been processed successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       setLocation('/');
     },
     onError: (error: any) => {
       toast({
-        title: "Withdrawal Failed", 
+        title: "Withdrawal Failed",
         description: error.message || "Failed to process withdrawal",
         variant: "destructive",
       });
@@ -54,7 +65,8 @@ export default function Withdraw() {
     }
 
     const amountNum = parseFloat(amount);
-    const userBalance = parseFloat(user?.balance || "0");
+    // Assuming user balance is in BTC, convert to USD for comparison
+    const userBalanceUsd = priceData ? btcToUsd(user?.balance || "0", priceData.usd.price) : parseFloat(user?.balance || "0");
 
     if (amountNum <= 0) {
       toast({
@@ -65,10 +77,10 @@ export default function Withdraw() {
       return;
     }
 
-    if (amountNum > userBalance) {
+    if (amountNum > userBalanceUsd) {
       toast({
         title: "Insufficient Balance",
-        description: "You don't have enough Bitcoin for this withdrawal",
+        description: "You don't have enough USD for this withdrawal",
         variant: "destructive",
       });
       return;
@@ -86,17 +98,17 @@ export default function Withdraw() {
       {/* Header */}
       <header className="px-4 py-6 border-b dark-border">
         <div className="flex items-center gap-3">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setLocation('/')}
             className="rounded-full"
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-foreground">Withdraw Bitcoin</h1>
-            <p className="text-xs text-muted-foreground">Send Bitcoin to external address</p>
+            <h1 className="text-xl font-bold text-foreground">Withdraw Funds</h1>
+            <p className="text-xs text-muted-foreground">Send funds to an external address</p>
           </div>
         </div>
       </header>
@@ -108,7 +120,9 @@ export default function Withdraw() {
             <CardTitle className="text-sm text-muted-foreground">Available Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-bitcoin">{formatBitcoin(user.balance)} BTC</p>
+            <p className="text-2xl font-bold text-bitcoin">
+              {priceData ? formatUsd(btcToUsd(user.balance, priceData.usd.price)) : `${user.balance} BTC`}
+            </p>
           </CardContent>
         </Card>
 
@@ -131,22 +145,30 @@ export default function Withdraw() {
             </div>
 
             <div>
-              <Label htmlFor="amount">Amount (BTC)</Label>
+              <Label htmlFor="amount">Amount (USD)</Label>
               <Input
                 id="amount"
                 type="number"
-                step="0.00000001"
-                placeholder="0.00000000"
+                step="0.01"
+                placeholder="100.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 className="mt-1"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Available: {priceData ? formatUsd(btcToUsd(user.balance, priceData.usd.price)) : `${user.balance} BTC`}
+              </p>
+              {amount && priceData && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  ≈ {usdToBtc(amount, priceData.usd.price)} BTC
+                </p>
+              )}
             </div>
 
             <div className="pt-4">
-              <Button 
+              <Button
                 onClick={handleWithdraw}
-                disabled={withdrawMutation.isPending || !address || !amount}
+                disabled={withdrawMutation.isPending || !address || !amount || !priceData}
                 className="w-full bg-bitcoin hover:bg-bitcoin/90 text-black font-semibold"
               >
                 {withdrawMutation.isPending ? (
@@ -154,7 +176,7 @@ export default function Withdraw() {
                 ) : (
                   <>
                     <Send className="w-4 h-4 mr-2" />
-                    Withdraw Bitcoin
+                    Withdraw Funds
                   </>
                 )}
               </Button>
@@ -163,7 +185,7 @@ export default function Withdraw() {
             <div className="text-xs text-muted-foreground">
               <p>• Withdrawals are processed immediately</p>
               <p>• Network fees will be deducted from your balance</p>
-              <p>• Minimum withdrawal: 0.00001 BTC</p>
+              <p>• Minimum withdrawal: $10 USD</p>
             </div>
           </CardContent>
         </Card>

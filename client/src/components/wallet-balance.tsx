@@ -1,9 +1,9 @@
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
 import { useCurrency } from "@/hooks/use-currency";
-import { formatBitcoin, formatCurrency, calculateCurrencyValue } from "@/lib/utils";
+import { formatBitcoin, btcToUsd, formatUsd, calculateCurrencyValue } from "@/lib/utils";
 import { Eye, EyeOff, Shield, Zap } from "lucide-react";
 import { useState } from "react";
 
@@ -15,8 +15,9 @@ export function WalletBalance() {
 
   if (!user) return null;
 
-  const currentPriceData = bitcoinPrice ? (currency === 'USD' ? bitcoinPrice.usd : bitcoinPrice.gbp) : null;
-  const fiatValue = currentPriceData ? calculateCurrencyValue(user.balance, currentPriceData.price) : 0;
+  const priceData = bitcoinPrice ? (currency === 'USD' ? bitcoinPrice.usd : bitcoinPrice.gbp) : null;
+  const btcAmount = parseFloat(user.balance);
+  const usdValue = priceData ? btcToUsd(btcAmount, priceData.usd.price) : 0;
 
   return (
     <div className="px-6 mb-8">
@@ -24,7 +25,7 @@ export function WalletBalance() {
         {/* Background decorative elements */}
         <div className="absolute top-0 right-0 w-40 h-40 bg-white dark:bg-white opacity-10 rounded-full -translate-y-20 translate-x-20 animate-pulse-slow"></div>
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-white dark:bg-white opacity-5 rounded-full translate-y-16 -translate-x-16 animate-float"></div>
-        
+
         {/* Security indicators */}
         <div className="absolute top-4 right-4 flex gap-2">
           <div className="w-8 h-8 rounded-full bg-white dark:bg-white bg-opacity-20 dark:bg-opacity-20 flex items-center justify-center">
@@ -42,7 +43,7 @@ export function WalletBalance() {
               <div className="flex items-center gap-3">
                 {isBalanceVisible ? (
                   <h2 className="text-4xl font-bold text-black tracking-tight">
-                    {formatBitcoin(user.balance)} BTC
+                    {formatUsd(usdValue)}
                   </h2>
                 ) : (
                   <h2 className="text-4xl font-bold text-black tracking-tight">
@@ -64,13 +65,13 @@ export function WalletBalance() {
               </div>
             </div>
           </div>
-          
+
           {isBalanceVisible && (
             <p className="text-black text-opacity-70 text-xl font-semibold mb-6">
-              ≈ {formatCurrency(fiatValue, currency)}
+              {formatBitcoin(user.balance)} BTC
             </p>
           )}
-          
+
           <div className="flex items-center justify-between pt-4 border-t border-black border-opacity-20">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-emerald animate-pulse"></div>

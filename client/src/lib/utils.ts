@@ -6,15 +6,26 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatBitcoin(amount: string | number): string {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  return num.toFixed(8);
+  const value = typeof amount === 'string' ? parseFloat(amount) : amount;
+  return value.toFixed(8);
 }
 
-export function formatUSD(amount: number): string {
+export function btcToUsd(btcAmount: string | number, btcPrice: number): number {
+  const btc = typeof btcAmount === 'string' ? parseFloat(btcAmount) : btcAmount;
+  return btc * btcPrice;
+}
+
+export function usdToBtc(usdAmount: string | number, btcPrice: number): string {
+  const usd = typeof usdAmount === 'string' ? parseFloat(usdAmount) : usdAmount;
+  return (usd / btcPrice).toFixed(8);
+}
+
+export function formatUsd(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 
@@ -27,7 +38,7 @@ export function formatGBP(amount: number): string {
 }
 
 export function formatCurrency(amount: number, currency: 'USD' | 'GBP'): string {
-  return currency === 'USD' ? formatUSD(amount) : formatGBP(amount);
+  return currency === 'USD' ? formatUsd(amount) : formatGBP(amount);
 }
 
 export function calculateUSDValue(btcAmount: string | number, btcPrice: number): number {

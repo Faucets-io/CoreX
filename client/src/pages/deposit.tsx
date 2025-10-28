@@ -10,6 +10,8 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
+import { usdToBtc } from "@/lib/utils";
 
 interface AdminConfig {
   vaultAddress: string;
@@ -24,6 +26,7 @@ export default function Deposit() {
   const [copied, setCopied] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
   const [transactionHash, setTransactionHash] = useState("");
+  const { data: priceData } = useBitcoinPrice();
 
   // Fetch admin configuration for deposit addresses
   const { data: adminConfig } = useQuery<AdminConfig>({
@@ -34,10 +37,12 @@ export default function Deposit() {
   // Submit deposit transaction
   const submitDepositMutation = useMutation({
     mutationFn: async (data: { amount: string; transactionHash?: string }) => {
+      // Convert USD to BTC before sending
+      const btcAmount = priceData ? usdToBtc(data.amount, priceData.usd.price) : data.amount;
       const response = await fetch('/api/deposit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, amount: btcAmount }),
       });
       if (!response.ok) {
         const error = await response.json();
@@ -187,16 +192,21 @@ export default function Deposit() {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="amount">Amount (BTC)</Label>
+                <Label htmlFor="amount">Amount (USD)</Label>
                 <Input
                   id="amount"
                   type="number"
-                  step="0.00000001"
-                  placeholder="0.00100000"
+                  step="0.01"
+                  placeholder="100.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className="mt-1"
                 />
+                {amount && priceData && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    ≈ {usdToBtc(amount, priceData.usd.price)} BTC
+                  </p>
+                )}
               </div>
               <div>
                 <Label htmlFor="txHash">Transaction Hash (Optional)</Label>
@@ -229,7 +239,7 @@ export default function Deposit() {
             <div className="space-y-2 text-xs text-muted-foreground">
               <p>• Use vault address for investment deposits</p>
               <p>• Use deposit address for trading balance</p>
-              <p>• Minimum deposit: 0.00001 BTC</p>
+              <p>• Minimum deposit: $10 USD</p>
               <p>• Confirmations required: 1</p>
               <p>• Your balance updates automatically</p>
             </div>

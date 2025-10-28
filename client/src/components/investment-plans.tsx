@@ -6,12 +6,14 @@ import { queryClient } from "@/lib/queryClient";
 import type { InvestmentPlan } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { formatBitcoin } from "@/lib/utils";
+import { formatBitcoin, btcToUsd, formatUsd } from "@/lib/utils";
+import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
 import { TrendingUp, Clock, Target, Shield, Star, Zap } from "lucide-react";
 
 export function InvestmentPlans() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { data: priceData } = useBitcoinPrice();
 
   const { data: plans, isLoading } = useQuery<InvestmentPlan[]>({
     queryKey: ['/api/investment-plans'],
@@ -118,7 +120,7 @@ export function InvestmentPlans() {
                     {plan.name}
                   </h4>
                   <p className={`text-sm opacity-80 ${getTextColorClass(plan.color)}`}>
-                    Min: {formatBitcoin(plan.minAmount)} BTC
+                    Min: {priceData ? formatUsd(btcToUsd(plan.minAmount, priceData.usd.price)) : `${formatBitcoin(plan.minAmount)} BTC`}
                   </p>
                 </div>
                 <div className="text-right">
