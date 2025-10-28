@@ -1,15 +1,15 @@
+
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BottomNavigation } from "@/components/bottom-navigation";
-import { ArrowLeft, Copy, Check, QrCode, Wallet, Send } from "lucide-react";
+import { ArrowLeft, Copy, Check, QrCode, Wallet, Send, AlertCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
 import { usdToBtc } from "@/lib/utils";
 import { AppLayout } from "@/components/app-layout";
@@ -29,16 +29,13 @@ export default function Deposit() {
   const [transactionHash, setTransactionHash] = useState("");
   const { data: priceData } = useBitcoinPrice();
 
-  // Fetch admin configuration for deposit addresses
   const { data: adminConfig } = useQuery<AdminConfig>({
     queryKey: ['/api/admin/config'],
     queryFn: () => fetch('/api/admin/config').then(res => res.json()),
   });
 
-  // Submit deposit transaction
   const submitDepositMutation = useMutation({
     mutationFn: async (data: { amount: string; transactionHash?: string }) => {
-      // Convert USD to BTC before sending
       const btcAmount = priceData ? usdToBtc(data.amount, priceData.usd.price) : data.amount;
       const response = await fetch('/api/deposit', {
         method: 'POST',
@@ -93,55 +90,60 @@ export default function Deposit() {
 
   return (
     <AppLayout>
-      <div className="max-w-sm mx-auto bg-background min-h-screen relative">
+      <div className="min-h-screen dark-bg">
         {/* Header */}
-        <header className="px-4 py-6 border-b dark-border">
-          <div className="flex items-center gap-3">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setLocation('/')}
-              className="rounded-full"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Deposit Bitcoin</h1>
-              <p className="text-xs text-muted-foreground">Add Bitcoin to your wallet</p>
+        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b dark-border">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setLocation('/')}
+                className="rounded-xl hover:bg-muted"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold dark-text">Deposit Bitcoin</h1>
+                <p className="text-sm text-muted-foreground">Add Bitcoin to your wallet</p>
+              </div>
             </div>
           </div>
-        </header>
+        </div>
 
-        <div className="p-4 pb-20 space-y-6">
+        <div className="max-w-sm mx-auto p-4 pb-24 space-y-6">
           {/* Vault Address */}
-          <Card className="dark-card dark-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Wallet className="w-5 h-5 text-bitcoin" />
+          <Card className="dark-card dark-border border-0 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 dark-text">
+                <div className="w-8 h-8 rounded-lg bg-bitcoin/20 flex items-center justify-center">
+                  <Wallet className="w-4 h-4 text-bitcoin" />
+                </div>
                 Investment Vault
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Vault Address</Label>
-                  <div className="flex items-center gap-2 mt-1">
+                  <Label className="text-sm text-muted-foreground mb-2">Vault Address</Label>
+                  <div className="flex items-center gap-2 mt-2">
                     <Input
                       value={adminConfig?.vaultAddress || "Loading..."}
                       readOnly
-                      className="text-xs font-mono"
+                      className="text-xs font-mono bg-muted/30"
                     />
                     <Button
                       variant="outline"
                       size="icon"
                       onClick={() => adminConfig?.vaultAddress && copyToClipboard(adminConfig.vaultAddress, "Vault")}
                       disabled={!adminConfig?.vaultAddress}
+                      className="flex-shrink-0"
                     >
                       {copied === "Vault" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                     </Button>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg">
                   Send Bitcoin to this address for long-term investment storage
                 </p>
               </div>
@@ -149,34 +151,37 @@ export default function Deposit() {
           </Card>
 
           {/* Deposit Address */}
-          <Card className="dark-card dark-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <QrCode className="w-5 h-5 text-bitcoin" />
+          <Card className="dark-card dark-border border-0 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 dark-text">
+                <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
+                  <QrCode className="w-4 h-4 text-green-500" />
+                </div>
                 Instant Deposit
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Deposit Address</Label>
-                  <div className="flex items-center gap-2 mt-1">
+                  <Label className="text-sm text-muted-foreground mb-2">Deposit Address</Label>
+                  <div className="flex items-center gap-2 mt-2">
                     <Input
                       value={adminConfig?.depositAddress || "Loading..."}
                       readOnly
-                      className="text-xs font-mono"
+                      className="text-xs font-mono bg-muted/30"
                     />
                     <Button
                       variant="outline"
                       size="icon"
                       onClick={() => adminConfig?.depositAddress && copyToClipboard(adminConfig.depositAddress, "Deposit")}
                       disabled={!adminConfig?.depositAddress}
+                      className="flex-shrink-0"
                     >
                       {copied === "Deposit" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                     </Button>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg">
                   Send Bitcoin to this address for immediate balance update
                 </p>
               </div>
@@ -184,66 +189,78 @@ export default function Deposit() {
           </Card>
 
           {/* Submit Deposit */}
-          <Card className="dark-card dark-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Send className="w-5 h-5 text-bitcoin" />
+          <Card className="dark-card dark-border border-0 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 dark-text">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                  <Send className="w-4 h-4 text-blue-500" />
+                </div>
                 Submit Deposit
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="amount">Amount (USD)</Label>
+                  <Label htmlFor="amount" className="text-foreground">Amount (USD)</Label>
                   <Input
-                  id="amount"
-                  type="number"
-                  step="0.01"
-                  placeholder="100.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="mt-1"
-                />
-                {amount && priceData?.usd?.price && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    ≈ {usdToBtc(amount, priceData.usd.price)} BTC
-                  </p>
-                )}
+                    id="amount"
+                    type="number"
+                    step="0.01"
+                    placeholder="100.00"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="mt-1.5"
+                  />
+                  {amount && priceData?.usd?.price && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      ≈ {usdToBtc(amount, priceData.usd.price)} BTC
+                    </p>
+                  )}
                 </div>
                 <div>
-                  <Label htmlFor="txHash">Transaction Hash (Optional)</Label>
+                  <Label htmlFor="txHash" className="text-foreground">Transaction Hash (Optional)</Label>
                   <Input
                     id="txHash"
                     placeholder="Enter your transaction hash"
                     value={transactionHash}
                     onChange={(e) => setTransactionHash(e.target.value)}
-                    className="mt-1"
+                    className="mt-1.5"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-2">
                     Provide transaction hash after sending to speed up confirmation
                   </p>
                 </div>
                 <Button 
                   onClick={() => submitDepositMutation.mutate({ amount, transactionHash })}
                   disabled={!amount || submitDepositMutation.isPending}
-                  className="w-full bg-bitcoin hover:bg-bitcoin/90"
+                  className="w-full h-12 rounded-xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-lg transition-all duration-300 group text-white font-semibold"
                 >
-                  {submitDepositMutation.isPending ? "Submitting..." : "Submit Deposit"}
+                  {submitDepositMutation.isPending ? "Submitting..." : (
+                    <>
+                      <Send className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />
+                      Submit Deposit
+                    </>
+                  )}
                 </Button>
               </div>
             </CardContent>
           </Card>
 
           {/* Instructions */}
-          <Card className="dark-card dark-border">
-            <CardContent className="pt-6">
-              <h3 className="font-semibold mb-3 text-foreground">Deposit Instructions</h3>
-              <div className="space-y-2 text-xs text-muted-foreground">
-                <p>• Use vault address for investment deposits</p>
-                <p>• Use deposit address for trading balance</p>
-                <p>• Minimum deposit: $10 USD</p>
-                <p>• Confirmations required: 1</p>
-                <p>• Your balance updates automatically</p>
+          <Card className="dark-card dark-border border-0 shadow-lg">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-medium dark-text mb-2">Deposit Instructions</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1.5">
+                    <li>• Use vault address for investment deposits</li>
+                    <li>• Use deposit address for trading balance</li>
+                    <li>• Minimum deposit: $10 USD</li>
+                    <li>• Confirmations required: 1</li>
+                    <li>• Your balance updates automatically</li>
+                  </ul>
+                </div>
               </div>
             </CardContent>
           </Card>

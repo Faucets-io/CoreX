@@ -64,23 +64,27 @@ export default function Profile() {
   const accountAge = Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24));
 
   return (
-    <div className="min-h-screen dark-bg">
-      {/* Navigation Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b dark-border">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
-                <ArrowLeft className="w-4 h-4" />
+    <AppLayout>
+      <div className="min-h-screen dark-bg">
+        {/* Navigation Header */}
+        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b dark-border">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setLocation('/')}
+                className="rounded-xl hover:bg-muted"
+              >
+                <ArrowLeft className="w-5 h-5" />
               </Button>
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold dark-text">Profile</h1>
-              <p className="text-muted-foreground text-sm">Your account overview</p>
+              <div>
+                <h1 className="text-2xl font-bold dark-text">Profile</h1>
+                <p className="text-muted-foreground text-sm">Your account overview</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
       <div className="max-w-sm mx-auto p-4 pb-20">
         {/* Profile Header Card */}
@@ -307,6 +311,7 @@ export default function Profile() {
       </div>
 
       <BottomNavigation />
-    </div>
+      </div>
+    </AppLayout>
   );
 }
