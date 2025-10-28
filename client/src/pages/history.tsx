@@ -21,11 +21,19 @@ export default function History() {
   const { data: bitcoinPrice } = useBitcoinPrice();
   const [, setLocation] = useLocation();
 
-  const { data: investments, isLoading } = useQuery<Investment[]>({
+  const { data: investments, isLoading, refetch } = useQuery<Investment[]>({
     queryKey: ['/api/investments/user', user?.id],
     queryFn: () => fetch(`/api/investments/user/${user?.id}`).then(res => res.json()),
     enabled: !!user?.id,
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
+
+  // Fetch investments immediately on mount if user is logged in
+  // This is to ensure investments show up instantly when the app loads
+  // The refetchInterval will handle subsequent updates
+  // We already have `enabled: !!user?.id` which ensures the query only runs when user is available.
+  // The default behavior of react-query is to fetch on mount if enabled is true.
+  // So, no explicit refetch() call is needed here for the initial load.
 
   const { data: notifications, isLoading: loadingNotifications } = useQuery<Notification[]>({
     queryKey: ['/api/notifications', user?.id],
@@ -51,8 +59,18 @@ export default function History() {
     <AppLayout>
       <div className="p-4 lg:p-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground">Investment History</h1>
-          <p className="text-sm text-muted-foreground mt-1">Track your investments</p>
+          <div className="flex items-center gap-3 mb-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setLocation('/')}
+              className="rounded-xl hover:bg-muted"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-3xl font-bold text-foreground">Investment History</h1>
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">Track your investment performance</p>
         </div>
 
         {isLoading || loadingNotifications || loadingTransactions ? (

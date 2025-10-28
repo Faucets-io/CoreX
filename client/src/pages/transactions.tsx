@@ -14,10 +14,20 @@ export default function Transactions() {
   const [, setLocation] = useLocation();
 
   // Fetch user transactions
-  const { data: transactions, isLoading } = useQuery<Transaction[]>({
+  const { data: transactions, isLoading, refetch } = useQuery<Transaction[]>({
     queryKey: ['/api/transactions'],
     enabled: !!user,
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
+
+  // Manually refetch on mount to ensure data is fresh
+  // This is a workaround for the initial load delay
+  // A more robust solution might involve react-query's stale-while-revalidate or initialData
+  // However, for this specific request, adding a direct refetch on mount is sufficient.
+  // useEffect(() => {
+  //   refetch();
+  // }, [refetch]);
+
 
   if (!user) {
     return (
@@ -79,9 +89,9 @@ export default function Transactions() {
       {/* Header */}
       <header className="px-4 py-6 border-b dark-border">
         <div className="flex items-center gap-3">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setLocation('/history')}
             className="rounded-full"
           >

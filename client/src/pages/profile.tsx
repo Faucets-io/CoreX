@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +27,8 @@ export default function Profile() {
   const { data: investments } = useQuery<Investment[]>({
     queryKey: ['/api/investments/user', user?.id],
     enabled: !!user?.id,
+    refetchInterval: 30000, // Refetch every 30 seconds
+    initialData: [], // Initialize with an empty array to avoid undefined state on load
   });
 
   const { data: transactions } = useQuery<Transaction[]>({
@@ -107,7 +108,7 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-orange-100 text-xs">Account Age</p>

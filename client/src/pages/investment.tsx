@@ -34,15 +34,20 @@ export default function Investment() {
   const { data: investments } = useQuery<Investment[]>({
     queryKey: ['/api/investments/user', user.id],
     refetchInterval: 30000, // Refresh every 30 seconds
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const { data: plans } = useQuery<InvestmentPlan[]>({
     queryKey: ['/api/investment-plans'],
+    refetchOnMount: true,
   });
 
   const { data: transactions } = useQuery<any[]>({
     queryKey: ['/api/transactions'],
     refetchInterval: 30000, // Refresh every 30 seconds
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const getPlanName = (planId: number) => {
@@ -58,7 +63,17 @@ export default function Investment() {
     <AppLayout>
       <div className="p-4 lg:p-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground">Investment</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setLocation('/')}
+              className="rounded-xl hover:bg-muted"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-3xl font-bold text-foreground">Investment</h1>
+          </div>
           <p className="text-sm text-muted-foreground mt-1">Grow your Bitcoin</p>
         </div>
 

@@ -8,7 +8,7 @@ import { AppLayout } from "@/components/app-layout";
 
 import { User, Globe, LogOut, ArrowLeft, Bell, HelpCircle, ChevronRight, Crown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,8 @@ export default function Settings() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("account");
   const [notifications, setNotifications] = useState(true);
+  const [, setLocation] = useLocation();
+
 
   const handleLogout = () => {
     logout();

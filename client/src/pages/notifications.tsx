@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from "@/hooks/use-auth";
 import { BottomNavigation } from "@/components/bottom-navigation";
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, Check, CheckCircle, Info, AlertTriangle, AlertCircle, MoreVertical, Trash2, Archive, Clock, Filter } from 'lucide-react';
+import { Bell, CheckCircle, Info, AlertTriangle, AlertCircle, MoreVertical, Trash2, Archive, Clock, Filter, Check, ArrowLeft } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import type { Notification } from '@shared/schema';
 import { cn } from '@/lib/utils';
@@ -24,11 +24,17 @@ export default function Notifications() {
     return null;
   }
 
-  const { data: notifications, isLoading } = useQuery<Notification[]>({
+  const { data: notifications, isLoading, refetch } = useQuery<Notification[]>({
     queryKey: ['/api/notifications', user?.id],
     queryFn: () => fetch(`/api/notifications/${user?.id}`).then(res => res.json()),
     enabled: !!user?.id,
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
+
+  // Initial fetch on mount
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   const { data: unreadCount } = useQuery<{ count: number }>({
     queryKey: ['/api/notifications', user?.id, 'unread-count'],
@@ -46,6 +52,7 @@ export default function Notifications() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications', user?.id, 'unread-count'] });
     },
   });
 
@@ -59,6 +66,7 @@ export default function Notifications() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/notifications', user?.id, 'unread-count'] });
     },
   });
 
@@ -99,11 +107,19 @@ export default function Notifications() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setLocation('/')}
+                className="rounded-xl hover:bg-muted"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
               <div className="relative">
                 <Bell className="w-8 h-8 text-primary" />
                 {unreadCount && unreadCount.count > 0 && (
-                  <Badge 
-                    variant="destructive" 
+                  <Badge
+                    variant="destructive"
                     className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
                   >
                     {unreadCount.count}
@@ -146,7 +162,7 @@ export default function Notifications() {
               Unread ({unreadCount?.count || 0})
             </TabsTrigger>
             <TabsTrigger value="read" className="gap-2">
-              <Check className="w-4 h-4" />
+              <CheckCircle className="w-4 h-4" />
               Read ({(notifications?.length || 0) - (unreadCount?.count || 0)})
             </TabsTrigger>
           </TabsList>
@@ -246,11 +262,11 @@ export default function Notifications() {
                     <Bell className="w-10 h-10 text-muted-foreground opacity-50" />
                   </div>
                   <h3 className="text-xl font-semibold dark-text mb-2">
-                    {filter === 'unread' ? 'No unread notifications' : 
+                    {filter === 'unread' ? 'No unread notifications' :
                      filter === 'read' ? 'No read notifications' : 'No notifications yet'}
                   </h3>
                   <p className="text-muted-foreground max-w-md mx-auto">
-                    {filter === 'unread' 
+                    {filter === 'unread'
                       ? "You're all caught up! Check back later for new updates."
                       : filter === 'read'
                       ? "You haven't read any notifications yet."
