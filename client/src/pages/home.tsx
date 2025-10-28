@@ -21,15 +21,11 @@ export default function Home() {
     queryKey: ['/api/investments/user', user?.id],
     enabled: !!user?.id,
     refetchInterval: 30000,
-    staleTime: 0,
-    refetchOnMount: true,
   });
 
   const { data: investmentPlans } = useQuery<InvestmentPlan[]>({
     queryKey: ['/api/investment-plans'],
     enabled: !!user,
-    staleTime: 0,
-    refetchOnMount: true,
   });
 
   const { data: unreadCount } = useQuery<{ count: number }>({
