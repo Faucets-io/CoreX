@@ -3,43 +3,53 @@
 @tailwind utilities;
 
 :root {
-  --background: 220 18% 8%; /* Deep dark blue-gray */
+  /* Modern Trading Platform Dark Theme - Enhanced */
+  --background: 215 20% 4%; /* Ultra dark background */
   --foreground: 0 0% 98%;
-  --muted: 220 15% 14%;
-  --muted-foreground: 220 8% 65%;
-  --popover: 220 18% 10%;
+  --muted: 215 18% 10%; /* Darker muted */
+  --muted-foreground: 215 8% 60%;
+  --popover: 215 20% 6%;
   --popover-foreground: 0 0% 98%;
-  --card: 220 18% 10%;
+  --card: 215 18% 7%; /* Darker card background */
   --card-foreground: 0 0% 98%;
-  --border: 220 15% 18%;
-  --input: 220 15% 18%;
+  --border: 215 15% 15%; /* Subtle borders */
+  --input: 215 15% 12%;
   --primary: 195 100% 50%; /* FluxTrade electric cyan */
   --primary-foreground: 0 0% 2%;
-  --secondary: 220 15% 14%;
+  --secondary: 215 15% 11%;
   --secondary-foreground: 0 0% 98%;
-  --accent: 220 15% 14%;
+  --accent: 215 15% 11%;
   --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 50%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
   --ring: 195 100% 50%;
   --radius: 0.75rem;
+  
+  /* Trading Colors */
   --bitcoin: 25 95% 53%; /* #F7931A */
   --bitcoin-dark: 25 91% 48%; /* #E8850F */
   --bitcoin-light: 25 100% 65%;
-  --flux-cyan: 195 100% 50%; /* #00BFFF */
+  --flux-cyan: 195 100% 50%; /* #00BFFF - Primary brand color */
   --flux-blue: 210 100% 56%; /* #1E90FF */
   --flux-purple: 260 60% 65%; /* #9D7EFF */
-  --gold: 51 100% 50%; /* #FFD700 */
-  --emerald: 158 64% 52%; /* #10B981 */
-  --ruby: 0 84% 60%; /* #EF4444 */
+  --gold: 45 93% 58%; /* #F0B90B - Binance gold */
+  --emerald: 141 71% 48%; /* #16C784 - CoinMarketCap green */
+  --ruby: 0 91% 71%; /* #FC466B - Modern red */
   --sapphire: 221 83% 53%; /* #3B82F6 */
-  --gradient-primary: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(210 100% 56%) 50%, hsl(260 60% 65%) 100%);
-  --gradient-secondary: linear-gradient(135deg, hsl(220 18% 10%) 0%, hsl(220 15% 14%) 100%);
-  --gradient-accent: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(260 60% 65%) 100%);
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  /* Professional Gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(260 60% 65%) 100%);
+  --gradient-card: linear-gradient(135deg, hsl(215 18% 8%) 0%, hsl(215 18% 6%) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(195 100% 50% / 0.1) 0%, hsl(260 60% 65% / 0.1) 100%);
+  --gradient-profit: linear-gradient(135deg, hsl(141 71% 48%) 0%, hsl(158 64% 52%) 100%);
+  --gradient-loss: linear-gradient(135deg, hsl(0 91% 71%) 0%, hsl(0 84% 60%) 100%);
+  
+  /* Enhanced Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+  --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 20px -5px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+  --shadow-trading: 0 8px 32px rgba(0, 191, 255, 0.15);
 }
 
 .light {
@@ -85,28 +95,54 @@
     background: var(--gradient-primary);
   }
   
-  .gradient-secondary {
-    background: var(--gradient-secondary);
+  .gradient-card {
+    background: var(--gradient-card);
   }
   
   .gradient-accent {
     background: var(--gradient-accent);
   }
   
+  .gradient-profit {
+    background: var(--gradient-profit);
+  }
+  
+  .gradient-loss {
+    background: var(--gradient-loss);
+  }
+  
   .bitcoin-gradient {
     background: linear-gradient(135deg, hsl(var(--bitcoin)) 0%, hsl(var(--bitcoin-dark)) 50%, hsl(var(--gold)) 100%);
   }
   
+  /* Modern Glass Card - Binance/Trading Style */
   .glass-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
   
+  /* Trading Platform Card */
   .neo-card {
     background: hsl(var(--card));
-    box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.3), -8px -8px 16px rgba(255, 255, 255, 0.02);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
     border: 1px solid hsl(var(--border));
+  }
+  
+  /* Premium Trading Card with Glow */
+  .trading-card {
+    background: linear-gradient(135deg, hsl(215 18% 8%) 0%, hsl(215 18% 6%) 100%);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 
+                0 2px 8px rgba(0, 191, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(0, 191, 255, 0.1);
+  }
+  
+  .trading-card:hover {
+    border-color: rgba(0, 191, 255, 0.3);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5),
+                0 4px 16px rgba(0, 191, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
   
   .glow-bitcoin {

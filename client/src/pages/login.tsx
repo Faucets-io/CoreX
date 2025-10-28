@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
 import { Eye, EyeOff, Shield, Lock, Mail, ArrowRight } from "lucide-react";
+import fluxTradeLogo from "@assets/generated_images/FluxTrade_modern_logo_design_0d50e08c.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -55,8 +56,8 @@ export default function Login() {
       
       <Card className="w-full max-w-md relative z-10 neo-card border-0 shadow-2xl">
         <CardHeader className="text-center pb-8">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-3xl gradient-primary flex items-center justify-center animate-glow">
-            <span className="text-3xl font-bold text-black">FT</span>
+          <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-flux-cyan/10 to-flux-purple/10 flex items-center justify-center animate-glow p-3">
+            <img src={fluxTradeLogo} alt="FluxTrade Logo" className="w-full h-full object-contain" data-testid="img-logo" />
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent mb-2">
             Welcome to FluxTrade

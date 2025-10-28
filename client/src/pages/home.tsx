@@ -14,6 +14,7 @@ import { formatBitcoin, calculateInvestmentProgress, formatDate } from "@/lib/ut
 import { Progress } from "@/components/ui/progress";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
+import fluxTradeLogo from "@assets/generated_images/FluxTrade_modern_logo_design_0d50e08c.png";
 
 export default function Home() {
   const { user, logout } = useAuth();
@@ -78,8 +79,8 @@ export default function Home() {
       {/* Header */}
       <header className="relative px-6 py-4 flex justify-between items-center backdrop-blur-sm">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center animate-glow shadow-lg">
-            <span className="text-black text-lg font-bold">FT</span>
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-flux-cyan/10 to-flux-purple/10 flex items-center justify-center shadow-lg p-1.5">
+            <img src={fluxTradeLogo} alt="FluxTrade Logo" className="w-full h-full object-contain" data-testid="img-logo-header" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">

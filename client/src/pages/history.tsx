@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { useCurrency } from "@/hooks/use-currency";
-import { formatBitcoinAmount } from "@/lib/bitcoin";
 import { Clock, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft, ArrowLeft, DollarSign } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
