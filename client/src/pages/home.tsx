@@ -1,12 +1,12 @@
+
 import { useAuth } from "@/hooks/use-auth";
 import { WalletBalance } from "@/components/wallet-balance";
 import { BitcoinPrice } from "@/components/bitcoin-price";
 import { BitcoinSync } from "@/components/bitcoin-sync";
-
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Bell, User, ArrowUpRight, ArrowDownLeft, TrendingUp, Activity } from "lucide-react";
+import { Bell, User, ArrowUpRight, ArrowDownLeft, TrendingUp, Activity, Zap } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { Investment, InvestmentPlan } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,6 @@ import { formatBitcoin, calculateInvestmentProgress, formatDate } from "@/lib/ut
 import { Progress } from "@/components/ui/progress";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
-import fluxTradeLogo from "@assets/generated_images/FluxTrade_modern_logo_design_0d50e08c.png";
 
 export default function Home() {
   const { user, logout } = useAuth();
@@ -23,7 +22,7 @@ export default function Home() {
   const { data: investments } = useQuery<Investment[]>({
     queryKey: ['/api/investments/user', user?.id],
     enabled: !!user?.id,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
   });
 
   const { data: investmentPlans } = useQuery<InvestmentPlan[]>({
@@ -43,7 +42,6 @@ export default function Home() {
       return;
     }
 
-    // Redirect to wallet setup if user doesn't have a wallet
     if (!user.hasWallet) {
       setLocation('/wallet-setup');
     }
@@ -63,133 +61,146 @@ export default function Home() {
     total + parseFloat(inv.currentProfit), 0
   ) || 0;
 
-  const totalInvestmentValue = totalInvestedAmount + totalProfit;
-
   const currentPlan = user?.currentPlanId 
     ? investmentPlans?.find(plan => plan.id === user.currentPlanId)
     : null;
 
   return (
-    <div className="max-w-sm mx-auto bg-background min-h-screen relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background opacity-50"></div>
-      <div className="absolute top-0 right-0 w-64 h-64 bg-flux-cyan opacity-5 rounded-full blur-3xl animate-pulse-slow"></div>
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-flux-purple opacity-5 rounded-full blur-3xl animate-pulse-slow"></div>
-
-      {/* Header */}
-      <header className="relative px-6 py-4 flex justify-between items-center backdrop-blur-sm">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-flux-cyan/10 to-flux-purple/10 flex items-center justify-center shadow-lg p-1.5">
-            <img src={fluxTradeLogo} alt="FluxTrade Logo" className="w-full h-full object-contain" data-testid="img-logo-header" />
-          </div>
+    <div className="max-w-sm mx-auto bg-background min-h-screen pb-24">
+      {/* Clean Header */}
+      <header className="px-6 pt-6 pb-4">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-foreground bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">
               FluxTrade
             </h1>
-            <p className="text-sm text-muted-foreground font-medium">{user.email}</p>
+            <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="rounded-2xl relative glass-card hover:glow-bitcoin transition-all duration-300" 
-            onClick={() => setLocation('/notifications')}
-          >
-            <Bell className="w-5 h-5" />
-            {unreadCount && unreadCount.count > 0 && (
-              <Badge variant="destructive" className="absolute -top-2 -right-2 h-6 w-6 text-xs p-0 flex items-center justify-center animate-pulse glow-ruby">
-                {unreadCount.count > 9 ? '9+' : unreadCount.count}
-              </Badge>
-            )}
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="rounded-2xl glass-card hover:glow-emerald transition-all duration-300" 
-            onClick={() => setLocation('/profile')}
-          >
-            <User className="w-5 h-5" />
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-xl relative hover:bg-muted" 
+              onClick={() => setLocation('/notifications')}
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount && unreadCount.count > 0 && (
+                <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center">
+                  {unreadCount.count > 9 ? '9+' : unreadCount.count}
+                </Badge>
+              )}
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-xl hover:bg-muted" 
+              onClick={() => setLocation('/profile')}
+            >
+              <User className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
-      {/* Wallet Balance */}
+      {/* Wallet Balance - Hero Section */}
       <WalletBalance />
+
+      {/* Quick Actions */}
+      <div className="px-6 mb-6">
+        <div className="grid grid-cols-2 gap-3">
+          <Button 
+            className="h-16 rounded-2xl bg-emerald/10 hover:bg-emerald/20 border border-emerald/20 text-foreground flex flex-col items-center justify-center gap-1 transition-all"
+            onClick={() => setLocation('/deposit')}
+            variant="outline"
+          >
+            <ArrowDownLeft className="w-5 h-5 text-emerald" />
+            <span className="text-sm font-medium">Deposit</span>
+          </Button>
+          <Button 
+            className="h-16 rounded-2xl bg-ruby/10 hover:bg-ruby/20 border border-ruby/20 text-foreground flex flex-col items-center justify-center gap-1 transition-all"
+            onClick={() => setLocation('/withdraw')}
+            variant="outline"
+          >
+            <ArrowUpRight className="w-5 h-5 text-ruby" />
+            <span className="text-sm font-medium">Withdraw</span>
+          </Button>
+        </div>
+      </div>
 
       {/* Bitcoin Price */}
       <BitcoinPrice />
 
-      {/* Bitcoin Sync */}
-      <div className="px-4 mb-6">
+      {/* Bitcoin Sync Status */}
+      <div className="px-6 mb-6">
         <BitcoinSync />
       </div>
 
-      {/* Quick Actions */}
-      <div className="relative px-6 mb-8">
-        <h3 className="text-lg font-semibold mb-4 text-foreground">Quick Actions</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <Button 
-            className="neo-card rounded-2xl p-6 text-center hover:glow-ruby transition-all duration-300 transform hover:scale-105 flex flex-col items-center gap-3 h-auto group"
-            onClick={() => setLocation('/withdraw')}
-          >
-            <div className="w-12 h-12 rounded-xl bg-ruby bg-opacity-20 flex items-center justify-center group-hover:bg-opacity-30 transition-all">
-              <ArrowUpRight className="w-6 h-6 text-ruby" />
+      {/* Portfolio Stats */}
+      <div className="px-6 mb-6">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Portfolio</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="border-0 bg-gradient-to-br from-emerald/5 to-emerald/10 p-4 rounded-2xl">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald/20 flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-emerald" />
+              </div>
+              <span className="text-xs text-muted-foreground">Invested</span>
             </div>
-            <span className="text-sm font-medium text-foreground">Withdraw</span>
-            <span className="text-xs text-muted-foreground">Send Bitcoin</span>
-          </Button>
-          <Button 
-            className="neo-card rounded-2xl p-6 text-center hover:glow-emerald transition-all duration-300 transform hover:scale-105 flex flex-col items-center gap-3 h-auto group"
-            onClick={() => setLocation('/deposit')}
-          >
-            <div className="w-12 h-12 rounded-xl bg-emerald bg-opacity-20 flex items-center justify-center group-hover:bg-opacity-30 transition-all">
-              <ArrowDownLeft className="w-6 h-6 text-emerald" />
+            <p className="text-lg font-bold text-foreground">{formatBitcoin(totalInvestedAmount.toString())}</p>
+            <p className="text-xs text-muted-foreground">BTC</p>
+          </Card>
+
+          <Card className="border-0 bg-gradient-to-br from-bitcoin/5 to-bitcoin/10 p-4 rounded-2xl">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-lg bg-bitcoin/20 flex items-center justify-center">
+                <Activity className="w-4 h-4 text-bitcoin" />
+              </div>
+              <span className="text-xs text-muted-foreground">Profit</span>
             </div>
-            <span className="text-sm font-medium text-foreground">Deposit</span>
-            <span className="text-xs text-muted-foreground">Receive Bitcoin</span>
-          </Button>
+            <p className="text-lg font-bold text-emerald">+{formatBitcoin(totalProfit.toString())}</p>
+            <p className="text-xs text-muted-foreground">BTC</p>
+          </Card>
         </div>
       </div>
 
-      {/* Current Investment Plan */}
-      <div className="relative px-6 mb-8">
-        <h3 className="text-lg font-semibold mb-4 text-foreground">Investment Plan</h3>
-        <Card className="neo-card rounded-2xl p-6 hover:glow-bitcoin transition-all duration-300">
+      {/* Current Plan */}
+      <div className="px-6 mb-6">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Investment Plan</h3>
+        <Card className="border-0 bg-gradient-to-br from-sapphire/5 to-flux-purple/5 p-5 rounded-2xl">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                 currentPlan 
-                  ? 'bg-emerald bg-opacity-20' 
-                  : 'bg-sapphire bg-opacity-20'
+                  ? 'bg-emerald/20' 
+                  : 'bg-sapphire/20'
               }`}>
-                <TrendingUp className={`w-6 h-6 ${
+                <Zap className={`w-6 h-6 ${
                   currentPlan ? 'text-emerald' : 'text-sapphire'
                 }`} />
               </div>
               <div>
-                <h4 className="font-bold text-lg text-foreground">
+                <h4 className="font-bold text-foreground">
                   {currentPlan ? currentPlan.name : "Free Plan"}
                 </h4>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {currentPlan 
-                    ? `${(parseFloat(currentPlan.dailyReturnRate) * 100).toFixed(2)}% daily return`
-                    : "3.67% every 10 minutes"
+                    ? `${(parseFloat(currentPlan.dailyReturnRate) * 100).toFixed(2)}% daily`
+                    : "3.67% every 10 min"
                   }
                 </p>
               </div>
             </div>
-            <Badge className={`px-3 py-1 rounded-xl text-sm font-medium ${
+            <Badge className={`px-3 py-1 rounded-lg text-xs ${
               currentPlan 
-                ? 'bg-emerald bg-opacity-20 text-emerald border-emerald' 
-                : 'bg-sapphire bg-opacity-20 text-sapphire border-sapphire'
-            }`}>
+                ? 'bg-emerald/20 text-emerald border-emerald/30' 
+                : 'bg-sapphire/20 text-sapphire border-sapphire/30'
+            }`} variant="outline">
               {currentPlan ? 'Premium' : 'Free'}
             </Badge>
           </div>
           {!currentPlan && (
             <Button 
-              className="w-full gradient-primary text-black font-medium rounded-xl hover:scale-105 transition-all duration-300"
+              className="w-full bg-gradient-to-r from-flux-cyan to-flux-purple text-white font-medium rounded-xl h-11 hover:opacity-90 transition-opacity"
               onClick={() => setLocation('/investment')}
             >
               Upgrade Plan
@@ -198,41 +209,10 @@ export default function Home() {
         </Card>
       </div>
 
-      {/* Portfolio Overview */}
-      <div className="relative px-6 mb-8">
-        <h3 className="text-lg font-semibold mb-4 text-foreground">Portfolio Overview</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="neo-card rounded-2xl p-5 hover:glow-emerald transition-all duration-300 group">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald bg-opacity-20 flex items-center justify-center group-hover:bg-opacity-30 transition-all">
-                <TrendingUp className="w-5 h-5 text-emerald" />
-              </div>
-              <span className="text-sm text-muted-foreground font-medium">Total Invested</span>
-            </div>
-            <p className="text-xl font-bold text-foreground">{formatBitcoin(totalInvestedAmount.toString())}</p>
-            <p className="text-xs text-bitcoin font-medium">BTC</p>
-          </Card>
-
-          <Card className="neo-card rounded-2xl p-5 hover:glow-bitcoin transition-all duration-300 group">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-bitcoin bg-opacity-20 flex items-center justify-center group-hover:bg-opacity-30 transition-all">
-                <Activity className="w-5 h-5 text-bitcoin" />
-              </div>
-              <span className="text-sm text-muted-foreground font-medium">Total Profit</span>
-            </div>
-            <p className="text-xl font-bold text-emerald">+{formatBitcoin(totalProfit.toString())}</p>
-            <p className="text-xs text-bitcoin font-medium">BTC</p>
-          </Card>
-        </div>
-      </div>
-
-      {/* Investment Plans */}
-      {/* <InvestmentPlans /> */}
-
       {/* Active Investments */}
       {activeInvestments.length > 0 && (
-        <div className="px-4 mb-20">
-          <h3 className="text-lg font-semibold mb-4 text-foreground">Active Investments</h3>
+        <div className="px-6 mb-6">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Active Investments</h3>
           <div className="space-y-3">
             {activeInvestments.map((investment) => {
               const progress = calculateInvestmentProgress(
@@ -244,29 +224,29 @@ export default function Home() {
               );
 
               return (
-                <Card key={investment.id} className="dark-card rounded-xl p-4 dark-border">
+                <Card key={investment.id} className="border-0 bg-card/50 backdrop-blur-sm p-4 rounded-2xl">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h4 className="font-semibold text-gold">Investment #{investment.id}</h4>
-                      <p className="text-muted-foreground text-sm">
-                        Started: {formatDate(new Date(investment.startDate))}
+                      <h4 className="font-semibold text-foreground">Investment #{investment.id}</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {formatDate(new Date(investment.startDate))}
                       </p>
                     </div>
-                    <span className="bg-green-500 bg-opacity-20 text-green-400 px-2 py-1 rounded-full text-xs">
+                    <Badge className="bg-emerald/20 text-emerald border-emerald/30 text-xs" variant="outline">
                       Active
-                    </span>
+                    </Badge>
                   </div>
-                  <div className="space-y-2 mb-4">
+                  <div className="space-y-2 mb-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Invested</span>
-                      <span className="text-foreground">{formatBitcoin(investment.amount)} BTC</span>
+                      <span className="text-foreground font-medium">{formatBitcoin(investment.amount)} BTC</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Current Profit</span>
-                      <span className="text-green-400">+{formatBitcoin(investment.currentProfit)} BTC</span>
+                      <span className="text-muted-foreground">Profit</span>
+                      <span className="text-emerald font-medium">+{formatBitcoin(investment.currentProfit)} BTC</span>
                     </div>
                   </div>
-                  <Progress value={progress} className="w-full mb-2" />
+                  <Progress value={progress} className="h-2 mb-2" />
                   <p className="text-xs text-muted-foreground text-center">
                     {daysLeft > 0 ? `${daysLeft} days remaining` : 'Completed'}
                   </p>
@@ -276,9 +256,6 @@ export default function Home() {
           </div>
         </div>
       )}
-
-      {/* Bottom spacing for navigation */}
-      <div className="h-20"></div>
 
       {/* Bottom Navigation */}
       <BottomNavigation />
