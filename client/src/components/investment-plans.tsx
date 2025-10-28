@@ -119,9 +119,10 @@ export function InvestmentPlans() {
                   <h4 className={`font-semibold ${getTextColorClass(plan.color)}`}>
                     {plan.name}
                   </h4>
-                  <p className={`text-sm opacity-80 ${getTextColorClass(plan.color)}`}>
-                    Min: {priceData?.usd?.price ? formatUsd(btcToUsd(plan.minAmount, priceData.usd.price)) : `${formatBitcoin(plan.minAmount)} BTC`}
-                  </p>
+                  <div className={`text-sm opacity-80 ${getTextColorClass(plan.color)}`}>
+                    <p>Min: {priceData?.usd?.price ? formatUsd(btcToUsd(plan.minAmount, priceData.usd.price)) : `${formatBitcoin(plan.minAmount)} BTC`}</p>
+                    <p className="text-xs opacity-70">≈ {formatBitcoin(plan.minAmount)} BTC</p>
+                  </div>
                 </div>
                 <div className="text-right">
                   <p className={`text-2xl font-bold ${getTextColorClass(plan.color)}`}>
