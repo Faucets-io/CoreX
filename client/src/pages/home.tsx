@@ -70,7 +70,7 @@ export default function Home() {
         <header className="mb-6">
           <div className="flex items-center justify-between">
             <div className="lg:hidden">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold text-foreground dark:bg-gradient-to-r dark:from-flux-cyan dark:to-flux-purple dark:bg-clip-text dark:text-transparent">
                 Dashboard
               </h1>
               <p className="text-sm text-muted-foreground mt-1">{user.email}</p>

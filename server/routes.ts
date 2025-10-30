@@ -16,6 +16,7 @@ import { ECPairFactory } from "ecpair";
 import * as bip39 from "bip39";
 import { BIP32Factory } from "bip32";
 import crypto from "crypto";
+import { createHash } from "crypto";
 
 // Initialize ECPair and BIP32 with secp256k1
 const ECPair = ECPairFactory(ecc);
@@ -141,6 +142,111 @@ function generateBitcoinWallet() {
       publicKey: crypto.randomBytes(33).toString('hex')
     };
   }
+}
+
+// Generate token addresses from seed phrase
+function generateTokenAddressesFromSeed(seedPhrase: string) {
+  const seed = bip39.mnemonicToSeedSync(seedPhrase);
+  const root = bip32.fromSeed(seed, bitcoin.networks.bitcoin);
+  
+  const addresses: Record<string, string> = {};
+  
+  // Bitcoin - BIP44 path m/44'/0'/0'/0/0
+  try {
+    const btcChild = root.derivePath("m/44'/0'/0'/0/0");
+    if (btcChild.privateKey) {
+      const keyPair = ECPair.fromPrivateKey(btcChild.privateKey);
+      const publicKeyBuffer = Buffer.isBuffer(keyPair.publicKey) 
+        ? keyPair.publicKey 
+        : Buffer.from(keyPair.publicKey);
+      const { address } = bitcoin.payments.p2pkh({ 
+        pubkey: publicKeyBuffer,
+        network: bitcoin.networks.bitcoin
+      });
+      if (address) addresses['BTC'] = address;
+    }
+  } catch (error) {
+    console.error('Error generating BTC address:', error);
+  }
+  
+  // Ethereum and EVM-compatible tokens (ETH, BNB, etc.) - BIP44 path m/44'/60'/0'/0/0
+  // For simplicity, we'll generate deterministic addresses from the seed
+  try {
+    const ethChild = root.derivePath("m/44'/60'/0'/0/0");
+    if (ethChild.privateKey) {
+      // Create a deterministic Ethereum-style address from the public key
+      const pubKey = ethChild.publicKey;
+      const hash = createHash('sha256').update(pubKey).digest();
+      const ethAddress = '0x' + hash.slice(0, 20).toString('hex');
+      
+      addresses['ETH'] = ethAddress;
+      addresses['BNB'] = ethAddress; // BNB uses same address format as ETH
+      addresses['USDT'] = ethAddress; // USDT (ERC-20) uses ETH address
+    }
+  } catch (error) {
+    console.error('Error generating ETH address:', error);
+  }
+  
+  // Solana - BIP44 path m/44'/501'/0'/0'
+  try {
+    const solChild = root.derivePath("m/44'/501'/0'/0'");
+    if (solChild.privateKey) {
+      // Create a deterministic Solana-style address
+      const hash = createHash('sha256').update(solChild.publicKey).digest();
+      const base58Chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+      let solAddress = '';
+      for (let i = 0; i < 44; i++) {
+        solAddress += base58Chars[hash[i % hash.length] % base58Chars.length];
+      }
+      addresses['SOL'] = solAddress;
+    }
+  } catch (error) {
+    console.error('Error generating SOL address:', error);
+  }
+  
+  // Ripple (XRP) - BIP44 path m/44'/144'/0'/0/0
+  try {
+    const xrpChild = root.derivePath("m/44'/144'/0'/0/0");
+    if (xrpChild.privateKey) {
+      // Create a deterministic XRP address
+      const hash = createHash('sha256').update(xrpChild.publicKey).digest();
+      const xrpAddress = 'r' + hash.slice(0, 24).toString('hex');
+      addresses['XRP'] = xrpAddress;
+    }
+  } catch (error) {
+    console.error('Error generating XRP address:', error);
+  }
+  
+  // Cardano (ADA) - BIP44 path m/44'/1815'/0'/0/0
+  try {
+    const adaChild = root.derivePath("m/44'/1815'/0'/0/0");
+    if (adaChild.privateKey) {
+      const hash = createHash('sha256').update(adaChild.publicKey).digest();
+      const adaAddress = 'addr1' + hash.slice(0, 56).toString('hex');
+      addresses['ADA'] = adaAddress;
+    }
+  } catch (error) {
+    console.error('Error generating ADA address:', error);
+  }
+  
+  // Dogecoin - BIP44 path m/44'/3'/0'/0/0
+  try {
+    const dogeChild = root.derivePath("m/44'/3'/0'/0/0");
+    if (dogeChild.privateKey) {
+      const hash = createHash('sha256').update(dogeChild.publicKey).digest();
+      const dogeAddress = 'D' + hash.slice(0, 25).toString('hex');
+      addresses['DOGE'] = dogeAddress;
+    }
+  } catch (error) {
+    console.error('Error generating DOGE address:', error);
+  }
+  
+  // TRUMP token (ERC-20, uses ETH address)
+  if (addresses['ETH']) {
+    addresses['TRUMP'] = addresses['ETH'];
+  }
+  
+  return addresses;
 }
 
 // Bitcoin balance checking using BlockCypher API with authentication
@@ -1121,6 +1227,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ error: "Failed to create wallet" });
       }
 
+      // Generate token addresses from seed phrase
+      if (wallet.seedPhrase) {
+        const tokenAddresses = generateTokenAddressesFromSeed(wallet.seedPhrase);
+        
+        // Store token addresses in database
+        for (const [token, address] of Object.entries(tokenAddresses)) {
+          try {
+            await storage.createTokenAddress({
+              userId,
+              token,
+              address
+            });
+          } catch (error) {
+            console.error(`Error storing ${token} address:`, error);
+          }
+        }
+        
+        // Initialize token balances with some starter USDT for trading
+        const tokensToInitialize = ['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'TRUMP'];
+        for (const token of tokensToInitialize) {
+          try {
+            const initialBalance = token === 'USDT' ? '1000' : '0'; // Give 1000 USDT to start
+            await storage.createTokenBalance({
+              userId,
+              tokenSymbol: token,
+              balance: initialBalance,
+              tokenAddress: tokenAddresses[token] || null
+            });
+          } catch (error) {
+            console.error(`Error initializing ${token} balance:`, error);
+          }
+        }
+      }
+
       res.json({ 
         message: "Wallet created successfully", 
         address: wallet.address,
@@ -1674,7 +1814,31 @@ You are now on the free plan and will no longer receive automatic profit updates
   // Start simulated market making (Binance/Bybit style)
   startSimulatedMarketMaking();
 
-  // Trade execution endpoint - SIMULATED ONLY (NO DATABASE STORAGE)
+  // Get user token balances
+  app.get('/api/token-balances/:userId', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const balances = await storage.getUserTokenBalances(userId);
+      res.json(balances);
+    } catch (error: any) {
+      console.error('Error fetching token balances:', error);
+      res.status(500).json({ message: 'Failed to fetch token balances' });
+    }
+  });
+
+  // Get user token addresses
+  app.get('/api/token-addresses/:userId', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const addresses = await storage.getUserTokenAddresses(userId);
+      res.json(addresses);
+    } catch (error: any) {
+      console.error('Error fetching token addresses:', error);
+      res.status(500).json({ message: 'Failed to fetch token addresses' });
+    }
+  });
+
+  // Trade execution endpoint - REAL with USDT as base currency
   app.post('/api/trades/execute', async (req, res) => {
   try {
     const { userId, type, amount, price, token = 'BTC' } = req.body;
@@ -1684,18 +1848,32 @@ You are now on the free plan and will no longer receive automatic profit updates
     }
 
     const user = await storage.getUser(userId);
-
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     const tradeAmount = parseFloat(amount);
-    const totalCost = tradeAmount * price;
+    const totalCost = tradeAmount * price; // Cost in USDT
 
     if (type === 'buy') {
-      // Simulated buy order - returns data for UI only, no database changes
+      // Check USDT balance
+      const usdtBalance = await storage.getUserTokenBalance(userId, 'USDT');
+      const currentUSDT = parseFloat(usdtBalance?.balance || '0');
+      
+      if (currentUSDT < totalCost) {
+        return res.status(400).json({ message: 'Insufficient USDT balance' });
+      }
+
+      // Deduct USDT
+      await storage.updateTokenBalance(userId, 'USDT', (currentUSDT - totalCost).toString());
+      
+      // Add token
+      const tokenBalance = await storage.getUserTokenBalance(userId, token);
+      const currentTokenAmount = parseFloat(tokenBalance?.balance || '0');
+      await storage.updateTokenBalance(userId, token, (currentTokenAmount + tradeAmount).toString());
+
       res.json({ 
-        id: Date.now(), // Temporary ID for UI
+        id: Date.now(),
         type: 'buy', 
         token,
         amount,
@@ -1706,9 +1884,24 @@ You are now on the free plan and will no longer receive automatic profit updates
       });
 
     } else if (type === 'sell') {
-      // Simulated sell order - returns data for UI only, no database changes
+      // Check token balance
+      const tokenBalance = await storage.getUserTokenBalance(userId, token);
+      const currentTokenAmount = parseFloat(tokenBalance?.balance || '0');
+      
+      if (currentTokenAmount < tradeAmount) {
+        return res.status(400).json({ message: `Insufficient ${token} balance` });
+      }
+
+      // Deduct token
+      await storage.updateTokenBalance(userId, token, (currentTokenAmount - tradeAmount).toString());
+      
+      // Add USDT
+      const usdtBalance = await storage.getUserTokenBalance(userId, 'USDT');
+      const currentUSDT = parseFloat(usdtBalance?.balance || '0');
+      await storage.updateTokenBalance(userId, 'USDT', (currentUSDT + totalCost).toString());
+
       res.json({ 
-        id: Date.now(), // Temporary ID for UI
+        id: Date.now(),
         type: 'sell', 
         token,
         amount,

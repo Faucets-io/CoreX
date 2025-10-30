@@ -71,6 +71,24 @@ export const transactions = pgTable("transactions", {
   confirmedAt: timestamp("confirmed_at"),
 });
 
+export const tokenBalances = pgTable("token_balances", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  tokenSymbol: text("token_symbol").notNull(), // 'BTC', 'ETH', 'USDT', 'BNB', etc.
+  balance: decimal("balance", { precision: 18, scale: 8 }).notNull().default("0"),
+  tokenAddress: text("token_address"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const tokenAddresses = pgTable("token_addresses", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  token: text("token").notNull(), // 'BTC', 'ETH', 'USDT', 'BNB', 'SOL', etc.
+  address: text("address").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   bitcoinAddress: true,
@@ -111,6 +129,17 @@ export const insertTransactionSchema = createInsertSchema(transactions).omit({
   confirmedAt: true,
 });
 
+export const insertTokenBalanceSchema = createInsertSchema(tokenBalances).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTokenAddressSchema = createInsertSchema(tokenAddresses).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertInvestmentPlan = z.infer<typeof insertInvestmentPlanSchema>;
@@ -123,3 +152,7 @@ export type InsertAdminConfig = z.infer<typeof insertAdminConfigSchema>;
 export type AdminConfig = typeof adminConfig.$inferSelect;
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 export type Transaction = typeof transactions.$inferSelect;
+export type InsertTokenBalance = z.infer<typeof insertTokenBalanceSchema>;
+export type TokenBalance = typeof tokenBalances.$inferSelect;
+export type InsertTokenAddress = z.infer<typeof insertTokenAddressSchema>;
+export type TokenAddress = typeof tokenAddresses.$inferSelect;

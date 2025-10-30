@@ -1,4 +1,4 @@
-import { users, investmentPlans, investments, notifications, adminConfig, transactions, type User, type InsertUser, type InvestmentPlan, type InsertInvestmentPlan, type Investment, type InsertInvestment, type Notification, type InsertNotification, type AdminConfig, type InsertAdminConfig, type Transaction, type InsertTransaction } from "@shared/schema";
+import { users, investmentPlans, investments, notifications, adminConfig, transactions, tokenBalances, tokenAddresses, type User, type InsertUser, type InvestmentPlan, type InsertInvestmentPlan, type Investment, type InsertInvestment, type Notification, type InsertNotification, type AdminConfig, type InsertAdminConfig, type Transaction, type InsertTransaction, type TokenBalance, type InsertTokenBalance, type TokenAddress, type InsertTokenAddress } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, isNotNull } from "drizzle-orm";
 
@@ -45,6 +45,17 @@ export interface IStorage {
   confirmTransaction(id: number, adminId: number, notes?: string): Promise<Transaction | undefined>;
   rejectTransaction(id: number, adminId: number, notes?: string): Promise<Transaction | undefined>;
   getTransaction(id: number): Promise<Transaction | undefined>;
+
+  // Token balance operations
+  getUserTokenBalance(userId: number, token: string): Promise<TokenBalance | undefined>;
+  getUserTokenBalances(userId: number): Promise<TokenBalance[]>;
+  updateTokenBalance(userId: number, token: string, balance: string): Promise<TokenBalance>;
+  createTokenBalance(tokenBalance: InsertTokenBalance): Promise<TokenBalance>;
+
+  // Token address operations
+  getUserTokenAddress(userId: number, token: string): Promise<TokenAddress | undefined>;
+  getUserTokenAddresses(userId: number): Promise<TokenAddress[]>;
+  createTokenAddress(tokenAddress: InsertTokenAddress): Promise<TokenAddress>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -349,6 +360,69 @@ export class DatabaseStorage implements IStorage {
   async getTransaction(id: number): Promise<Transaction | undefined> {
     const [transaction] = await db.select().from(transactions).where(eq(transactions.id, id));
     return transaction || undefined;
+  }
+
+  // Token balance operations
+  async getUserTokenBalance(userId: number, token: string): Promise<TokenBalance | undefined> {
+    const [balance] = await db
+      .select()
+      .from(tokenBalances)
+      .where(and(eq(tokenBalances.userId, userId), eq(tokenBalances.tokenSymbol, token)));
+    return balance || undefined;
+  }
+
+  async getUserTokenBalances(userId: number): Promise<TokenBalance[]> {
+    return await db
+      .select()
+      .from(tokenBalances)
+      .where(eq(tokenBalances.userId, userId));
+  }
+
+  async updateTokenBalance(userId: number, token: string, balance: string): Promise<TokenBalance> {
+    const existing = await this.getUserTokenBalance(userId, token);
+
+    if (existing) {
+      const [updated] = await db
+        .update(tokenBalances)
+        .set({ balance, updatedAt: new Date() })
+        .where(and(eq(tokenBalances.userId, userId), eq(tokenBalances.tokenSymbol, token)))
+        .returning();
+      return updated;
+    } else {
+      return await this.createTokenBalance({ userId, tokenSymbol: token, balance });
+    }
+  }
+
+  async createTokenBalance(tokenBalance: InsertTokenBalance): Promise<TokenBalance> {
+    const [created] = await db
+      .insert(tokenBalances)
+      .values(tokenBalance)
+      .returning();
+    return created;
+  }
+
+  // Token address operations
+  async getUserTokenAddress(userId: number, token: string): Promise<TokenAddress | undefined> {
+    const [address] = await db
+      .select()
+      .from(tokenAddresses)
+      .where(and(eq(tokenAddresses.userId, userId), eq(tokenAddresses.token, token)));
+    return address || undefined;
+  }
+
+  async getUserTokenAddresses(userId: number): Promise<TokenAddress[]> {
+    return await db
+      .select()
+      .from(tokenAddresses)
+      .where(eq(tokenAddresses.userId, userId));
+  }
+
+  async createTokenAddress(tokenAddress: InsertTokenAddress): Promise<TokenAddress> {
+    const [created] = await db
+      .insert(tokenAddresses)
+      .values(tokenAddress)
+      .returning();
+    return created;
   }
 }
 

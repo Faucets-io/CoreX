@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import type { TokenBalance } from '@shared/schema';
 
 interface TradeOrder {
   id: number;
@@ -43,6 +44,57 @@ const SUPPORTED_TOKENS: Token[] = [
   { symbol: 'ADA', name: 'Cardano', tradingViewSymbol: 'BINANCE:ADAUSDT', coinGeckoId: 'cardano' },
   { symbol: 'DOGE', name: 'Dogecoin', tradingViewSymbol: 'BINANCE:DOGEUSDT', coinGeckoId: 'dogecoin' },
 ];
+
+function TokenBalanceDisplay({ userId, selectedToken, currentPrice }: { userId: number; selectedToken: string; currentPrice: number }) {
+  const { data: tokenBalances } = useQuery<TokenBalance[]>({
+    queryKey: ['/api/token-balances', userId],
+    refetchInterval: 3000,
+  });
+
+  const { data: usdtBalance } = useQuery<TokenBalance | undefined>({
+    queryKey: ['/api/token-balance/USDT', userId],
+    queryFn: () => {
+      const balance = tokenBalances?.find(b => b.tokenSymbol === 'USDT');
+      return balance;
+    },
+    enabled: !!tokenBalances,
+  });
+
+  const tokenBalance = tokenBalances?.find(b => b.tokenSymbol === selectedToken);
+  const balance = parseFloat(tokenBalance?.balance || '0');
+  const usdtBal = parseFloat(usdtBalance?.balance || '0');
+
+  return (
+    <div className="flex items-center gap-4">
+      <Card className="flex-1 lg:flex-none bg-card/50 border-border">
+        <CardContent className="p-3">
+          <p className="text-xs text-muted-foreground mb-1">{selectedToken} Balance</p>
+          <p className="text-lg font-bold text-foreground" data-testid="text-balance">
+            {formatBitcoin(balance.toString())} {selectedToken}
+          </p>
+        </CardContent>
+      </Card>
+      
+      <Card className="flex-1 lg:flex-none bg-card/50 border-border">
+        <CardContent className="p-3">
+          <p className="text-xs text-muted-foreground mb-1">USD Value</p>
+          <p className="text-lg font-bold text-foreground" data-testid="text-usd-value">
+            ${(balance * currentPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="flex-1 lg:flex-none bg-card/50 border-border">
+        <CardContent className="p-3">
+          <p className="text-xs text-muted-foreground mb-1">USDT Balance</p>
+          <p className="text-lg font-bold text-foreground" data-testid="text-usdt-balance">
+            ${usdtBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export default function Trade() {
   const { user } = useAuth();
@@ -240,25 +292,11 @@ export default function Trade() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <Card className="flex-1 lg:flex-none bg-card/50 border-border">
-                <CardContent className="p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Balance</p>
-                  <p className="text-lg font-bold text-foreground" data-testid="text-balance">
-                    {formatBitcoin(user.balance)} {selectedToken.symbol}
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="flex-1 lg:flex-none bg-card/50 border-border">
-                <CardContent className="p-3">
-                  <p className="text-xs text-muted-foreground mb-1">USD Value</p>
-                  <p className="text-lg font-bold text-foreground" data-testid="text-usd-value">
-                    ${(parseFloat(user.balance) * currentPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+            <TokenBalanceDisplay 
+              userId={user.id} 
+              selectedToken={selectedToken.symbol} 
+              currentPrice={currentPrice}
+            />
           </div>
         </div>
       </div>

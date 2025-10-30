@@ -71,7 +71,7 @@ export default function Register() {
             <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-flux-cyan/10 to-flux-purple/10 p-3 flex items-center justify-center">
               <img src={fluxTradeLogo} alt="FluxTrade" className="w-full h-full object-contain" />
             </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold text-foreground dark:bg-gradient-to-r dark:from-flux-cyan dark:to-flux-purple dark:bg-clip-text dark:text-transparent">
               FluxTrade
             </h1>
           </div>

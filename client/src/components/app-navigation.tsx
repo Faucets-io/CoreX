@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, TrendingUp, History, Settings, Shield, BarChart3, LogOut } from "lucide-react";
+import { Home, TrendingUp, History, Settings, Shield, BarChart3, LogOut, Wallet } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -10,6 +10,7 @@ export function AppNavigation() {
 
   const navItems = [
     { path: "/", icon: Home, label: "Wallet" },
+    { path: "/assets", icon: Wallet, label: "Assets" },
     { path: "/trade", icon: BarChart3, label: "Trade" },
     { path: "/investment", icon: TrendingUp, label: "Invest" },
     { path: "/history", icon: History, label: "History" },
@@ -25,7 +26,7 @@ export function AppNavigation() {
       {/* Desktop Sidebar - Hidden on mobile */}
       <aside className="hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:bottom-0 lg:w-64 lg:flex-col lg:border-r lg:border-border lg:bg-card z-50">
         <div className="p-6">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold text-foreground dark:bg-gradient-to-r dark:from-flux-cyan dark:to-flux-purple dark:bg-clip-text dark:text-transparent">
             FluxTrade
           </h1>
           <p className="text-xs text-muted-foreground mt-1">Professional Trading</p>
