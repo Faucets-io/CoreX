@@ -113,19 +113,19 @@ export function InvestmentPlans() {
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <h4 className={`font-semibold ${getTextColorClass(plan.color)}`}>
+                  <h4 className="font-semibold !text-white">
                     {plan.name}
                   </h4>
-                  <div className={`text-sm opacity-80 ${getTextColorClass(plan.color)}`}>
+                  <div className="text-sm opacity-80 !text-white">
                     <p>Min: {priceData?.usd?.price ? formatUsd(btcToUsd(plan.minAmount, priceData.usd.price)) : `${formatBitcoin(plan.minAmount)} BTC`}</p>
                     <p className="text-xs opacity-70">≈ {formatBitcoin(plan.minAmount)} BTC</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={`text-2xl font-bold ${getTextColorClass(plan.color)}`}>
+                  <p className="text-2xl font-bold !text-white">
                     {plan.roiPercentage}%
                   </p>
-                  <p className={`text-xs opacity-80 ${getTextColorClass(plan.color)}`}>
+                  <p className="text-xs opacity-80 !text-white">
                     {plan.durationDays} days
                   </p>
                 </div>
@@ -133,7 +133,7 @@ export function InvestmentPlans() {
               <Button
                 onClick={() => handleInvest(plan)}
                 disabled={createInvestmentMutation.isPending}
-                className={`w-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-colors rounded-lg py-2 text-sm font-medium border-0 ${getTextColorClass(plan.color)}`}
+                className="w-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-colors rounded-lg py-2 text-sm font-medium border-0 !text-white"
               >
                 {createInvestmentMutation.isPending ? 'Processing...' : 'Invest Now'}
               </Button>
