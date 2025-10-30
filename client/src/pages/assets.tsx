@@ -1,15 +1,19 @@
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/app-layout";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { TokenBalance, TokenAddress } from '@shared/schema';
 import { useLocation } from "wouter";
 import { useEffect } from "react";
-import { Copy, Eye, EyeOff } from 'lucide-react';
+import { Copy, Eye, EyeOff, ArrowDownUp, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { apiRequest } from '@/lib/queryClient';
 
 const TOKEN_ICONS: Record<string, string> = {
   BTC: '₿',
@@ -27,7 +31,11 @@ export default function Assets() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [showAddresses, setShowAddresses] = useState<Record<string, boolean>>({});
+  const [fromToken, setFromToken] = useState<string>('BTC');
+  const [toToken, setToToken] = useState<string>('ETH');
+  const [fromAmount, setFromAmount] = useState<string>('');
 
   useEffect(() => {
     if (!user) {
@@ -44,6 +52,33 @@ export default function Assets() {
   const { data: tokenAddresses, isLoading: addressesLoading } = useQuery<TokenAddress[]>({
     queryKey: [`/api/token-addresses/${user?.id}`],
     enabled: !!user?.id,
+  });
+
+  const swapMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest('POST', '/api/token-swap', {
+        userId: user?.id,
+        fromToken,
+        toToken,
+        fromAmount
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Swap Successful!",
+        description: data.message,
+      });
+      queryClient.invalidateQueries({ queryKey: [`/api/token-balances/${user?.id}`] });
+      setFromAmount('');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Swap Failed",
+        description: error.message || "Failed to execute swap",
+        variant: "destructive",
+      });
+    },
   });
 
   if (!user) {
@@ -77,6 +112,8 @@ export default function Assets() {
     return total;
   }, 0) || 0;
 
+  const availableTokens = tokenBalances?.filter(b => parseFloat(b.balance) > 0).map(b => b.tokenSymbol) || [];
+
   return (
     <AppLayout>
       <div className="p-4 lg:p-6">
@@ -106,9 +143,22 @@ export default function Assets() {
           </CardContent>
         </Card>
 
-        {/* Token Balances */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">Token Balances</h2>
+        {/* Tabs for Balances and Swap */}
+        <Tabs defaultValue="balances" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="balances" data-testid="tab-balances">
+              <Wallet className="w-4 h-4 mr-2" />
+              Balances
+            </TabsTrigger>
+            <TabsTrigger value="swap" data-testid="tab-swap">
+              <ArrowDownUp className="w-4 h-4 mr-2" />
+              Swap
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Token Balances Tab */}
+          <TabsContent value="balances" className="space-y-4">
+            <h2 className="text-xl font-semibold text-foreground">Token Balances</h2>
           
           {balancesLoading ? (
             <div className="text-center py-12 text-muted-foreground">Loading balances...</div>
@@ -194,7 +244,107 @@ export default function Assets() {
               })}
             </div>
           )}
-        </div>
+          </TabsContent>
+
+          {/* Swap Tab */}
+          <TabsContent value="swap" className="space-y-4">
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ArrowDownUp className="w-5 h-5 text-flux-cyan" />
+                  Swap Tokens
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* From Token */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">From</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Select value={fromToken} onValueChange={setFromToken}>
+                      <SelectTrigger data-testid="select-from-token">
+                        <SelectValue placeholder="Select token" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableTokens.map(token => (
+                          <SelectItem key={token} value={token}>
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">{TOKEN_ICONS[token] || '💎'}</span>
+                              <span>{token}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      value={fromAmount}
+                      onChange={(e) => setFromAmount(e.target.value)}
+                      data-testid="input-from-amount"
+                      className="text-right"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Balance: {tokenBalances?.find(b => b.tokenSymbol === fromToken)?.balance || '0'}
+                  </p>
+                </div>
+
+                {/* Swap Arrow */}
+                <div className="flex justify-center">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <ArrowDownUp className="w-5 h-5 text-primary" />
+                  </div>
+                </div>
+
+                {/* To Token */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">To</label>
+                  <Select value={toToken} onValueChange={setToToken}>
+                    <SelectTrigger data-testid="select-to-token">
+                      <SelectValue placeholder="Select token" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'TRUMP'].map(token => (
+                        <SelectItem key={token} value={token}>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{TOKEN_ICONS[token] || '💎'}</span>
+                            <span>{token}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Balance: {tokenBalances?.find(b => b.tokenSymbol === toToken)?.balance || '0'}
+                  </p>
+                </div>
+
+                {/* Swap Button */}
+                <Button
+                  onClick={() => swapMutation.mutate()}
+                  disabled={!fromAmount || parseFloat(fromAmount) <= 0 || fromToken === toToken || swapMutation.isPending}
+                  className="w-full bg-gradient-to-r from-flux-cyan to-flux-purple hover:opacity-90 text-white font-semibold rounded-xl py-6 shadow-lg hover:shadow-xl transition-all"
+                  data-testid="button-swap"
+                >
+                  {swapMutation.isPending ? 'Swapping...' : 'Swap Tokens'}
+                </Button>
+
+                {/* Info */}
+                <div className="bg-accent/50 p-4 rounded-lg space-y-2">
+                  <p className="text-xs text-muted-foreground">
+                    • Swaps are instant and off-chain
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    • Exchange rates are based on current market prices
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    • No gas fees - swaps happen in your account balance
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );
