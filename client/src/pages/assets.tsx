@@ -15,17 +15,46 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiRequest } from '@/lib/queryClient';
 
-const TOKEN_ICONS: Record<string, string> = {
-  BTC: '₿',
-  ETH: 'Ξ',
-  BNB: '🔸',
-  USDT: '₮',
-  SOL: '◎',
-  XRP: 'X',
-  ADA: '₳',
-  DOGE: 'Ð',
+import btcIcon from '@assets/stock_images/bitcoin_cryptocurren_2ec4d20c.jpg';
+import ethIcon from '@assets/stock_images/ethereum_cryptocurre_57d4bb6b.jpg';
+import bnbIcon from '@assets/stock_images/binance_bnb_cryptocu_25867d8a.jpg';
+import usdtIcon from '@assets/stock_images/tether_usdt_cryptocu_aade6593.jpg';
+import solIcon from '@assets/stock_images/solana_cryptocurrenc_4f806203.jpg';
+import xrpIcon from '@assets/stock_images/ripple_xrp_cryptocur_b3c076c5.jpg';
+import adaIcon from '@assets/stock_images/cardano_ada_cryptocu_798c461d.jpg';
+import dogeIcon from '@assets/stock_images/dogecoin_cryptocurre_ddd507a9.jpg';
+
+const TOKEN_ICON_IMAGES: Record<string, string> = {
+  BTC: btcIcon,
+  ETH: ethIcon,
+  BNB: bnbIcon,
+  USDT: usdtIcon,
+  SOL: solIcon,
+  XRP: xrpIcon,
+  ADA: adaIcon,
+  DOGE: dogeIcon,
   TRUMP: '🇺🇸'
 };
+
+function TokenIcon({ symbol, size = 'md' }: { symbol: string; size?: 'sm' | 'md' | 'lg' }) {
+  const sizeClasses = {
+    sm: 'w-6 h-6',
+    md: 'w-10 h-10',
+    lg: 'w-12 h-12'
+  };
+
+  const iconSrc = TOKEN_ICON_IMAGES[symbol];
+  
+  if (iconSrc && typeof iconSrc === 'string' && (iconSrc.startsWith('/') || iconSrc.includes('.jpg') || iconSrc.includes('.png'))) {
+    return <img src={iconSrc} alt={symbol} className={`${sizeClasses[size]} rounded-full object-cover`} />;
+  }
+  
+  return (
+    <div className={`${sizeClasses[size]} rounded-full bg-primary/10 flex items-center justify-center`}>
+      <span className="text-2xl">{iconSrc || '💎'}</span>
+    </div>
+  );
+}
 
 export default function Assets() {
   const { user } = useAuth();
@@ -52,6 +81,11 @@ export default function Assets() {
   const { data: tokenAddresses, isLoading: addressesLoading } = useQuery<TokenAddress[]>({
     queryKey: [`/api/token-addresses/${user?.id}`],
     enabled: !!user?.id,
+  });
+
+  const { data: tokenPrices } = useQuery<Record<string, { price: number; change24h: number }>>({
+    queryKey: ['/api/token-prices'],
+    refetchInterval: 30000,
   });
 
   const swapMutation = useMutation({
@@ -113,6 +147,24 @@ export default function Assets() {
   }, 0) || 0;
 
   const availableTokens = tokenBalances?.filter(b => parseFloat(b.balance) > 0).map(b => b.tokenSymbol) || [];
+
+  const calculateSwapAmount = () => {
+    if (!fromAmount || !tokenPrices || parseFloat(fromAmount) <= 0) return 0;
+    
+    const fromPrice = tokenPrices[fromToken]?.price || 0;
+    const toPrice = tokenPrices[toToken]?.price || 0;
+    
+    if (fromPrice === 0 || toPrice === 0) return 0;
+    
+    const fromAmountNum = parseFloat(fromAmount);
+    const exchangeRate = fromPrice / toPrice;
+    return fromAmountNum * exchangeRate;
+  };
+
+  const estimatedReceive = calculateSwapAmount();
+  const fromPrice = tokenPrices?.[fromToken]?.price || 0;
+  const toPrice = tokenPrices?.[toToken]?.price || 0;
+  const exchangeRate = fromPrice && toPrice ? fromPrice / toPrice : 0;
 
   return (
     <AppLayout>
@@ -180,9 +232,7 @@ export default function Assets() {
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span className="text-2xl">{TOKEN_ICONS[balance.tokenSymbol] || '💎'}</span>
-                          </div>
+                          <TokenIcon symbol={balance.tokenSymbol} size="lg" />
                           <div>
                             <CardTitle className="text-lg">{balance.tokenSymbol}</CardTitle>
                             <p className="text-xs text-muted-foreground">
@@ -262,13 +312,18 @@ export default function Assets() {
                   <div className="grid grid-cols-2 gap-3">
                     <Select value={fromToken} onValueChange={setFromToken}>
                       <SelectTrigger data-testid="select-from-token">
-                        <SelectValue placeholder="Select token" />
+                        <SelectValue placeholder="Select token">
+                          <div className="flex items-center gap-2">
+                            <TokenIcon symbol={fromToken} size="sm" />
+                            <span>{fromToken}</span>
+                          </div>
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {availableTokens.map(token => (
                           <SelectItem key={token} value={token}>
                             <div className="flex items-center gap-2">
-                              <span className="text-lg">{TOKEN_ICONS[token] || '💎'}</span>
+                              <TokenIcon symbol={token} size="sm" />
                               <span>{token}</span>
                             </div>
                           </SelectItem>
@@ -299,25 +354,64 @@ export default function Assets() {
                 {/* To Token */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">To</label>
-                  <Select value={toToken} onValueChange={setToToken}>
-                    <SelectTrigger data-testid="select-to-token">
-                      <SelectValue placeholder="Select token" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'TRUMP'].map(token => (
-                        <SelectItem key={token} value={token}>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Select value={toToken} onValueChange={setToToken}>
+                      <SelectTrigger data-testid="select-to-token">
+                        <SelectValue placeholder="Select token">
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{TOKEN_ICONS[token] || '💎'}</span>
-                            <span>{token}</span>
+                            <TokenIcon symbol={toToken} size="sm" />
+                            <span>{toToken}</span>
                           </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'TRUMP'].map(token => (
+                          <SelectItem key={token} value={token}>
+                            <div className="flex items-center gap-2">
+                              <TokenIcon symbol={token} size="sm" />
+                              <span>{token}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      value={estimatedReceive > 0 ? estimatedReceive.toFixed(8) : ''}
+                      readOnly
+                      data-testid="output-to-amount"
+                      className="text-right bg-muted"
+                    />
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     Balance: {tokenBalances?.find(b => b.tokenSymbol === toToken)?.balance || '0'}
                   </p>
                 </div>
+
+                {/* Exchange Rate Info */}
+                {fromAmount && parseFloat(fromAmount) > 0 && tokenPrices && (
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Exchange Rate</span>
+                      <span className="text-foreground font-medium">
+                        1 {fromToken} = {exchangeRate.toFixed(8)} {toToken}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{fromToken} Price</span>
+                      <span className="text-foreground">${fromPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{toToken} Price</span>
+                      <span className="text-foreground">${toPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-semibold pt-2 border-t border-primary/20">
+                      <span className="text-foreground">You'll receive</span>
+                      <span className="text-flux-cyan">{estimatedReceive.toFixed(8)} {toToken}</span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Swap Button */}
                 <Button

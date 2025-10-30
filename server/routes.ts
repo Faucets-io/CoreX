@@ -419,6 +419,58 @@ async function fetchBitcoinPrice() {
   }
 }
 
+async function fetchAllTokenPrices() {
+  try {
+    const coinGeckoIds = {
+      'BTC': 'bitcoin',
+      'ETH': 'ethereum',
+      'BNB': 'binancecoin',
+      'XRP': 'ripple',
+      'SOL': 'solana',
+      'ADA': 'cardano',
+      'DOGE': 'dogecoin',
+      'USDT': 'tether',
+      'TRUMP': 'official-trump'
+    };
+
+    const ids = Object.values(coinGeckoIds).join(',');
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`;
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Failed to fetch token prices from CoinGecko');
+    }
+
+    const data = await response.json();
+    
+    const prices: Record<string, { price: number; change24h: number }> = {};
+    
+    for (const [symbol, geckoId] of Object.entries(coinGeckoIds)) {
+      if (data[geckoId]) {
+        prices[symbol] = {
+          price: data[geckoId].usd,
+          change24h: data[geckoId].usd_24h_change || 0
+        };
+      }
+    }
+
+    return prices;
+  } catch (error) {
+    console.error('Failed to fetch token prices:', error);
+    return {
+      'BTC': { price: 105000, change24h: 0 },
+      'ETH': { price: 3200, change24h: 0 },
+      'BNB': { price: 600, change24h: 0 },
+      'XRP': { price: 2.5, change24h: 0 },
+      'SOL': { price: 190, change24h: 0 },
+      'ADA': { price: 0.95, change24h: 0 },
+      'DOGE': { price: 0.35, change24h: 0 },
+      'USDT': { price: 1.0, change24h: 0 },
+      'TRUMP': { price: 15.0, change24h: 0 }
+    };
+  }
+}
+
 // Advanced investment growth system
 async function processAutomaticUpdates(): Promise<void> {
   try {
@@ -1325,6 +1377,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(priceData);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch Bitcoin price" });
+    }
+  });
+
+  // Get all token prices
+  app.get("/api/token-prices", async (req, res) => {
+    try {
+      const priceData = await fetchAllTokenPrices();
+      res.json(priceData);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch token prices" });
     }
   });
 
