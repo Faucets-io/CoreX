@@ -47,20 +47,13 @@ const SUPPORTED_TOKENS: Token[] = [
 
 function TokenBalanceDisplay({ userId, selectedToken, currentPrice }: { userId: number; selectedToken: string; currentPrice: number }) {
   const { data: tokenBalances } = useQuery<TokenBalance[]>({
-    queryKey: ['/api/token-balances', userId],
+    queryKey: [`/api/token-balances/${userId}`],
     refetchInterval: 3000,
   });
 
-  const { data: usdtBalance } = useQuery<TokenBalance | undefined>({
-    queryKey: ['/api/token-balance/USDT', userId],
-    queryFn: () => {
-      const balance = tokenBalances?.find(b => b.tokenSymbol === 'USDT');
-      return balance;
-    },
-    enabled: !!tokenBalances,
-  });
-
   const tokenBalance = tokenBalances?.find(b => b.tokenSymbol === selectedToken);
+  const usdtBalance = tokenBalances?.find(b => b.tokenSymbol === 'USDT');
+  
   const balance = parseFloat(tokenBalance?.balance || '0');
   const usdtBal = parseFloat(usdtBalance?.balance || '0');
 
