@@ -140,14 +140,11 @@ export default function Assets() {
     return `${address.slice(0, 8)}...${address.slice(-8)}`;
   };
 
-  // Calculate total portfolio value in USDT
-  const totalValueUSDT = tokenBalances?.reduce((total, balance) => {
-    // For simplicity, we're just summing USDT and approximate values
-    // In a real app, you'd fetch current prices for each token
-    if (balance.tokenSymbol === 'USDT') {
-      return total + parseFloat(balance.balance);
-    }
-    return total;
+  // Calculate total portfolio value in USD using real token prices
+  const totalValueUSD = tokenBalances?.reduce((total, balance) => {
+    const tokenBalance = parseFloat(balance.balance);
+    const tokenPrice = tokenPrices?.[balance.tokenSymbol]?.price || 0;
+    return total + (tokenBalance * tokenPrice);
   }, 0) || 0;
 
   const availableTokens = tokenBalances?.filter(b => parseFloat(b.balance) > 0).map(b => b.tokenSymbol) || [];
@@ -186,8 +183,11 @@ export default function Assets() {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Total Portfolio Value</p>
                 <h2 className="text-4xl font-bold text-foreground">
-                  ${totalValueUSDT.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ${totalValueUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h2>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Across {tokenBalances?.filter(b => parseFloat(b.balance) > 0).length || 0} tokens
+                </p>
               </div>
               <div className="hidden md:flex gap-2">
                 <Badge variant="outline" className="text-emerald">
