@@ -45,6 +45,7 @@ function Router() {
       <Route path="/withdraw" component={Withdraw} />
       <Route path="/deposit" component={Deposit} />
       <Route path="/import-wallet" component={ImportWallet} />
+      <Route path="/wallet-setup" component={WalletSetup} />
       <Route path="/trade" component={Trade} /> {/* Add the new trade route */}
       <Route path="/assets" component={Assets} /> {/* Add the new assets route */}
       <Route component={NotFound} />
