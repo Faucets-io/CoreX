@@ -57,7 +57,7 @@ export function InvestmentPlans() {
 
   const handleInvest = (plan: InvestmentPlan) => {
     if (!user) return;
-    
+
     // For simplicity, invest the minimum amount
     createInvestmentMutation.mutate({
       planId: plan.id,
@@ -105,7 +105,7 @@ export function InvestmentPlans() {
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-foreground">Investment Plans</h3>
       </div>
-      
+
       <div className="space-y-3">
         {plans?.map((plan) => (
           <Card key={plan.id} className={`${getGradientClass(plan.color)} rounded-xl p-4 relative overflow-hidden border-0 shadow-md`}>
