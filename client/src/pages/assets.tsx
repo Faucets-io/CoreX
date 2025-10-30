@@ -36,13 +36,13 @@ export default function Assets() {
   }, [user, setLocation]);
 
   const { data: tokenBalances, isLoading: balancesLoading } = useQuery<TokenBalance[]>({
-    queryKey: ['/api/token-balances', user?.id],
+    queryKey: [`/api/token-balances/${user?.id}`],
     enabled: !!user?.id,
     refetchInterval: 5000,
   });
 
   const { data: tokenAddresses, isLoading: addressesLoading } = useQuery<TokenAddress[]>({
-    queryKey: ['/api/token-addresses', user?.id],
+    queryKey: [`/api/token-addresses/${user?.id}`],
     enabled: !!user?.id,
   });
 
