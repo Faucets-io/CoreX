@@ -5,7 +5,7 @@ interface AppLayoutProps {
   maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "full";
 }
 
-export default function AppLayout({ children, maxWidth = "full" }: AppLayoutProps) {
+export function AppLayout({ children, maxWidth = "full" }: AppLayoutProps) {
   const maxWidthClasses = {
     sm: "max-w-sm",
     md: "max-w-md",
@@ -18,7 +18,7 @@ export default function AppLayout({ children, maxWidth = "full" }: AppLayoutProp
   return (
     <div className="min-h-screen bg-background">
       <AppNavigation />
-
+      
       {/* Main content area with proper desktop spacing */}
       <main className="lg:ml-64 pb-20 lg:pb-0">
         <div className={`${maxWidthClasses[maxWidth]} mx-auto w-full`}>
