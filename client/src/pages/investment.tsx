@@ -16,7 +16,6 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useCurrency } from "@/hooks/use-currency";
-import { formatBitcoinAmount } from "@/lib/bitcoin";
 import { TrendingUp, Target, Clock, Award, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
@@ -219,7 +218,7 @@ export default function Investment() {
                         Completed: {formatDate(new Date(investment.endDate))}
                       </p>
                     </div>
-                    <span className="bg-gray-500 bg-opacity-20 text-gray-400 px-2 py-1 rounded-full text-xs">
+                    <span className="bg-muted/50 text-muted-foreground px-2 py-1 rounded-full text-xs">
                       Completed
                     </span>
                   </div>
