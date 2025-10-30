@@ -1838,6 +1838,86 @@ You are now on the free plan and will no longer receive automatic profit updates
     }
   });
 
+  // Token swap endpoint - Off-chain swap
+  app.post('/api/token-swap', async (req, res) => {
+    try {
+      const { userId, fromToken, toToken, fromAmount } = req.body;
+
+      if (!userId || !fromToken || !toToken || !fromAmount) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Get current prices for exchange rate calculation
+      const response = await fetch('http://localhost:5000/api/token-prices');
+      const prices = await response.json();
+      
+      const fromPrice = prices[fromToken]?.price || 0;
+      const toPrice = prices[toToken]?.price || 0;
+
+      if (fromPrice === 0 || toPrice === 0) {
+        return res.status(400).json({ message: 'Unable to fetch token prices' });
+      }
+
+      // Calculate exchange rate and amount to receive
+      const fromAmountNum = parseFloat(fromAmount);
+      const exchangeRate = fromPrice / toPrice;
+      const toAmount = fromAmountNum * exchangeRate;
+
+      // Check if user has sufficient balance
+      const fromBalance = await storage.getUserTokenBalance(userId, fromToken);
+      const currentFromBalance = parseFloat(fromBalance?.balance || '0');
+
+      if (currentFromBalance < fromAmountNum) {
+        return res.status(400).json({ message: `Insufficient ${fromToken} balance` });
+      }
+
+      // Execute the swap
+      await storage.updateTokenBalance(userId, fromToken, (currentFromBalance - fromAmountNum).toString());
+      
+      const toBalance = await storage.getUserTokenBalance(userId, toToken);
+      const currentToBalance = parseFloat(toBalance?.balance || '0');
+      await storage.updateTokenBalance(userId, toToken, (currentToBalance + toAmount).toString());
+
+      // Record the swap
+      const swap = await storage.createTokenSwap({
+        userId,
+        fromToken,
+        toToken,
+        fromAmount: fromAmount.toString(),
+        toAmount: toAmount.toString(),
+        exchangeRate: exchangeRate.toString(),
+        status: 'completed'
+      });
+
+      res.json({
+        success: true,
+        swap,
+        message: `Successfully swapped ${fromAmount} ${fromToken} for ${toAmount.toFixed(8)} ${toToken}`
+      });
+
+    } catch (error: any) {
+      console.error('Error executing swap:', error);
+      res.status(500).json({ message: 'Failed to execute swap' });
+    }
+  });
+
+  // Get user swap history
+  app.get('/api/token-swaps/:userId', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const swaps = await storage.getUserTokenSwaps(userId);
+      res.json(swaps);
+    } catch (error: any) {
+      console.error('Error fetching swap history:', error);
+      res.status(500).json({ message: 'Failed to fetch swap history' });
+    }
+  });
+
   // Trade execution endpoint - REAL with USDT as base currency
   app.post('/api/trades/execute', async (req, res) => {
   try {
