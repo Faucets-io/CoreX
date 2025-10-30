@@ -108,7 +108,7 @@ export function InvestmentPlans() {
       
       <div className="space-y-3">
         {plans?.map((plan) => (
-          <Card key={plan.id} className={`${getGradientClass(plan.color)} rounded-xl p-4 relative overflow-hidden border-0`}>
+          <Card key={plan.id} className={`${getGradientClass(plan.color)} rounded-xl p-4 relative overflow-hidden border-0 shadow-md`}>
             <div className="absolute top-0 right-0 w-16 h-16 bg-white opacity-10 rounded-full -translate-y-8 translate-x-8"></div>
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-2">

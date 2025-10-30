@@ -367,7 +367,16 @@
   }
   
   .dark-card {
-    @apply bg-card text-card-foreground border-border;
+    @apply bg-card text-card-foreground border border-border;
+  }
+  
+  /* Ensure card visibility in light mode */
+  .light .dark-card {
+    @apply bg-white shadow-sm;
+  }
+  
+  .light .dark-border {
+    @apply border-gray-200;
   }
   
   /* Ensure text visibility in both light and dark modes */
