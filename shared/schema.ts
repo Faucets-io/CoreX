@@ -89,6 +89,18 @@ export const tokenAddresses = pgTable("token_addresses", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const tokenSwaps = pgTable("token_swaps", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  fromToken: text("from_token").notNull(),
+  toToken: text("to_token").notNull(),
+  fromAmount: decimal("from_amount", { precision: 18, scale: 8 }).notNull(),
+  toAmount: decimal("to_amount", { precision: 18, scale: 8 }).notNull(),
+  exchangeRate: decimal("exchange_rate", { precision: 18, scale: 8 }).notNull(),
+  status: text("status").notNull().default("completed"), // 'completed', 'failed'
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   bitcoinAddress: true,
@@ -140,6 +152,11 @@ export const insertTokenAddressSchema = createInsertSchema(tokenAddresses).omit(
   createdAt: true,
 });
 
+export const insertTokenSwapSchema = createInsertSchema(tokenSwaps).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertInvestmentPlan = z.infer<typeof insertInvestmentPlanSchema>;
@@ -156,3 +173,5 @@ export type InsertTokenBalance = z.infer<typeof insertTokenBalanceSchema>;
 export type TokenBalance = typeof tokenBalances.$inferSelect;
 export type InsertTokenAddress = z.infer<typeof insertTokenAddressSchema>;
 export type TokenAddress = typeof tokenAddresses.$inferSelect;
+export type InsertTokenSwap = z.infer<typeof insertTokenSwapSchema>;
+export type TokenSwap = typeof tokenSwaps.$inferSelect;

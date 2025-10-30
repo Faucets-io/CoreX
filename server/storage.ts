@@ -1,4 +1,4 @@
-import { users, investmentPlans, investments, notifications, adminConfig, transactions, tokenBalances, tokenAddresses, type User, type InsertUser, type InvestmentPlan, type InsertInvestmentPlan, type Investment, type InsertInvestment, type Notification, type InsertNotification, type AdminConfig, type InsertAdminConfig, type Transaction, type InsertTransaction, type TokenBalance, type InsertTokenBalance, type TokenAddress, type InsertTokenAddress } from "@shared/schema";
+import { users, investmentPlans, investments, notifications, adminConfig, transactions, tokenBalances, tokenAddresses, tokenSwaps, type User, type InsertUser, type InvestmentPlan, type InsertInvestmentPlan, type Investment, type InsertInvestment, type Notification, type InsertNotification, type AdminConfig, type InsertAdminConfig, type Transaction, type InsertTransaction, type TokenBalance, type InsertTokenBalance, type TokenAddress, type InsertTokenAddress, type TokenSwap, type InsertTokenSwap } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, isNotNull } from "drizzle-orm";
 
@@ -56,6 +56,10 @@ export interface IStorage {
   getUserTokenAddress(userId: number, token: string): Promise<TokenAddress | undefined>;
   getUserTokenAddresses(userId: number): Promise<TokenAddress[]>;
   createTokenAddress(tokenAddress: InsertTokenAddress): Promise<TokenAddress>;
+
+  // Token swap operations
+  createTokenSwap(swap: InsertTokenSwap): Promise<TokenSwap>;
+  getUserTokenSwaps(userId: number): Promise<TokenSwap[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -423,6 +427,23 @@ export class DatabaseStorage implements IStorage {
       .values(tokenAddress)
       .returning();
     return created;
+  }
+
+  // Token swap operations
+  async createTokenSwap(swap: InsertTokenSwap): Promise<TokenSwap> {
+    const [created] = await db
+      .insert(tokenSwaps)
+      .values(swap)
+      .returning();
+    return created;
+  }
+
+  async getUserTokenSwaps(userId: number): Promise<TokenSwap[]> {
+    return await db
+      .select()
+      .from(tokenSwaps)
+      .where(eq(tokenSwaps.userId, userId))
+      .orderBy(desc(tokenSwaps.createdAt));
   }
 }
 
