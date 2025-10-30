@@ -101,53 +101,52 @@ export default function Notifications() {
   const filteredNotifications = getFilteredNotifications();
 
   return (
-    <AppLayout>
-      <div className="min-h-screen dark-bg">
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b dark-border">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setLocation('/')}
-                  className="rounded-xl hover:bg-muted"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-                <div className="relative">
-                  <Bell className="w-8 h-8 text-primary" />
-                  {unreadCount && unreadCount.count > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                    >
-                      {unreadCount.count}
-                    </Badge>
-                  )}
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold dark-text">Notifications</h1>
-                  <p className="text-muted-foreground text-sm">Stay updated with your activities</p>
-                </div>
+    <div className="min-h-screen dark-bg">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b dark-border">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setLocation('/')}
+                className="rounded-xl hover:bg-muted"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div className="relative">
+                <Bell className="w-8 h-8 text-primary" />
+                {unreadCount && unreadCount.count > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                  >
+                    {unreadCount.count}
+                  </Badge>
+                )}
               </div>
-
-              {unreadCount && unreadCount.count > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => markAllAsReadMutation.mutate()}
-                  disabled={markAllAsReadMutation.isPending}
-                  className="gap-2"
-                >
-                  <Check className="w-4 h-4" />
-                  Mark All Read
-                </Button>
-              )}
+              <div>
+                <h1 className="text-2xl font-bold dark-text">Notifications</h1>
+                <p className="text-muted-foreground text-sm">Stay updated with your activities</p>
+              </div>
             </div>
+
+            {unreadCount && unreadCount.count > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => markAllAsReadMutation.mutate()}
+                disabled={markAllAsReadMutation.isPending}
+                className="gap-2"
+              >
+                <Check className="w-4 h-4" />
+                Mark All Read
+              </Button>
+            )}
           </div>
         </div>
+      </div>
 
       {/* Content */}
       <div className="max-w-4xl mx-auto p-4 pb-24">
@@ -281,7 +280,6 @@ export default function Notifications() {
       </div>
 
       <BottomNavigation />
-      </div>
-    </AppLayout>
+    </div>
   );
 }
