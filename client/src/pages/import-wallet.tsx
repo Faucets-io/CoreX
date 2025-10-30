@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BottomNavigation } from "@/components/bottom-navigation";
-import AppLayout from "@/components/app-layout";
 import { ArrowLeft, Key, FileText } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
@@ -75,7 +74,7 @@ export default function ImportWallet() {
   }
 
   return (
-    <AppLayout>
+    <div className="max-w-sm mx-auto bg-background min-h-screen relative">
       {/* Header */}
       <header className="px-4 py-6 border-b dark-border">
         <div className="flex items-center gap-3">
@@ -192,6 +191,8 @@ export default function ImportWallet() {
           </CardContent>
         </Card>
       </div>
-    </AppLayout>
+
+      <BottomNavigation />
+    </div>
   );
 }

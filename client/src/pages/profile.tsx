@@ -7,6 +7,7 @@ import AppLayout from "@/components/app-layout";
 import { Copy, User, Bitcoin, Key, ExternalLink, Shield, ArrowLeft, TrendingUp, Activity, Calendar, Mail, Hash, Award, Wallet, Eye, EyeOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
+import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { Progress } from "@/components/ui/progress";
