@@ -259,6 +259,14 @@ export default function Assets() {
                             maximumFractionDigits: balance.tokenSymbol === 'USDT' ? 2 : 8
                           })}
                         </p>
+                        {tokenPrices && tokenPrices[balance.tokenSymbol] && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            ${(parseFloat(balance.balance) * tokenPrices[balance.tokenSymbol].price).toLocaleString(undefined, { 
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            })} USD
+                          </p>
+                        )}
                       </div>
 
                       {/* Address */}

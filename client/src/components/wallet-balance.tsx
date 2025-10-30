@@ -6,6 +6,8 @@ import { useCurrency } from "@/hooks/use-currency";
 import { formatBitcoin, btcToUsd, formatUsd, calculateCurrencyValue } from "@/lib/utils";
 import { Eye, EyeOff, Shield, Zap } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { TokenBalance } from "@shared/schema";
 
 export function WalletBalance() {
   const { user } = useAuth();
@@ -13,11 +15,38 @@ export function WalletBalance() {
   const { currency } = useCurrency();
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
 
+  const { data: tokenBalances } = useQuery<TokenBalance[]>({
+    queryKey: [`/api/token-balances/${user?.id}`],
+    enabled: !!user?.id,
+    refetchInterval: 5000,
+  });
+
+  const { data: tokenPrices } = useQuery<Record<string, { price: number; change24h: number }>>({
+    queryKey: ['/api/token-prices'],
+    refetchInterval: 30000,
+    enabled: !!user,
+  });
+
   if (!user) return null;
 
   const priceData = bitcoinPrice ? (currency === 'USD' ? bitcoinPrice.usd : bitcoinPrice.gbp) : null;
   const btcAmount = parseFloat(user.balance);
-  const usdValue = priceData?.price ? btcToUsd(btcAmount, priceData.price) : 0;
+  
+  // Calculate total portfolio value from all tokens
+  let totalPortfolioValue = 0;
+  
+  if (tokenBalances && tokenPrices) {
+    tokenBalances.forEach(balance => {
+      const tokenBalance = parseFloat(balance.balance);
+      const tokenPrice = tokenPrices[balance.tokenSymbol]?.price || 0;
+      totalPortfolioValue += tokenBalance * tokenPrice;
+    });
+  } else {
+    // Fallback to BTC balance if token data not loaded
+    totalPortfolioValue = priceData?.price ? btcToUsd(btcAmount, priceData.price) : 0;
+  }
+  
+  const usdValue = totalPortfolioValue;
 
   return (
     <div className="px-6 mb-8">
