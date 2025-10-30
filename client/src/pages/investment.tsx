@@ -85,10 +85,10 @@ export default function Investment() {
             <h3 className="text-lg font-semibold mb-4 text-foreground">Pending Investments</h3>
             <div className="space-y-3">
               {pendingInvestments.map((transaction) => (
-                <Card key={transaction.id} className="dark-card rounded-xl p-4 dark-border">
+                <Card key={transaction.id} className="bg-card border-border rounded-xl p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h4 className="font-semibold text-flux-cyan">{getPlanName(transaction.planId || 1)}</h4>
+                      <h4 className="font-semibold text-foreground">{getPlanName(transaction.planId || 1)}</h4>
                       <p className="text-muted-foreground text-sm">
                         Submitted: {formatDate(new Date(transaction.createdAt))}
                       </p>
@@ -126,10 +126,10 @@ export default function Investment() {
             <h3 className="text-lg font-semibold mb-4 text-foreground">Rejected Investments</h3>
             <div className="space-y-3">
               {rejectedInvestments.map((transaction) => (
-                <Card key={transaction.id} className="dark-card rounded-xl p-4 dark-border opacity-75">
+                <Card key={transaction.id} className="bg-card border-border rounded-xl p-4 opacity-75">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h4 className="font-semibold text-red-400">{getPlanName(transaction.planId || 1)}</h4>
+                      <h4 className="font-semibold text-red-500">{getPlanName(transaction.planId || 1)}</h4>
                       <p className="text-muted-foreground text-sm">
                         Rejected: {transaction.confirmedAt ? formatDate(new Date(transaction.confirmedAt)) : 'Recently'}
                       </p>
@@ -171,15 +171,15 @@ export default function Investment() {
                 );
 
                 return (
-                  <Card key={investment.id} className="dark-card rounded-xl p-4 dark-border">
+                  <Card key={investment.id} className="bg-card border-border rounded-xl p-4">
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <h4 className="font-semibold text-flux-cyan">{getPlanName(investment.planId)}</h4>
+                        <h4 className="font-semibold text-foreground">{getPlanName(investment.planId)}</h4>
                         <p className="text-muted-foreground text-sm">
                           Started: {formatDate(new Date(investment.startDate))}
                         </p>
                       </div>
-                      <span className="bg-green-500 bg-opacity-20 text-green-400 px-2 py-1 rounded-full text-xs">
+                      <span className="bg-green-500 bg-opacity-20 text-green-600 dark:text-green-400 px-2 py-1 rounded-full text-xs">
                         Active
                       </span>
                     </div>
@@ -190,7 +190,7 @@ export default function Investment() {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Current Profit</span>
-                        <span className="text-green-400">+{formatBitcoin(investment.currentProfit)} BTC</span>
+                        <span className="text-green-600 dark:text-green-400">+{formatBitcoin(investment.currentProfit)} BTC</span>
                       </div>
                     </div>
                     <Progress value={progress} className="w-full mb-2" />
@@ -210,15 +210,15 @@ export default function Investment() {
             <h3 className="text-lg font-semibold mb-4 text-foreground">Completed Investments</h3>
             <div className="space-y-3">
               {completedInvestments.map((investment) => (
-                <Card key={investment.id} className="dark-card rounded-xl p-4 dark-border opacity-75">
+                <Card key={investment.id} className="bg-card border-border rounded-xl p-4 opacity-75">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h4 className="font-semibold text-muted-foreground">{getPlanName(investment.planId)}</h4>
+                      <h4 className="font-semibold text-foreground">{getPlanName(investment.planId)}</h4>
                       <p className="text-muted-foreground text-sm">
                         Completed: {formatDate(new Date(investment.endDate))}
                       </p>
                     </div>
-                    <span className="bg-muted/50 text-muted-foreground px-2 py-1 rounded-full text-xs">
+                    <span className="bg-muted text-muted-foreground px-2 py-1 rounded-full text-xs">
                       Completed
                     </span>
                   </div>
@@ -229,7 +229,7 @@ export default function Investment() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Final Profit</span>
-                      <span className="text-green-400">+{formatBitcoin(investment.currentProfit)} BTC</span>
+                      <span className="text-green-600 dark:text-green-400">+{formatBitcoin(investment.currentProfit)} BTC</span>
                     </div>
                   </div>
                 </Card>
