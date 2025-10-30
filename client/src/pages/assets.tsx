@@ -15,44 +15,48 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiRequest } from '@/lib/queryClient';
 
-import btcIcon from '@assets/stock_images/bitcoin_cryptocurren_2ec4d20c.jpg';
-import ethIcon from '@assets/stock_images/ethereum_cryptocurre_57d4bb6b.jpg';
-import bnbIcon from '@assets/stock_images/binance_bnb_cryptocu_25867d8a.jpg';
-import usdtIcon from '@assets/stock_images/tether_usdt_cryptocu_aade6593.jpg';
-import solIcon from '@assets/stock_images/solana_cryptocurrenc_4f806203.jpg';
-import xrpIcon from '@assets/stock_images/ripple_xrp_cryptocur_b3c076c5.jpg';
-import adaIcon from '@assets/stock_images/cardano_ada_cryptocu_798c461d.jpg';
-import dogeIcon from '@assets/stock_images/dogecoin_cryptocurre_ddd507a9.jpg';
-
-const TOKEN_ICON_IMAGES: Record<string, string> = {
-  BTC: btcIcon,
-  ETH: ethIcon,
-  BNB: bnbIcon,
-  USDT: usdtIcon,
-  SOL: solIcon,
-  XRP: xrpIcon,
-  ADA: adaIcon,
-  DOGE: dogeIcon,
-  TRUMP: '🇺🇸'
+const TOKEN_LOGO_URLS: Record<string, string> = {
+  BTC: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
+  ETH: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
+  BNB: 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png',
+  USDT: 'https://assets.coingecko.com/coins/images/325/large/Tether.png',
+  SOL: 'https://assets.coingecko.com/coins/images/4128/large/solana.png',
+  XRP: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png',
+  ADA: 'https://assets.coingecko.com/coins/images/975/large/cardano.png',
+  DOGE: 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png',
+  TRUMP: 'https://assets.coingecko.com/coins/images/41446/large/photo_2025-01-18_03-57-00.jpg'
 };
 
 function TokenIcon({ symbol, size = 'md' }: { symbol: string; size?: 'sm' | 'md' | 'lg' }) {
+  const [imageError, setImageError] = useState(false);
+  
+  useEffect(() => {
+    setImageError(false);
+  }, [symbol]);
+  
   const sizeClasses = {
     sm: 'w-6 h-6',
     md: 'w-10 h-10',
     lg: 'w-12 h-12'
   };
 
-  const iconSrc = TOKEN_ICON_IMAGES[symbol];
+  const logoUrl = TOKEN_LOGO_URLS[symbol];
   
-  if (iconSrc && typeof iconSrc === 'string' && (iconSrc.startsWith('/') || iconSrc.includes('.jpg') || iconSrc.includes('.png'))) {
-    return <img src={iconSrc} alt={symbol} className={`${sizeClasses[size]} rounded-full object-cover`} />;
+  if (!logoUrl || imageError) {
+    return (
+      <div className={`${sizeClasses[size]} rounded-full bg-primary/10 flex items-center justify-center`}>
+        <span className="text-2xl">💎</span>
+      </div>
+    );
   }
   
   return (
-    <div className={`${sizeClasses[size]} rounded-full bg-primary/10 flex items-center justify-center`}>
-      <span className="text-2xl">{iconSrc || '💎'}</span>
-    </div>
+    <img 
+      src={logoUrl} 
+      alt={symbol} 
+      className={`${sizeClasses[size]} rounded-full object-cover`}
+      onError={() => setImageError(true)}
+    />
   );
 }
 
