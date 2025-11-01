@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BottomNavigation } from "@/components/bottom-navigation";
-import { ArrowLeft, Send, Wallet, AlertCircle } from "lucide-react";
+import { ArrowLeft, Send, Wallet, AlertCircle, Bitcoin } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +22,7 @@ export default function Withdraw() {
   const { data: priceData } = useBitcoinPrice();
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState("");
+  const [amountType, setAmountType] = useState<"usd" | "btc">("usd");
 
   const withdrawMutation = useMutation({
     mutationFn: async (data: { address: string; amount: string }) => {
@@ -39,11 +40,12 @@ export default function Withdraw() {
     },
     onSuccess: () => {
       toast({
-        title: "Withdrawal Initiated",
-        description: "Your withdrawal has been processed successfully.",
+        title: "Withdrawal Requested",
+        description: "Your withdrawal request has been submitted for admin approval.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-      setLocation('/');
+      setAddress("");
+      setAmount("");
     },
     onError: (error: any) => {
       toast({
@@ -79,7 +81,7 @@ export default function Withdraw() {
     if (amountNum > userBalanceUsd) {
       toast({
         title: "Insufficient Balance",
-        description: "You don't have enough USD for this withdrawal",
+        description: "You don't have enough balance for this withdrawal",
         variant: "destructive",
       });
       return;
@@ -88,9 +90,21 @@ export default function Withdraw() {
     withdrawMutation.mutate({ address, amount });
   };
 
+  const handleMaxAmount = () => {
+    if (user && priceData?.usd?.price) {
+      const maxUsd = btcToUsd(user.balance, priceData.usd.price);
+      setAmount(maxUsd.toString());
+      setAmountType("usd");
+    }
+  };
+
   if (!user) {
     return <div>Please log in to access withdrawals</div>;
   }
+
+  const balanceInUsd = priceData?.usd?.price ? btcToUsd(user.balance, priceData.usd.price) : 0;
+  const amountInBtc = amount && priceData?.usd?.price ? usdToBtc(amount, priceData.usd.price) : "0";
+  const networkFee = "0.0001"; // Example network fee
 
   return (
     <AppLayout>
@@ -108,27 +122,27 @@ export default function Withdraw() {
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <div>
-                <h1 className="text-2xl font-bold dark-text">Withdraw Funds</h1>
-                <p className="text-sm text-muted-foreground">Send funds to an external address</p>
+                <h1 className="text-2xl font-bold dark-text">Withdraw Bitcoin</h1>
+                <p className="text-sm text-muted-foreground">Send BTC to external address</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="max-w-sm mx-auto p-4 pb-24">
+        <div className="max-w-sm mx-auto p-4 pb-24 space-y-6">
           {/* Balance Info */}
-          <Card className="dark-card dark-border mb-6 overflow-hidden">
-            <div className="bitcoin-gradient p-6 text-white relative">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -translate-y-16 translate-x-16"></div>
+          <Card className="dark-card dark-border overflow-hidden border-0 shadow-lg">
+            <div className="bg-gradient-to-br from-bitcoin to-orange-600 p-6 text-white relative">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-16 translate-x-16"></div>
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-2">
-                  <Wallet className="w-5 h-5 text-white" />
+                  <Bitcoin className="w-5 h-5 text-white" />
                   <p className="text-sm text-orange-100">Available Balance</p>
                 </div>
-                <p className="text-3xl font-bold text-white">
-                  {priceData?.usd?.price ? formatUsd(btcToUsd(user.balance, priceData.usd.price)) : `${user.balance} BTC`}
+                <p className="text-3xl font-bold text-white mb-1">
+                  {formatUsd(balanceInUsd)}
                 </p>
-                <p className="text-sm text-orange-100 mt-1">
+                <p className="text-sm text-orange-100">
                   ≈ {formatBitcoin(user.balance)} BTC
                 </p>
               </div>
@@ -147,36 +161,85 @@ export default function Withdraw() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <Label htmlFor="address" className="text-foreground">Destination Address</Label>
+                <Label htmlFor="address" className="text-foreground">Bitcoin Address</Label>
                 <Input
                   id="address"
                   type="text"
-                  placeholder="Enter Bitcoin address"
+                  placeholder="Enter BTC address (1... or 3... or bc1...)"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="mt-1.5"
+                  className="mt-1.5 font-mono text-sm"
                 />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Only send to a valid Bitcoin address
+                </p>
               </div>
 
               <div>
-                <Label htmlFor="amount" className="text-foreground">Amount (USD)</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  step="0.01"
-                  placeholder="100.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="mt-1.5"
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  Available: {priceData?.usd?.price ? formatUsd(btcToUsd(user.balance, priceData.usd.price)) : `${user.balance} BTC`}
-                </p>
-                {amount && priceData?.usd?.price && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    ≈ {usdToBtc(amount, priceData.usd.price)} BTC
-                  </p>
-                )}
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="amount" className="text-foreground">Amount</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleMaxAmount}
+                    className="h-6 text-xs text-bitcoin hover:text-bitcoin/80"
+                  >
+                    Max
+                  </Button>
+                </div>
+                <div className="relative">
+                  <Input
+                    id="amount"
+                    type="number"
+                    step="0.01"
+                    placeholder="100.00"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="mt-1.5 pr-16"
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
+                    <Button
+                      variant={amountType === "usd" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setAmountType("usd")}
+                      className="h-7 px-2 text-xs"
+                    >
+                      USD
+                    </Button>
+                    <Button
+                      variant={amountType === "btc" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setAmountType("btc")}
+                      className="h-7 px-2 text-xs"
+                    >
+                      BTC
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-3 p-3 bg-muted/30 rounded-lg space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Available:</span>
+                    <span className="font-medium text-foreground">{formatUsd(balanceInUsd)}</span>
+                  </div>
+                  {amount && priceData?.usd?.price && (
+                    <>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">Amount in BTC:</span>
+                        <span className="font-medium text-foreground">{amountInBtc} BTC</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">Network Fee:</span>
+                        <span className="font-medium text-foreground">~{networkFee} BTC</span>
+                      </div>
+                      <div className="border-t border-muted pt-1 mt-1">
+                        <div className="flex justify-between text-xs font-semibold">
+                          <span className="text-foreground">You'll Receive:</span>
+                          <span className="text-foreground">{(parseFloat(amountInBtc) - parseFloat(networkFee)).toFixed(8)} BTC</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               <div className="pt-2">
@@ -190,7 +253,7 @@ export default function Withdraw() {
                   ) : (
                     <>
                       <Send className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />
-                      Withdraw Funds
+                      Request Withdrawal
                     </>
                   )}
                 </Button>
@@ -199,17 +262,18 @@ export default function Withdraw() {
           </Card>
 
           {/* Information Card */}
-          <Card className="dark-card dark-border border-0 shadow-lg mt-6">
+          <Card className="dark-card dark-border border-0 shadow-lg">
             <CardContent className="p-6">
-              <div className="flex items-start gap-3 mb-4">
+              <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-medium dark-text mb-2">Important Information</h4>
                   <ul className="text-sm text-muted-foreground space-y-1.5">
-                    <li>• Withdrawals are processed immediately</li>
-                    <li>• Network fees will be deducted from your balance</li>
+                    <li>• Withdrawals require admin approval</li>
+                    <li>• Processing time: 1-24 hours</li>
+                    <li>• Network fees are deducted from your amount</li>
                     <li>• Minimum withdrawal: $10 USD</li>
-                    <li>• Double-check the destination address</li>
+                    <li>• Double-check the Bitcoin address</li>
                     <li>• Transactions cannot be reversed</li>
                   </ul>
                 </div>
