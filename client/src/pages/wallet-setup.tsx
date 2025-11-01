@@ -19,10 +19,11 @@ export default function WalletSetup() {
       const res = await apiRequest("POST", "/api/create-wallet", { userId: user?.id });
       return res.json();
     },
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       toast({
         title: "Wallet Created Successfully",
-        description: "Your new Bitcoin wallet has been created and secured.",
+        description: `Your new Bitcoin wallet has been created. Seed phrase: ${data.seedPhrase}`,
+        duration: 10000,
       });
       await refreshUser();
       setLocation('/');

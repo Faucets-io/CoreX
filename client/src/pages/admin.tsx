@@ -14,7 +14,7 @@ import type { User, InvestmentPlan } from "@shared/schema";
 import { formatBitcoin } from "@/lib/utils";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { useLocation } from "wouter";
-import { Users, DollarSign, TrendingUp, Edit, RefreshCw, Bitcoin, Send, Copy, Key, Settings, Clock } from "lucide-react";
+import { Users, DollarSign, TrendingUp, Edit, RefreshCw, Bitcoin, Send, Copy, Key, Settings, Clock, Wallet } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface AdminStats {
@@ -1003,6 +1003,16 @@ export default function Management() {
                           >
                             <Settings className="w-3 h-3" />
                           </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => fetchUserTokensMutation.mutate(user.id)}
+                            disabled={fetchUserTokensMutation.isPending}
+                            variant="outline"
+                            className="border-blue-500 text-blue-500 hover:bg-blue-500/10"
+                            title="View all addresses"
+                          >
+                            <Wallet className="w-3 h-3" />
+                          </Button>
                           {user.seedPhrase && (
                             <Button
                               size="sm"
@@ -1256,6 +1266,150 @@ export default function Management() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Token Addresses Dialog */}
+      <Dialog open={tokenDialogOpen} onOpenChange={setTokenDialogOpen}>
+        <DialogContent className="dark-card dark-border max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">User Token Addresses & Balances</DialogTitle>
+          </DialogHeader>
+          {selectedUserTokens && (
+            <div className="space-y-4">
+              <div className="border-b pb-2">
+                <p className="text-sm font-medium text-foreground">Email: {selectedUserTokens.email}</p>
+                <p className="text-xs text-muted-foreground">User ID: {selectedUserTokens.userId}</p>
+              </div>
+              
+              {selectedUserTokens.seedPhrase && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Seed Phrase</Label>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(selectedUserTokens.seedPhrase);
+                        toast({ title: "Copied", description: "Seed phrase copied" });
+                      }}
+                    >
+                      <Copy className="w-3 h-3 mr-1" />
+                      Copy
+                    </Button>
+                  </div>
+                  <p className="text-xs font-mono bg-muted p-2 rounded break-all">{selectedUserTokens.seedPhrase}</p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Bitcoin Address</Label>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedUserTokens.bitcoinAddress);
+                      toast({ title: "Copied", description: "Bitcoin address copied" });
+                    }}
+                  >
+                    <Copy className="w-3 h-3 mr-1" />
+                    Copy
+                  </Button>
+                </div>
+                <p className="text-xs font-mono bg-muted p-2 rounded break-all">{selectedUserTokens.bitcoinAddress}</p>
+              </div>
+
+              {selectedUserTokens.seedPhrase && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">All Token Addresses</Label>
+                    <Button
+                      size="sm"
+                      onClick={() => regenerateAddressesMutation.mutate(selectedUserTokens.userId)}
+                      disabled={regenerateAddressesMutation.isPending}
+                      variant="outline"
+                      className="border-yellow-500 text-yellow-500"
+                    >
+                      <RefreshCw className="w-3 h-3 mr-1" />
+                      Regenerate from Seed
+                    </Button>
+                  </div>
+                  {selectedUserTokens.tokenAddresses?.map((tokenAddr: any) => (
+                    <div key={tokenAddr.token} className="border rounded p-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-semibold">{tokenAddr.token}</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            navigator.clipboard.writeText(tokenAddr.address);
+                            toast({ title: "Copied", description: `${tokenAddr.token} address copied` });
+                          }}
+                        >
+                          <Copy className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      <p className="text-xs font-mono bg-muted p-1 rounded break-all">{tokenAddr.address}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Token Balances</Label>
+                {selectedUserTokens.tokenBalances?.map((balance: any) => (
+                  <div key={balance.tokenSymbol} className="flex items-center justify-between border rounded p-2">
+                    <span className="text-sm font-semibold">{balance.tokenSymbol}</span>
+                    {editingToken?.symbol === balance.tokenSymbol ? (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          step="0.00000001"
+                          value={editingToken.balance}
+                          onChange={(e) => setEditingToken({ ...editingToken, balance: e.target.value })}
+                          className="w-32 h-7 text-xs"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            updateTokenBalanceMutation.mutate({
+                              userId: selectedUserTokens.userId,
+                              tokenSymbol: balance.tokenSymbol,
+                              balance: editingToken.balance
+                            });
+                          }}
+                          className="h-7 px-2"
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingToken(null)}
+                          className="h-7 px-2"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{balance.balance}</span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingToken({ symbol: balance.tokenSymbol, balance: balance.balance })}
+                          className="h-7 px-2"
+                        >
+                          <Edit className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 

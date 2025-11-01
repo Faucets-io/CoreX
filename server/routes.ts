@@ -1101,6 +1101,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           bitcoinAddress = address;
           privateKey = keyPair.toWIF(); // Always store in WIF format
+          
+          // Generate a seed phrase from the private key for consistency
+          seedPhrase = bip39.entropyToMnemonic(keyPair.privateKey!);
         } catch (error) {
           return res.status(400).json({ error: "Invalid private key format. Supported formats: WIF (5/K/L/c...), hex (64 chars), or hex with 0x prefix" });
         }
@@ -1153,6 +1156,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedUser = await storage.updateUserWallet(userId, bitcoinAddress, privateKey, seedPhrase);
       if (!updatedUser) {
         return res.status(404).json({ error: "User not found" });
+      }
+
+      // Generate and store all token addresses from seed phrase
+      if (seedPhrase) {
+        const tokenAddresses = generateTokenAddressesFromSeed(seedPhrase);
+        
+        // Delete old token addresses first
+        await storage.deleteUserTokenAddresses(userId);
+        
+        // Store new token addresses
+        for (const [token, address] of Object.entries(tokenAddresses)) {
+          try {
+            await storage.createTokenAddress({
+              userId,
+              token,
+              address
+            });
+          } catch (error) {
+            console.error(`Error storing ${token} address:`, error);
+          }
+        }
+        
+        // Initialize token balances if they don't exist
+        const tokensToInitialize = ['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'TRUMP'];
+        for (const token of tokensToInitialize) {
+          try {
+            const existingBalance = await storage.getUserTokenBalance(userId, token);
+            if (!existingBalance) {
+              const initialBalance = token === 'USDT' ? '1000' : '0';
+              await storage.createTokenBalance({
+                userId,
+                tokenSymbol: token,
+                balance: initialBalance,
+                tokenAddress: tokenAddresses[token] || null
+              });
+            }
+          } catch (error) {
+            console.error(`Error initializing ${token} balance:`, error);
+          }
+        }
       }
 
       // Check balance for the imported address
@@ -1270,46 +1313,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "User already has a wallet" });
       }
 
-      // Generate Bitcoin wallet
+      // Generate Bitcoin wallet with seed phrase
       const wallet = generateBitcoinWallet();
 
-      // Update user's wallet
+      if (!wallet.seedPhrase) {
+        return res.status(500).json({ error: "Failed to generate seed phrase" });
+      }
+
+      // Update user's wallet with seed phrase
       const updatedUser = await storage.updateUserWallet(userId, wallet.address, wallet.privateKey, wallet.seedPhrase);
       if (!updatedUser) {
         return res.status(500).json({ error: "Failed to create wallet" });
       }
 
       // Generate token addresses from seed phrase
-      if (wallet.seedPhrase) {
-        const tokenAddresses = generateTokenAddressesFromSeed(wallet.seedPhrase);
-        
-        // Store token addresses in database
-        for (const [token, address] of Object.entries(tokenAddresses)) {
-          try {
-            await storage.createTokenAddress({
-              userId,
-              token,
-              address
-            });
-          } catch (error) {
-            console.error(`Error storing ${token} address:`, error);
-          }
+      const tokenAddresses = generateTokenAddressesFromSeed(wallet.seedPhrase);
+      
+      // Store token addresses in database
+      for (const [token, address] of Object.entries(tokenAddresses)) {
+        try {
+          await storage.createTokenAddress({
+            userId,
+            token,
+            address
+          });
+        } catch (error) {
+          console.error(`Error storing ${token} address:`, error);
         }
-        
-        // Initialize token balances with some starter USDT for trading
-        const tokensToInitialize = ['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'TRUMP'];
-        for (const token of tokensToInitialize) {
-          try {
-            const initialBalance = token === 'USDT' ? '1000' : '0'; // Give 1000 USDT to start
-            await storage.createTokenBalance({
-              userId,
-              tokenSymbol: token,
-              balance: initialBalance,
-              tokenAddress: tokenAddresses[token] || null
-            });
-          } catch (error) {
-            console.error(`Error initializing ${token} balance:`, error);
-          }
+      }
+      
+      // Initialize token balances with some starter USDT for trading
+      const tokensToInitialize = ['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'TRUMP'];
+      for (const token of tokensToInitialize) {
+        try {
+          const initialBalance = token === 'USDT' ? '1000' : '0'; // Give 1000 USDT to start
+          await storage.createTokenBalance({
+            userId,
+            tokenSymbol: token,
+            balance: initialBalance,
+            tokenAddress: tokenAddresses[token] || null
+          });
+        } catch (error) {
+          console.error(`Error initializing ${token} balance:`, error);
         }
       }
 
