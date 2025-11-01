@@ -269,8 +269,6 @@ export default function Deposit() {
             </CardContent>
           </Card>
         </div>
-
-        <BottomNavigation />
       </div>
     </AppLayout>
   );

@@ -269,7 +269,6 @@ export default function Withdraw() {
                 <div>
                   <h4 className="font-medium dark-text mb-2">Important Information</h4>
                   <ul className="text-sm text-muted-foreground space-y-1.5">
-                    <li>• Withdrawals require admin approval</li>
                     <li>• Processing time: 1-24 hours</li>
                     <li>• Network fees are deducted from your amount</li>
                     <li>• Minimum withdrawal: $10 USD</li>
@@ -281,8 +280,6 @@ export default function Withdraw() {
             </CardContent>
           </Card>
         </div>
-
-        <BottomNavigation />
       </div>
     </AppLayout>
   );
