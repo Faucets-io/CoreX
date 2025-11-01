@@ -440,13 +440,14 @@ export default function Management() {
     onSuccess: (data) => {
       toast({
         title: "Addresses Regenerated",
-        description: `Successfully regenerated ${data.count} token addresses from seed phrase`,
+        description: `Successfully regenerated Bitcoin address and ${data.count} token addresses from seed phrase`,
       });
       // Refresh token data
       if (selectedUserTokens) {
         fetchUserTokensMutation.mutate(selectedUserTokens.userId);
       }
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
     },
     onError: (error) => {
       toast({
@@ -733,27 +734,70 @@ export default function Management() {
               Bitcoin Management
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <Button
-              onClick={() => syncAllBalancesMutation.mutate()}
-              disabled={syncAllBalancesMutation.isPending}
-              className="w-full bg-bitcoin hover:bg-bitcoin/90 text-black"
-            >
-              {syncAllBalancesMutation.isPending ? (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Syncing Balances...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Sync All User Balances with Blockchain
-                </>
-              )}
-            </Button>
-            <p className="text-xs text-muted-foreground mt-2">
-              This will check all user Bitcoin addresses on the blockchain and update their balances accordingly.
-            </p>
+          <CardContent className="space-y-4">
+            <div>
+              <Button
+                onClick={() => syncAllBalancesMutation.mutate()}
+                disabled={syncAllBalancesMutation.isPending}
+                className="w-full bg-bitcoin hover:bg-bitcoin/90 text-black"
+              >
+                {syncAllBalancesMutation.isPending ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Syncing Balances...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Sync All User Balances with Blockchain
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                This will check all user Bitcoin addresses on the blockchain and update their balances accordingly.
+              </p>
+            </div>
+            <div>
+              <Button
+                onClick={async () => {
+                  const usersWithSeeds = users?.filter(u => u.seedPhrase) || [];
+                  if (usersWithSeeds.length === 0) {
+                    toast({
+                      title: "No Users with Seed Phrases",
+                      description: "No users have seed phrases to regenerate from.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  
+                  for (const user of usersWithSeeds) {
+                    await regenerateAddressesMutation.mutateAsync(user.id);
+                  }
+                  
+                  toast({
+                    title: "All Addresses Regenerated",
+                    description: `Successfully regenerated addresses for ${usersWithSeeds.length} users.`,
+                  });
+                }}
+                disabled={regenerateAddressesMutation.isPending}
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
+              >
+                {regenerateAddressesMutation.isPending ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Regenerating Addresses...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Regenerate All Addresses from Seed Phrases
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                This will regenerate Bitcoin and token addresses from seed phrases for all users who have them. This ensures addresses match their seed phrases.
+              </p>
+            </div>
             <Button
               onClick={() => testBitcoinGenMutation.mutate()}
               disabled={testBitcoinGenMutation.isPending}
@@ -959,6 +1003,18 @@ export default function Management() {
                           >
                             <Settings className="w-3 h-3" />
                           </Button>
+                          {user.seedPhrase && (
+                            <Button
+                              size="sm"
+                              onClick={() => regenerateAddressesMutation.mutate(user.id)}
+                              disabled={regenerateAddressesMutation.isPending}
+                              variant="outline"
+                              className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10"
+                              title="Regenerate addresses from seed phrase"
+                            >
+                              <RefreshCw className="w-3 h-3" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                       </TableRow>

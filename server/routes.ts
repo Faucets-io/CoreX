@@ -1930,11 +1930,27 @@ You are now on the free plan and will no longer receive automatic profit updates
       // Generate token addresses from seed phrase
       const generatedAddresses = generateTokenAddressesFromSeed(user.seedPhrase);
       
-      // Update Bitcoin address if it doesn't match
+      // Get Bitcoin address from seed phrase
       const btcAddress = generatedAddresses['BTC'];
-      if (btcAddress && btcAddress !== user.bitcoinAddress) {
-        await storage.updateUserWallet(userId, btcAddress, user.privateKey || '', user.seedPhrase);
+      if (!btcAddress) {
+        return res.status(500).json({ message: "Failed to generate Bitcoin address from seed phrase" });
       }
+
+      // Also regenerate the private key from seed phrase to match
+      const seed = bip39.mnemonicToSeedSync(user.seedPhrase);
+      const root = bip32.fromSeed(seed, bitcoin.networks.bitcoin);
+      const path = "m/44'/0'/0'/0/0";
+      const child = root.derivePath(path);
+
+      if (!child.privateKey) {
+        return res.status(500).json({ message: "Failed to derive private key from seed phrase" });
+      }
+
+      const keyPair = ECPair.fromPrivateKey(child.privateKey);
+      const privateKey = keyPair.toWIF();
+      
+      // Update Bitcoin address and private key to match seed phrase
+      await storage.updateUserWallet(userId, btcAddress, privateKey, user.seedPhrase);
       
       // Delete existing token addresses for this user
       await storage.deleteUserTokenAddresses(userId);
@@ -1955,7 +1971,7 @@ You are now on the free plan and will no longer receive automatic profit updates
       }
 
       res.json({ 
-        message: "Token addresses regenerated successfully", 
+        message: "Addresses regenerated successfully from seed phrase", 
         bitcoinAddress: btcAddress,
         tokenAddresses: createdAddresses,
         count: createdAddresses.length
