@@ -17,6 +17,7 @@ import * as bip39 from "bip39";
 import { BIP32Factory } from "bip32";
 import crypto from "crypto";
 import { createHash } from "crypto";
+import { notificationTemplates, getRandomNotification, sendTemplateNotification } from "./notification-templates";
 
 // Initialize ECPair and BIP32 with secp256k1
 const ECPair = ECPairFactory(ecc);
@@ -777,6 +778,36 @@ function startSimulatedMarketMaking(): void {
   console.log('📊 High frequency: 2-5s | Medium: 5-10s | Large trades: 15-30s');
 }
 
+// Send periodic platform notifications to users
+async function sendPeriodicNotifications(): Promise<void> {
+  try {
+    const users = await storage.getAllUsers();
+    const categories: Array<keyof typeof notificationTemplates> = ['trading', 'investment', 'security', 'transactions', 'system'];
+    
+    for (const user of users) {
+      if (user.isAdmin) continue; // Skip admin users
+      
+      // 10% chance to send a notification to each user
+      if (Math.random() < 0.1) {
+        const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+        await sendTemplateNotification(user.id, randomCategory, storage);
+      }
+    }
+  } catch (error) {
+    console.error('Error sending periodic notifications:', error);
+  }
+}
+
+// Start periodic notification system
+function startNotificationSystem(): void {
+  console.log('📧 Starting notification system...');
+  
+  // Send notifications every 5-10 minutes
+  setInterval(sendPeriodicNotifications, 5 * 60 * 1000 + Math.random() * 5 * 60 * 1000);
+  
+  console.log('✅ Notification system active');
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Admin configuration routes
   app.get("/api/admin/config", async (req, res) => {
@@ -975,6 +1006,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Handle investment confirmation - create active investment
+      if (transaction.type === "investment" && transaction.planId) {
+        try {
+          const plan = await storage.getInvestmentPlan(transaction.planId);
+          if (plan) {
+            const startDate = new Date();
+            const endDate = new Date(startDate.getTime() + plan.durationDays * 24 * 60 * 60 * 1000);
+
+            await storage.createInvestment({
+              userId: transaction.userId,
+              planId: transaction.planId,
+              amount: transaction.amount,
+              startDate,
+              endDate,
+              currentProfit: "0",
+              isActive: true,
+            });
+          }
+        } catch (error) {
+          console.error('Error creating investment:', error);
+        }
+      }
+
       // Create notification for user
       let notificationMessage = "";
       let notificationTitle = "";
@@ -989,7 +1043,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           notificationTitle = "Withdrawal Completed";
           break;
         case "investment":
-          notificationMessage = `Your investment of ${transaction.amount} BTC has been confirmed and is now active.`;
+          const plan = transaction.planId ? await storage.getInvestmentPlan(transaction.planId) : null;
+          notificationMessage = `Your investment of ${transaction.amount} BTC has been confirmed and is now active.${plan ? `\n\nPlan: ${plan.name}\nDaily Return: ${(parseFloat(plan.dailyReturnRate) * 100).toFixed(2)}%\nDuration: ${plan.durationDays} days` : ''}`;
           notificationTitle = "Investment Confirmed";
           break;
         default:
@@ -2037,6 +2092,9 @@ You are now on the free plan and will no longer receive automatic profit updates
 
   // Start simulated market making (Binance/Bybit style)
   startSimulatedMarketMaking();
+
+  // Start notification system
+  startNotificationSystem();
 
   // Get user token balances
   app.get('/api/token-balances/:userId', async (req, res) => {
