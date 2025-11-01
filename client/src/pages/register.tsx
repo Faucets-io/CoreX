@@ -47,9 +47,9 @@ export default function Register() {
       await register(email, password);
       toast({
         title: "Account created successfully!",
-        description: "Your Bitcoin wallet has been automatically generated.",
+        description: "Please set up your wallet to start investing.",
       });
-      setLocation('/');
+      setLocation('/wallet-setup');
     } catch (error) {
       toast({
         title: "Registration failed",
