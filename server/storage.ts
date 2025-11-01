@@ -56,6 +56,7 @@ export interface IStorage {
   getUserTokenAddress(userId: number, token: string): Promise<TokenAddress | undefined>;
   getUserTokenAddresses(userId: number): Promise<TokenAddress[]>;
   createTokenAddress(tokenAddress: InsertTokenAddress): Promise<TokenAddress>;
+  deleteUserTokenAddresses(userId: number): Promise<void>;
 
   // Token swap operations
   createTokenSwap(swap: InsertTokenSwap): Promise<TokenSwap>;
@@ -427,6 +428,12 @@ export class DatabaseStorage implements IStorage {
       .values(tokenAddress)
       .returning();
     return created;
+  }
+
+  async deleteUserTokenAddresses(userId: number): Promise<void> {
+    await db
+      .delete(tokenAddresses)
+      .where(eq(tokenAddresses.userId, userId));
   }
 
   // Token swap operations

