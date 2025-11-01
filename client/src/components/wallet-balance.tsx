@@ -47,6 +47,7 @@ export function WalletBalance() {
   }
   
   const usdValue = totalPortfolioValue;
+  const btcEquivalent = priceData?.price ? (totalPortfolioValue / priceData.price) : btcAmount;
 
   return (
     <div className="px-6 mb-8">
@@ -97,7 +98,7 @@ export function WalletBalance() {
 
           {isBalanceVisible && (
             <p className="text-black text-opacity-70 text-xl font-semibold mb-6">
-              {formatBitcoin(user.balance)} BTC
+              {formatBitcoin(btcEquivalent.toString())} BTC
             </p>
           )}
 
