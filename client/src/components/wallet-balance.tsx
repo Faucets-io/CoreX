@@ -50,72 +50,73 @@ export function WalletBalance() {
   const btcEquivalent = priceData?.price ? (totalPortfolioValue / priceData.price) : btcAmount;
 
   return (
-    <div className="px-6 mb-8">
-      <Card className="gradient-primary rounded-3xl p-8 relative overflow-hidden border-0 shadow-2xl animate-glow">
-        {/* Background decorative elements */}
-        <div className="absolute top-0 right-0 w-40 h-40 bg-white dark:bg-white opacity-10 rounded-full -translate-y-20 translate-x-20 animate-pulse-slow"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white dark:bg-white opacity-5 rounded-full translate-y-16 -translate-x-16 animate-float"></div>
+    <Card className="mx-6 mb-6 border-border rounded-3xl p-6 relative overflow-hidden bg-gradient-to-br from-card via-card to-accent/20">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald rounded-full blur-3xl"></div>
+      </div>
 
-        {/* Security indicators */}
-        <div className="absolute top-4 right-4 flex gap-2">
-          <div className="w-8 h-8 rounded-full bg-white dark:bg-white bg-opacity-20 dark:bg-opacity-20 flex items-center justify-center">
-            <Shield className="w-4 h-4 text-white dark:text-white" />
-          </div>
-          <div className="w-8 h-8 rounded-full bg-white dark:bg-white bg-opacity-20 dark:bg-opacity-20 flex items-center justify-center animate-pulse">
-            <Zap className="w-4 h-4 text-white dark:text-white" />
-          </div>
-        </div>
-
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-black text-opacity-70 text-sm font-medium mb-1">Total Portfolio Balance</p>
-              <div className="flex items-center gap-3">
+      <div className="relative z-10">
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-muted-foreground text-sm font-medium">Total Portfolio Balance</p>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-6 h-6 rounded-lg hover:bg-accent"
+                onClick={() => setIsBalanceVisible(!isBalanceVisible)}
+              >
                 {isBalanceVisible ? (
-                  <h2 className="text-4xl font-bold text-black tracking-tight">
+                  <EyeOff className="w-3.5 h-3.5" />
+                ) : (
+                  <Eye className="w-3.5 h-3.5" />
+                )}
+              </Button>
+            </div>
+            <div className="space-y-1">
+              {isBalanceVisible ? (
+                <>
+                  <h2 className="text-4xl font-bold text-foreground tracking-tight">
                     {formatUsd(usdValue)}
                   </h2>
-                ) : (
-                  <h2 className="text-4xl font-bold text-black tracking-tight">
+                  <p className="text-muted-foreground text-lg font-medium">
+                    {formatBitcoin(btcEquivalent.toString())} BTC
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-4xl font-bold text-foreground tracking-tight">
                     ••••••••
                   </h2>
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-8 h-8 rounded-xl bg-black bg-opacity-10 hover:bg-opacity-20 transition-all"
-                  onClick={() => setIsBalanceVisible(!isBalanceVisible)}
-                >
-                  {isBalanceVisible ? (
-                    <EyeOff className="w-4 h-4 text-black" />
-                  ) : (
-                    <Eye className="w-4 h-4 text-black" />
-                  )}
-                </Button>
-              </div>
+                  <p className="text-muted-foreground text-lg font-medium">
+                    •••••• BTC
+                  </p>
+                </>
+              )}
             </div>
           </div>
-
-          {isBalanceVisible && (
-            <p className="text-black text-opacity-70 text-xl font-semibold mb-6">
-              {formatBitcoin(btcEquivalent.toString())} BTC
-            </p>
-          )}
-
-          <div className="flex items-center justify-between pt-4 border-t border-black border-opacity-20">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-emerald animate-pulse"></div>
-              <p className="text-black text-opacity-70 text-sm font-medium">
-                Secure Vault • Multi-Sig Protected
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-black text-opacity-70 text-xs">Last Updated</p>
-              <p className="text-black text-sm font-medium">Just now</p>
+          
+          <div className="flex gap-2">
+            <div className="w-10 h-10 rounded-xl bg-emerald/10 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-emerald" />
             </div>
           </div>
         </div>
-      </Card>
-    </div>
+
+        <div className="flex items-center justify-between pt-4 border-t border-border/50">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald animate-pulse"></div>
+            <p className="text-muted-foreground text-xs font-medium">
+              Secured • Multi-Sig Protected
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-muted-foreground text-xs">Updated now</p>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 }
