@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BottomNavigation } from "@/components/bottom-navigation";
 import { ArrowLeft, Send, Wallet, AlertCircle, Bitcoin } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
@@ -104,34 +103,29 @@ export default function Withdraw() {
 
   const balanceInUsd = priceData?.usd?.price ? btcToUsd(user.balance, priceData.usd.price) : 0;
   const amountInBtc = amount && priceData?.usd?.price ? usdToBtc(amount, priceData.usd.price) : "0";
-  const networkFee = "0.0001"; // Example network fee
+  const networkFee = "0.0001";
 
   return (
-    <AppLayout>
-      <div className="min-h-screen dark-bg">
+    <AppLayout maxWidth="2xl">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b dark-border">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setLocation('/')}
-                className="rounded-xl hover:bg-muted"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold dark-text">Withdraw Bitcoin</h1>
-                <p className="text-sm text-muted-foreground">Send BTC to external address</p>
-              </div>
-            </div>
+        <header className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setLocation('/')}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Withdraw Bitcoin</h1>
+            <p className="text-muted-foreground mt-1">Send BTC to external address</p>
           </div>
-        </div>
+        </header>
 
-        <div className="max-w-sm mx-auto p-4 pb-24 space-y-6">
+        <div className="max-w-2xl space-y-6">
           {/* Balance Info */}
-          <Card className="dark-card dark-border overflow-hidden border-0 shadow-lg">
+          <Card className="overflow-hidden border-0 shadow-lg">
             <div className="bg-gradient-to-br from-bitcoin to-orange-600 p-6 text-white relative">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-16 translate-x-16"></div>
               <div className="relative z-10">
@@ -150,9 +144,9 @@ export default function Withdraw() {
           </Card>
 
           {/* Withdrawal Form */}
-          <Card className="dark-card dark-border border-0 shadow-lg">
+          <Card className="border-border shadow-lg">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 dark-text">
+              <CardTitle className="flex items-center gap-3 text-foreground">
                 <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center">
                   <Send className="w-4 h-4 text-red-500" />
                 </div>
@@ -262,12 +256,12 @@ export default function Withdraw() {
           </Card>
 
           {/* Information Card */}
-          <Card className="dark-card dark-border border-0 shadow-lg">
+          <Card className="border-border shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-medium dark-text mb-2">Important Information</h4>
+                  <h4 className="font-medium text-foreground mb-2">Important Information</h4>
                   <ul className="text-sm text-muted-foreground space-y-1.5">
                     <li>• Processing time: 1-24 hours</li>
                     <li>• Network fees are deducted from your amount</li>

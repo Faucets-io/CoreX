@@ -1,17 +1,17 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from "@/hooks/use-auth";
-import { BottomNavigation } from "@/components/bottom-navigation";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, CheckCircle, Info, AlertTriangle, AlertCircle, MoreVertical, Trash2, Archive, Clock, Filter, Check, ArrowLeft } from 'lucide-react';
+import { Bell, CheckCircle, Info, AlertTriangle, AlertCircle, Clock, Filter, Check, ArrowLeft } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import type { Notification } from '@shared/schema';
 import { cn } from '@/lib/utils';
+import { AppLayout } from "@/components/app-layout";
 
 export default function Notifications() {
   const { user } = useAuth();
@@ -28,10 +28,9 @@ export default function Notifications() {
     queryKey: ['/api/notifications', user?.id],
     queryFn: () => fetch(`/api/notifications/${user?.id}`).then(res => res.json()),
     enabled: !!user?.id,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
   });
 
-  // Initial fetch on mount
   useEffect(() => {
     refetch();
   }, [refetch]);
@@ -73,7 +72,7 @@ export default function Notifications() {
   const getTypeIcon = (type: string) => {
     const iconClass = "w-5 h-5";
     switch (type) {
-      case 'success': return <CheckCircle className={`${iconClass} text-green-500`} />;
+      case 'success': return <CheckCircle className={`${iconClass} text-emerald`} />;
       case 'warning': return <AlertTriangle className={`${iconClass} text-yellow-500`} />;
       case 'error': return <AlertCircle className={`${iconClass} text-red-500`} />;
       default: return <Info className={`${iconClass} text-blue-500`} />;
@@ -101,58 +100,41 @@ export default function Notifications() {
   const filteredNotifications = getFilteredNotifications();
 
   return (
-    <div className="min-h-screen dark-bg">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b dark-border">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setLocation('/')}
-                className="rounded-xl hover:bg-muted"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div className="relative">
-                <Bell className="w-8 h-8 text-primary" />
-                {unreadCount && unreadCount.count > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                  >
-                    {unreadCount.count}
-                  </Badge>
-                )}
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold dark-text">Notifications</h1>
-                <p className="text-muted-foreground text-sm">Stay updated with your activities</p>
-              </div>
+    <AppLayout maxWidth="2xl">
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <header className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setLocation('/')}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Notifications</h1>
+              <p className="text-muted-foreground mt-1">Stay updated with your activities</p>
             </div>
-
-            {unreadCount && unreadCount.count > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => markAllAsReadMutation.mutate()}
-                disabled={markAllAsReadMutation.isPending}
-                className="gap-2"
-              >
-                <Check className="w-4 h-4" />
-                Mark All Read
-              </Button>
-            )}
           </div>
-        </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto p-4 pb-24">
+          {unreadCount && unreadCount.count > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => markAllAsReadMutation.mutate()}
+              disabled={markAllAsReadMutation.isPending}
+              className="gap-2"
+            >
+              <Check className="w-4 h-4" />
+              Mark All Read
+            </Button>
+          )}
+        </header>
+
         {/* Filter Tabs */}
-        <Tabs value={filter} onValueChange={(value) => setFilter(value as any)} className="mb-6">
-          <TabsList className="grid w-full grid-cols-3 dark-card dark-border">
+        <Tabs value={filter} onValueChange={(value) => setFilter(value as any)}>
+          <TabsList className="grid w-full grid-cols-3 bg-card border border-border">
             <TabsTrigger value="all" className="gap-2">
               <Filter className="w-4 h-4" />
               All ({notifications?.length || 0})
@@ -171,7 +153,7 @@ export default function Notifications() {
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (
-                  <Card key={i} className="dark-card dark-border animate-pulse">
+                  <Card key={i} className="animate-pulse border-border">
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 bg-muted rounded-full"></div>
@@ -191,7 +173,7 @@ export default function Notifications() {
                   <Card
                     key={notification.id}
                     className={cn(
-                      "dark-card dark-border transition-all duration-200 hover:shadow-lg",
+                      "transition-all duration-200 hover:shadow-lg border-border",
                       !notification.isRead ? "ring-2 ring-primary/20 bg-primary/5" : ""
                     )}
                   >
@@ -200,7 +182,7 @@ export default function Notifications() {
                         {/* Icon */}
                         <div className={cn(
                           "p-3 rounded-full flex-shrink-0",
-                          notification.type === 'success' && "bg-green-500/10",
+                          notification.type === 'success' && "bg-emerald/10",
                           notification.type === 'warning' && "bg-yellow-500/10",
                           notification.type === 'error' && "bg-red-500/10",
                           notification.type === 'info' && "bg-blue-500/10"
@@ -211,7 +193,7 @@ export default function Notifications() {
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-3 mb-2">
-                            <h3 className="font-semibold dark-text text-lg leading-tight">
+                            <h3 className="font-semibold text-foreground text-lg leading-tight">
                               {notification.title}
                             </h3>
                             <div className="flex items-center gap-2 flex-shrink-0">
@@ -226,7 +208,7 @@ export default function Notifications() {
                             </div>
                           </div>
 
-                          <p className="text-muted-foreground mb-4 leading-relaxed whitespace-pre-line break-words overflow-wrap-anywhere">
+                          <p className="text-muted-foreground mb-4 leading-relaxed whitespace-pre-line break-words">
                             {notification.message}
                           </p>
 
@@ -256,12 +238,12 @@ export default function Notifications() {
                 ))}
               </div>
             ) : (
-              <Card className="dark-card dark-border">
+              <Card className="border-border">
                 <CardContent className="p-12 text-center">
                   <div className="w-20 h-20 mx-auto mb-6 bg-muted rounded-full flex items-center justify-center">
                     <Bell className="w-10 h-10 text-muted-foreground opacity-50" />
                   </div>
-                  <h3 className="text-xl font-semibold dark-text mb-2">
+                  <h3 className="text-xl font-semibold text-foreground mb-2">
                     {filter === 'unread' ? 'No unread notifications' :
                      filter === 'read' ? 'No read notifications' : 'No notifications yet'}
                   </h3>
@@ -278,8 +260,6 @@ export default function Notifications() {
           </TabsContent>
         </Tabs>
       </div>
-
-      <BottomNavigation />
-    </div>
+    </AppLayout>
   );
 }

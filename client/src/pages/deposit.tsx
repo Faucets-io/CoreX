@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BottomNavigation } from "@/components/bottom-navigation";
 import { ArrowLeft, Copy, Check, Wallet, Send, AlertCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
@@ -98,33 +97,28 @@ export default function Deposit() {
   const currentToken = tokens.find(t => t.symbol === selectedToken);
 
   return (
-    <AppLayout>
-      <div className="min-h-screen dark-bg">
+    <AppLayout maxWidth="2xl">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b dark-border">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setLocation('/')}
-                className="rounded-xl hover:bg-muted"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold dark-text">Deposit Crypto</h1>
-                <p className="text-sm text-muted-foreground">Add funds to your wallet</p>
-              </div>
-            </div>
+        <header className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setLocation('/')}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Deposit Crypto</h1>
+            <p className="text-muted-foreground mt-1">Add funds to your wallet</p>
           </div>
-        </div>
+        </header>
 
-        <div className="max-w-sm mx-auto p-4 pb-24 space-y-6">
+        <div className="max-w-2xl space-y-6">
           {/* Token Selection */}
-          <Card className="dark-card dark-border border-0 shadow-lg">
+          <Card className="border-border shadow-lg">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg dark-text">Select Token</CardTitle>
+              <CardTitle className="text-lg text-foreground">Select Token</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-2">
@@ -149,9 +143,9 @@ export default function Deposit() {
 
           {/* Deposit Address */}
           {currentToken && currentToken.address && (
-            <Card className="dark-card dark-border border-0 shadow-lg">
+            <Card className="border-border shadow-lg">
               <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 dark-text">
+                <CardTitle className="flex items-center gap-3 text-foreground">
                   <div className={`w-8 h-8 rounded-lg ${currentToken.color}/20 flex items-center justify-center`}>
                     <Wallet className={`w-4 h-4 text-white`} />
                   </div>
@@ -193,9 +187,9 @@ export default function Deposit() {
           )}
 
           {/* Submit Deposit */}
-          <Card className="dark-card dark-border border-0 shadow-lg">
+          <Card className="border-border shadow-lg">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 dark-text">
+              <CardTitle className="flex items-center gap-3 text-foreground">
                 <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
                   <Send className="w-4 h-4 text-blue-500" />
                 </div>
@@ -251,12 +245,12 @@ export default function Deposit() {
           </Card>
 
           {/* Instructions */}
-          <Card className="dark-card dark-border border-0 shadow-lg">
+          <Card className="border-border shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-medium dark-text mb-2">How to Deposit</h4>
+                  <h4 className="font-medium text-foreground mb-2">How to Deposit</h4>
                   <ul className="text-sm text-muted-foreground space-y-1.5">
                     <li>1. Select your token (BTC, ETH, or BNB)</li>
                     <li>2. Copy your deposit address</li>
