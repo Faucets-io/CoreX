@@ -1,4 +1,3 @@
-
 export const notificationTemplates = {
   // Trading & Market Updates (100 templates)
   trading: [
@@ -79,7 +78,7 @@ export const notificationTemplates = {
     { title: "Service Restored", message: "✅ All systems operational\n\nIssue: Resolved\nUptime: 99.98%\n\nThank you for your patience", type: "success" },
     // Add 90 more system templates...
   ],
-];
+};
 
 // Function to get random notification template
 export function getRandomNotification(category: keyof typeof notificationTemplates) {
