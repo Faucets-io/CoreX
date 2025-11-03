@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
 import CyberBotScene from "./cyber-bot-scene";
-import NeonBackdrop from "./neon-backdrop";
+import { NeonBackdrop } from "./neon-backdrop";
 
 interface AuthContainerProps {
   children: ReactNode;
