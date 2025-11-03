@@ -1014,7 +1014,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const startDate = new Date();
             const endDate = new Date(startDate.getTime() + plan.durationDays * 24 * 60 * 60 * 1000);
 
-            await storage.createInvestment({
+            const investment = await storage.createInvestment({
               userId: transaction.userId,
               planId: transaction.planId,
               amount: transaction.amount,
@@ -1023,6 +1023,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               currentProfit: "0",
               isActive: true,
             });
+
+            // Broadcast investment update via WebSocket
+            if (typeof (global as any).broadcastInvestmentUpdate === 'function') {
+              (global as any).broadcastInvestmentUpdate(transaction.userId, investment);
+            }
           }
         } catch (error) {
           console.error('Error creating investment:', error);

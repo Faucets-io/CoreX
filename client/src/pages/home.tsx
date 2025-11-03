@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
+import { useInvestmentWebSocket } from "@/hooks/use-websocket";
 import { NeonBackdrop } from "@/components/neon-backdrop";
 import { NeonHeader } from "@/components/neon-header";
 import { BalanceOverview } from "@/components/balance-overview";
@@ -12,6 +13,9 @@ import { useEffect } from "react";
 export default function Home() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+  
+  // Connect to WebSocket for real-time investment updates
+  useInvestmentWebSocket(user?.id);
 
   useEffect(() => {
     if (!user) {

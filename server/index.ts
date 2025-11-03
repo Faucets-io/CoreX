@@ -4,6 +4,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { testConnection } from "./db";
 import { runSafeMigrations } from "./migrations";
+import { WebSocketServer } from "ws";
 
 const app = express();
 app.use(express.json());
@@ -91,4 +92,38 @@ app.use((req, res, next) => {
       console.warn('⚠️  Server started but database connection failed. Some features may not work.');
     }
   });
+
+  // Setup WebSocket server for real-time updates
+  const wss = new WebSocketServer({ server });
+  
+  wss.on('connection', (ws) => {
+    console.log('WebSocket client connected');
+    
+    ws.on('message', (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        if (data.type === 'subscribe' && data.userId) {
+          (ws as any).userId = data.userId;
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+      }
+    });
+
+    ws.on('close', () => {
+      console.log('WebSocket client disconnected');
+    });
+  });
+
+  // Broadcast function for investment updates
+  (global as any).broadcastInvestmentUpdate = (userId: number, investment: any) => {
+    wss.clients.forEach((client) => {
+      if (client.readyState === 1 && (client as any).userId === userId) {
+        client.send(JSON.stringify({
+          type: 'investment_update',
+          data: investment
+        }));
+      }
+    });
+  };
 })();

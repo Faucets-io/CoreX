@@ -110,7 +110,7 @@ export function ActiveInvestmentsList() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="neon-bg rounded-xl p-3 border neon-border">
                         <p className="text-xs neon-text-secondary mb-1">Invested</p>
-                        <p className="font-semibold neon-text" data-testid={`text-amount-${investment.id}`}>
+                        <p className="font-semibold neon-text text-sm break-all" data-testid={`text-amount-${investment.id}`}>
                           {formatBitcoin(investment.amount)} USDT
                         </p>
                       </div>
@@ -122,7 +122,7 @@ export function ActiveInvestmentsList() {
                         }}
                       >
                         <p className="text-xs neon-text-secondary mb-1">Profit</p>
-                        <p className="font-semibold text-emerald" data-testid={`text-profit-${investment.id}`}>
+                        <p className="font-semibold text-emerald text-sm break-all" data-testid={`text-profit-${investment.id}`}>
                           +{formatBitcoin(investment.currentProfit)} USDT
                         </p>
                       </div>
