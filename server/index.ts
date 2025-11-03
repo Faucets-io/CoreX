@@ -94,7 +94,11 @@ app.use((req, res, next) => {
   });
 
   // Setup WebSocket server for real-time updates
-  const wss = new WebSocketServer({ server });
+  const wss = new WebSocketServer({ 
+    server,
+    clientTracking: true,
+    perMessageDeflate: false
+  });
   
   wss.on('connection', (ws) => {
     console.log('WebSocket client connected');
@@ -110,19 +114,31 @@ app.use((req, res, next) => {
       }
     });
 
-    ws.on('close', () => {
-      console.log('WebSocket client disconnected');
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error.message);
     });
+
+    ws.on('close', (code, reason) => {
+      console.log(`WebSocket client disconnected - Code: ${code}, Reason: ${reason}`);
+    });
+  });
+
+  wss.on('error', (error) => {
+    console.error('WebSocket server error:', error);
   });
 
   // Broadcast function for investment updates
   (global as any).broadcastInvestmentUpdate = (userId: number, investment: any) => {
     wss.clients.forEach((client) => {
-      if (client.readyState === 1 && (client as any).userId === userId) {
-        client.send(JSON.stringify({
-          type: 'investment_update',
-          data: investment
-        }));
+      try {
+        if (client.readyState === 1 && (client as any).userId === userId) {
+          client.send(JSON.stringify({
+            type: 'investment_update',
+            data: investment
+          }));
+        }
+      } catch (error) {
+        console.error('Error broadcasting to client:', error);
       }
     });
   };

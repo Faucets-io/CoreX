@@ -8,40 +8,61 @@ export function useInvestmentWebSocket(userId: number | undefined) {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
 
   const connect = useCallback(() => {
-    if (!userId || wsRef.current?.readyState === WebSocket.OPEN) return;
-
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}`);
-
-    ws.onopen = () => {
-      console.log('WebSocket connected');
-      ws.send(JSON.stringify({ type: 'subscribe', userId }));
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        if (message.type === 'investment_update') {
-          // Invalidate investments query to trigger refetch
-          queryClient.invalidateQueries({ queryKey: ['/api/investments/user', userId] });
-        }
-      } catch (error) {
-        console.error('WebSocket message error:', error);
+    if (!userId) return;
+    
+    // Close existing connection if any
+    if (wsRef.current) {
+      if (wsRef.current.readyState === WebSocket.OPEN || 
+          wsRef.current.readyState === WebSocket.CONNECTING) {
+        wsRef.current.close(1000, 'Reconnecting');
       }
-    };
+      wsRef.current = null;
+    }
 
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${protocol}//${window.location.host}`);
 
-    ws.onclose = () => {
-      console.log('WebSocket disconnected, reconnecting in 5s...');
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+        try {
+          ws.send(JSON.stringify({ type: 'subscribe', userId }));
+        } catch (error) {
+          console.error('Error sending subscribe message:', error);
+        }
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.type === 'investment_update') {
+            // Invalidate investments query to trigger refetch
+            queryClient.invalidateQueries({ queryKey: ['/api/investments/user', userId] });
+          }
+        } catch (error) {
+          console.error('WebSocket message error:', error);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+
+      ws.onclose = (event) => {
+        console.log(`WebSocket disconnected (Code: ${event.code}), reconnecting in 5s...`);
+        wsRef.current = null;
+        reconnectTimeoutRef.current = setTimeout(() => {
+          connect();
+        }, 5000);
+      };
+
+      wsRef.current = ws;
+    } catch (error) {
+      console.error('Error creating WebSocket:', error);
       reconnectTimeoutRef.current = setTimeout(() => {
         connect();
       }, 5000);
-    };
-
-    wsRef.current = ws;
+    }
   }, [userId, queryClient]);
 
   useEffect(() => {
@@ -53,8 +74,11 @@ export function useInvestmentWebSocket(userId: number | undefined) {
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
-      if (wsRef.current) {
-        wsRef.current.close();
+      if (wsRef.current && 
+          (wsRef.current.readyState === WebSocket.OPEN || 
+           wsRef.current.readyState === WebSocket.CONNECTING)) {
+        wsRef.current.close(1000, 'Component unmounting');
+        wsRef.current = null;
       }
     };
   }, [userId, connect]);
