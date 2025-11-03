@@ -23,7 +23,7 @@ export function useInvestmentWebSocket(userId: number | undefined) {
 
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const ws = new WebSocket(`${protocol}//${window.location.host}`);
+      const ws = new WebSocket(`${protocol}//${window.location.host}/api/ws`);
 
       ws.onopen = () => {
         try {

@@ -96,6 +96,7 @@ app.use((req, res, next) => {
   // Setup WebSocket server for real-time updates
   const wss = new WebSocketServer({ 
     server,
+    path: '/api/ws',
     clientTracking: true,
     perMessageDeflate: false
   });
