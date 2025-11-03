@@ -72,10 +72,8 @@ export default function Login() {
         description: "Login successful",
       });
       
-      // Small delay to ensure auth state is updated
-      setTimeout(() => {
-        setLocation("/");
-      }, 100);
+      // Redirect immediately - the login function already updates state synchronously
+      setLocation("/");
     } catch (error: any) {
       toast({
         title: "Login failed",
