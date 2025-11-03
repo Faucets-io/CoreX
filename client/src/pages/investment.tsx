@@ -140,7 +140,13 @@ export default function Investment() {
     });
   };
 
-  const durations = [1, 7, 14, 28];
+  const durations = [
+    { days: 1, rate: 0.4 },
+    { days: 7, rate: 0.5 },
+    { days: 14, rate: 0.6 },
+    { days: 28, rate: 0.7 }
+  ];
+  
   const activeInvestments = investments?.filter(inv => inv.isActive) || [];
   const completedInvestments = investments?.filter(inv => !inv.isActive) || [];
   const pendingInvestments = transactions?.filter(tx => tx.type === 'investment' && tx.status === 'pending') || [];
@@ -148,6 +154,27 @@ export default function Investment() {
   const getPlanName = (planId: number) => {
     return plans?.find(plan => plan.id === planId)?.name || `Plan ${planId}`;
   };
+
+  // Calculate investment returns in real-time
+  const calculateReturns = () => {
+    const investmentAmount = parseFloat(amount) || 0;
+    const selectedDurationData = durations.find(d => d.days === selectedDuration);
+    const dailyRate = selectedDurationData?.rate || 0;
+    
+    const dailyProfit = (investmentAmount * dailyRate) / 100;
+    const totalReturnPercentage = dailyRate * selectedDuration;
+    const totalProfit = (investmentAmount * totalReturnPercentage) / 100;
+    
+    return {
+      dailyRate,
+      dailyProfit,
+      totalReturnPercentage,
+      totalProfit,
+      totalReturn: investmentAmount + totalProfit
+    };
+  };
+
+  const returns = calculateReturns();
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A' }}>
@@ -294,12 +321,12 @@ export default function Investment() {
             <div className="mb-6">
               <Label className="text-sm mb-3 block" style={{ color: '#BFBFBF' }}>Duration</Label>
               <div className="grid grid-cols-4 gap-3">
-                {durations.map((days) => (
+                {durations.map((d) => (
                   <Button
-                    key={days}
-                    onClick={() => setSelectedDuration(days)}
+                    key={d.days}
+                    onClick={() => setSelectedDuration(d.days)}
                     className="rounded-lg transition-all"
-                    style={selectedDuration === days ? {
+                    style={selectedDuration === d.days ? {
                       background: 'linear-gradient(90deg, #00FF99, #00CC66)',
                       color: '#0A0A0A',
                       boxShadow: '0 0 15px rgba(0, 255, 153, 0.3)'
@@ -309,20 +336,71 @@ export default function Investment() {
                       color: '#BFBFBF',
                       border: '1px solid #2A2A2A'
                     }}
-                    data-testid={`button-duration-${days}`}
+                    data-testid={`button-duration-${d.days}`}
                   >
-                    {days} Day{days > 1 ? 's' : ''}
+                    <div className="flex flex-col items-center">
+                      <span>{d.days} Day{d.days > 1 ? 's' : ''}</span>
+                      <span className="text-xs opacity-80">{d.rate}% daily</span>
+                    </div>
                   </Button>
                 ))}
               </div>
             </div>
 
-            {/* Summary */}
-            <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: '#0A0A0A' }}>
-              <p className="text-sm" style={{ color: '#BFBFBF' }}>
-                Earning Duration: <span style={{ color: '#00FF99' }}>{selectedDuration} Days</span>
-              </p>
-            </div>
+            {/* Real-time Calculation Display */}
+            {amount && parseFloat(amount) > 0 && (
+              <div className="mb-6 p-5 rounded-lg border" style={{ 
+                backgroundColor: '#0A0A0A',
+                borderColor: '#00FF99',
+                boxShadow: '0 0 15px rgba(0, 255, 153, 0.2)'
+              }}>
+                <h3 className="text-sm font-semibold mb-4" style={{ color: '#00FF99' }}>
+                  Investment Projection
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm" style={{ color: '#BFBFBF' }}>Daily Return Rate</span>
+                    <span className="font-semibold" style={{ color: '#FFFFFF' }} data-testid="text-daily-rate">
+                      {returns.dailyRate}% per day
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm" style={{ color: '#BFBFBF' }}>Daily Profit</span>
+                    <span className="font-semibold" style={{ color: '#00FF99' }} data-testid="text-daily-profit">
+                      +{formatBitcoin(returns.dailyProfit.toString())} USDT
+                    </span>
+                  </div>
+                  <div className="h-px" style={{ backgroundColor: '#2A2A2A' }} />
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm" style={{ color: '#BFBFBF' }}>Total Return Rate</span>
+                    <span className="font-semibold" style={{ color: '#FFFFFF' }} data-testid="text-total-rate">
+                      {returns.totalReturnPercentage}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm" style={{ color: '#BFBFBF' }}>Estimated Profit ({selectedDuration} days)</span>
+                    <span className="font-bold text-lg" style={{ color: '#00FF99' }} data-testid="text-total-profit">
+                      +{formatBitcoin(returns.totalProfit.toString())} USDT
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2" style={{ borderTop: '1px solid #2A2A2A' }}>
+                    <span className="text-sm font-semibold" style={{ color: '#BFBFBF' }}>Total Return</span>
+                    <span className="font-bold text-xl" style={{ color: '#00FF99' }} data-testid="text-total-return">
+                      {formatBitcoin(returns.totalReturn.toString())} USDT
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Summary when no amount */}
+            {(!amount || parseFloat(amount) <= 0) && (
+              <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: '#0A0A0A' }}>
+                <p className="text-sm text-center" style={{ color: '#BFBFBF' }}>
+                  Enter an amount to see estimated returns
+                </p>
+              </div>
+            )}
 
             {/* Start Button */}
             <Button
