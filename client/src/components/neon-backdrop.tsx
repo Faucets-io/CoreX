@@ -1,4 +1,7 @@
-export function NeonBackdrop() {
+
+import { motion } from "framer-motion";
+
+export default function NeonBackdrop() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden neon-bg">
       {/* Gradient blur orbs for depth */}
