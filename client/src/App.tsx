@@ -62,7 +62,7 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" storageKey="fluxtrade-ui-theme">
+      <ThemeProvider defaultTheme="dark" storageKey="fluxtrade-ui-theme">
         <TooltipProvider>
           <CurrencyProvider>
             <AuthProvider>
