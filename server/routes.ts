@@ -1445,12 +1445,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      // Set session userId for authentication
-      req.session.userId = user.id;
+      // Regenerate session to prevent session fixation attacks
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error('Session regenerate error:', err);
+          return res.status(500).json({ message: "Failed to create session" });
+        }
 
-      // Don't return private key and password in response
-      const { privateKey, password: _, ...userResponse } = user;
-      res.json(userResponse);
+        // Set session userId for authentication
+        req.session.userId = user.id;
+
+        // Save session before responding to ensure it's persisted
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error('Session save error:', saveErr);
+            return res.status(500).json({ message: "Failed to create session" });
+          }
+
+          // Don't return private key and password in response
+          const { privateKey, password: _, ...userResponse } = user;
+          res.json(userResponse);
+        });
+      });
     } catch (error) {
       console.error('Login error:', error);
       res.status(400).json({ message: error instanceof Error ? error.message : "Login failed" });
