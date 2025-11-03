@@ -14,7 +14,7 @@ export function useInvestmentWebSocket(userId: number | undefined) {
     if (wsRef.current) {
       if (wsRef.current.readyState === WebSocket.OPEN || 
           wsRef.current.readyState === WebSocket.CONNECTING) {
-        wsRef.current.close(1000, 'Reconnecting');
+        wsRef.current.close(1000);
       }
       wsRef.current = null;
     }
@@ -77,7 +77,7 @@ export function useInvestmentWebSocket(userId: number | undefined) {
       if (wsRef.current && 
           (wsRef.current.readyState === WebSocket.OPEN || 
            wsRef.current.readyState === WebSocket.CONNECTING)) {
-        wsRef.current.close(1000, 'Component unmounting');
+        wsRef.current.close(1000);
         wsRef.current = null;
       }
     };
