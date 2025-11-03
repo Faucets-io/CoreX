@@ -1,7 +1,7 @@
 
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
-import CyberBotScene from "./cyber-bot-scene";
+import CryptoJetIcon from "./crypto-jet-icon";
 import { NeonBackdrop } from "./neon-backdrop";
 
 interface AuthContainerProps {
@@ -22,7 +22,7 @@ export default function AuthContainer({ children }: AuthContainerProps) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <CyberBotScene />
+          <CryptoJetIcon />
         </motion.div>
 
         {/* Right side - Form */}
