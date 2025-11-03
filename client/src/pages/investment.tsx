@@ -1,41 +1,45 @@
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
-import { InvestmentPlans } from "@/components/investment-plans";
-import { BottomNavigation } from "@/components/bottom-navigation";
-import type { Investment, InvestmentPlan, Transaction } from "@shared/schema";
-import { formatBitcoin, calculateInvestmentProgress, formatDate } from "@/lib/utils";
-import { Progress } from "@/components/ui/progress";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import type { Investment, InvestmentPlan, Transaction, User } from "@shared/schema";
+import { formatBitcoin, formatDate } from "@/lib/utils";
 import { useLocation } from "wouter";
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { useCurrency } from "@/hooks/use-currency";
-import { TrendingUp, Target, Clock, Award, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "wouter";
-import { AppLayout } from "@/components/app-layout";
+import { RefreshCw, ChevronDown } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import GLOBE from "vanta/dist/vanta.globe.min";
+import * as THREE from "three";
 
 export default function Investment() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [amount, setAmount] = useState("");
+  const [selectedDuration, setSelectedDuration] = useState(7);
+  const [vantaEffect, setVantaEffect] = useState<any>(null);
+  const vantaRef = useRef<HTMLDivElement>(null);
 
   if (!user) {
     setLocation('/login');
     return null;
   }
 
-  const { data: investments } = useQuery<Investment[]>({
+  // Fetch user data to get balance
+  const { data: userData } = useQuery<User>({
+    queryKey: ['/api/user'],
+    refetchInterval: 5000,
+  });
+
+  const { data: investments, refetch: refetchInvestments } = useQuery<Investment[]>({
     queryKey: ['/api/investments/user', user.id],
-    refetchInterval: 5000, // Refresh every 5 seconds
+    refetchInterval: 5000,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    refetchIntervalInBackground: true,
   });
 
   const { data: plans } = useQuery<InvestmentPlan[]>({
@@ -43,240 +47,480 @@ export default function Investment() {
     refetchOnMount: true,
   });
 
-  const { data: transactions } = useQuery<any[]>({
+  const { data: transactions } = useQuery<Transaction[]>({
     queryKey: ['/api/transactions'],
-    refetchInterval: 5000, // Refresh every 5 seconds
+    refetchInterval: 5000,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    refetchIntervalInBackground: true,
   });
+
+  // Vanta.js Globe Effect
+  useEffect(() => {
+    if (!vantaEffect && vantaRef.current) {
+      setVantaEffect(
+        GLOBE({
+          el: vantaRef.current,
+          THREE: THREE,
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 200.00,
+          minWidth: 200.00,
+          scale: 1.00,
+          scaleMobile: 1.00,
+          color: 0x00ff99,
+          color2: 0x00cc66,
+          backgroundColor: 0x0a0a0a,
+          size: 1.5,
+        })
+      );
+    }
+    return () => {
+      if (vantaEffect) vantaEffect.destroy();
+    };
+  }, [vantaEffect]);
+
+  const createInvestmentMutation = useMutation({
+    mutationFn: async ({ amount, duration }: { amount: string; duration: number }) => {
+      // Find a plan with matching duration or use the first plan
+      const plan = plans?.find(p => p.durationDays === duration) || plans?.[0];
+      if (!plan) throw new Error('No investment plan available');
+
+      return await apiRequest('POST', '/api/invest', {
+        planId: plan.id,
+        amount,
+        userId: user.id,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/investments/user', user.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      setAmount("");
+      toast({
+        title: "Investment Submitted",
+        description: "Your investment has been submitted and is pending confirmation.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Investment Failed",
+        description: error.message || "Failed to create investment",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleMaxClick = () => {
+    if (userData?.balance) {
+      setAmount(userData.balance);
+    }
+  };
+
+  const handleStartInvestment = () => {
+    if (!amount || parseFloat(amount) <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid investment amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createInvestmentMutation.mutate({
+      amount,
+      duration: selectedDuration,
+    });
+  };
+
+  const handleRefresh = () => {
+    refetchInvestments();
+    toast({
+      title: "Refreshed",
+      description: "Investment data has been refreshed",
+    });
+  };
+
+  const durations = [1, 7, 14, 28];
+  const activeInvestments = investments?.filter(inv => inv.isActive) || [];
+  const completedInvestments = investments?.filter(inv => !inv.isActive) || [];
+  const pendingInvestments = transactions?.filter(tx => tx.type === 'investment' && tx.status === 'pending') || [];
 
   const getPlanName = (planId: number) => {
     return plans?.find(plan => plan.id === planId)?.name || `Plan ${planId}`;
   };
 
-  const activeInvestments = investments?.filter(inv => inv.isActive) || [];
-  const completedInvestments = investments?.filter(inv => !inv.isActive) || [];
-  const pendingInvestments = transactions?.filter(tx => tx.type === 'investment' && tx.status === 'pending') || [];
-  const rejectedInvestments = transactions?.filter(tx => tx.type === 'investment' && tx.status === 'rejected') || [];
-
   return (
-    <AppLayout>
-      <div className="min-h-screen bg-background">
-        <div className="p-4 lg:p-6 max-w-4xl mx-auto">
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setLocation('/')}
-                className="rounded-xl hover:bg-muted/50 transition-all"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-flux-cyan to-flux-purple bg-clip-text text-transparent">
-                Investment Plans
-              </h1>
+    <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A' }}>
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b" style={{ backgroundColor: '#0A0A0A', borderColor: '#1A1A1A' }}>
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="text-2xl font-bold" style={{ 
+            background: 'linear-gradient(90deg, #00FF99, #00CC66)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            FluxTrade
+          </div>
+          <Button 
+            onClick={handleStartInvestment}
+            disabled={createInvestmentMutation.isPending}
+            className="rounded-full px-6 py-2 font-medium border-0 hover:scale-105 transition-transform"
+            style={{ 
+              background: 'linear-gradient(90deg, #00FF99, #00CC66)',
+              color: '#0A0A0A',
+              boxShadow: '0 0 20px rgba(0, 255, 153, 0.3)'
+            }}
+            data-testid="button-start-investment"
+          >
+            {createInvestmentMutation.isPending ? 'Processing...' : 'Start'}
+          </Button>
+        </div>
+      </header>
+
+      {/* Hero Section with Globe Animation */}
+      <section className="relative h-[400px] overflow-hidden">
+        <div ref={vantaRef} className="absolute inset-0" />
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
+          <div className="text-4xl md:text-5xl font-bold mb-4" style={{ 
+            background: 'linear-gradient(90deg, #00FF99, #00CC66)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            FluxTrade
+          </div>
+          <p className="text-lg mb-8" style={{ color: '#BFBFBF' }}>
+            Invest Smart. Earn Daily.
+          </p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Button 
+              variant="outline" 
+              className="rounded-full border-2 hover:scale-105 transition-transform"
+              style={{ 
+                borderColor: '#00FF99',
+                color: '#00FF99',
+                backgroundColor: 'transparent',
+                boxShadow: '0 0 15px rgba(0, 255, 153, 0.2)'
+              }}
+              data-testid="button-how-to-invest"
+            >
+              How to Invest
+            </Button>
+            <Button 
+              variant="outline"
+              className="rounded-full border-2 hover:scale-105 transition-transform"
+              style={{ 
+                borderColor: '#00FF99',
+                color: '#00FF99',
+                backgroundColor: 'transparent',
+                boxShadow: '0 0 15px rgba(0, 255, 153, 0.2)'
+              }}
+              data-testid="button-profit-plans"
+            >
+              Profit Plans
+            </Button>
+            <Button 
+              variant="outline"
+              className="rounded-full border-2 hover:scale-105 transition-transform"
+              style={{ 
+                borderColor: '#00FF99',
+                color: '#00FF99',
+                backgroundColor: 'transparent',
+                boxShadow: '0 0 15px rgba(0, 255, 153, 0.2)'
+              }}
+              data-testid="button-more"
+            >
+              More <ChevronDown className="ml-1 w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+        {/* Investment Card */}
+        <Card 
+          className="rounded-2xl border overflow-hidden"
+          style={{ 
+            backgroundColor: '#1A1A1A',
+            borderColor: '#2A2A2A',
+            boxShadow: '0 0 20px rgba(0, 255, 128, 0.1)'
+          }}
+        >
+          <CardContent className="p-6">
+            <h2 className="text-2xl font-bold mb-6" style={{ color: '#FFFFFF' }}>
+              Investment Options
+            </h2>
+
+            {/* Amount Input */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <Label className="text-sm" style={{ color: '#BFBFBF' }}>Amount</Label>
+                <span className="text-sm" style={{ color: '#BFBFBF' }}>
+                  Balance: {formatBitcoin(userData?.balance || "0")} USDT
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="rounded-lg border flex-1"
+                  style={{ 
+                    backgroundColor: '#0A0A0A',
+                    borderColor: '#2A2A2A',
+                    color: '#FFFFFF'
+                  }}
+                  data-testid="input-amount"
+                />
+                <Button
+                  onClick={handleMaxClick}
+                  variant="outline"
+                  className="rounded-lg border"
+                  style={{ 
+                    borderColor: '#00FF99',
+                    color: '#00FF99',
+                    backgroundColor: 'transparent'
+                  }}
+                  data-testid="button-max"
+                >
+                  Max
+                </Button>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground ml-12">Grow your Bitcoin with our professional investment plans</p>
+
+            {/* Duration Selector */}
+            <div className="mb-6">
+              <Label className="text-sm mb-3 block" style={{ color: '#BFBFBF' }}>Duration</Label>
+              <div className="grid grid-cols-4 gap-3">
+                {durations.map((days) => (
+                  <Button
+                    key={days}
+                    onClick={() => setSelectedDuration(days)}
+                    className="rounded-lg transition-all"
+                    style={selectedDuration === days ? {
+                      background: 'linear-gradient(90deg, #00FF99, #00CC66)',
+                      color: '#0A0A0A',
+                      boxShadow: '0 0 15px rgba(0, 255, 153, 0.3)'
+                    } : {
+                      backgroundColor: '#0A0A0A',
+                      borderColor: '#2A2A2A',
+                      color: '#BFBFBF',
+                      border: '1px solid #2A2A2A'
+                    }}
+                    data-testid={`button-duration-${days}`}
+                  >
+                    {days} Day{days > 1 ? 's' : ''}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Summary */}
+            <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: '#0A0A0A' }}>
+              <p className="text-sm" style={{ color: '#BFBFBF' }}>
+                Earning Duration: <span style={{ color: '#00FF99' }}>{selectedDuration} Days</span>
+              </p>
+            </div>
+
+            {/* Start Button */}
+            <Button
+              onClick={handleStartInvestment}
+              disabled={createInvestmentMutation.isPending}
+              className="w-full rounded-lg py-6 text-lg font-semibold hover:scale-[1.02] transition-transform"
+              style={{ 
+                background: 'linear-gradient(90deg, #00FF99, #00CC66)',
+                color: '#0A0A0A',
+                boxShadow: '0 0 20px rgba(0, 255, 153, 0.3)'
+              }}
+              data-testid="button-start-invest"
+            >
+              {createInvestmentMutation.isPending ? 'Processing...' : 'Start'}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Orders Section */}
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold" style={{ color: '#FFFFFF' }}>
+              My Investments
+            </h2>
+            <Button
+              onClick={handleRefresh}
+              variant="outline"
+              size="sm"
+              className="rounded-lg border"
+              style={{ 
+                borderColor: '#00FF99',
+                color: '#00FF99',
+                backgroundColor: 'transparent',
+                boxShadow: '0 0 10px rgba(0, 255, 153, 0.2)'
+              }}
+              data-testid="button-refresh"
+            >
+              <RefreshCw className="w-4 h-4 mr-1" />
+              Refresh
+            </Button>
           </div>
 
-          {/* Investment Plans */}
-          <InvestmentPlans />
-
-          {/* Pending Investments */}
-          {pendingInvestments.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="w-5 h-5 text-flux-cyan" />
-                <h3 className="text-xl font-semibold text-foreground">Pending Investments</h3>
-              </div>
-              <div className="space-y-4">
-                {pendingInvestments.map((transaction) => (
-                  <Card key={transaction.id} className="bg-card/50 backdrop-blur border-border/50 rounded-2xl p-5 hover:border-flux-cyan/30 transition-all">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h4 className="font-semibold text-foreground text-lg">{getPlanName(transaction.planId || 1)}</h4>
-                        <p className="text-muted-foreground text-sm mt-1">
-                          Submitted: {formatDate(new Date(transaction.createdAt))}
-                        </p>
-                      </div>
-                      <Badge className="bg-flux-cyan/10 text-flux-cyan border-flux-cyan/20 px-3 py-1">
-                        Pending
-                      </Badge>
-                    </div>
-                    <Separator className="my-3" />
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Investment Amount</span>
-                        <span className="text-foreground font-semibold">{formatBitcoin(transaction.amount)} BTC</span>
-                      </div>
-                      {transaction.transactionHash && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Transaction Hash</span>
-                          <span className="text-xs text-muted-foreground font-mono bg-muted/30 px-2 py-1 rounded">
-                            {transaction.transactionHash.substring(0, 8)}...{transaction.transactionHash.substring(-8)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="mt-4 p-3 bg-flux-cyan/5 border border-flux-cyan/10 rounded-xl">
-                      <p className="text-xs text-muted-foreground">
-                        Your investment is pending admin approval and will be activated once confirmed.
+          <div className="space-y-4">
+            {/* Pending Investments */}
+            {pendingInvestments.map((tx) => (
+              <Card 
+                key={tx.id}
+                className="rounded-lg border"
+                style={{ 
+                  backgroundColor: '#1A1A1A',
+                  borderColor: '#2A2A2A'
+                }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <p className="font-semibold" style={{ color: '#FFFFFF' }} data-testid={`text-plan-name-pending-${tx.id}`}>
+                        {getPlanName(tx.planId || 1)}
+                      </p>
+                      <p className="text-sm" style={{ color: '#BFBFBF' }} data-testid={`text-date-pending-${tx.id}`}>
+                        {formatDate(new Date(tx.createdAt))}
                       </p>
                     </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
+                    <Badge 
+                      className="rounded-full px-3 py-1"
+                      style={{ 
+                        backgroundColor: 'rgba(255, 193, 7, 0.2)',
+                        color: '#FFC107',
+                        border: '1px solid rgba(255, 193, 7, 0.3)'
+                      }}
+                      data-testid={`badge-status-pending-${tx.id}`}
+                    >
+                      Pending
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm" style={{ color: '#BFBFBF' }}>Amount</span>
+                    <span style={{ color: '#FFFFFF' }} data-testid={`text-amount-pending-${tx.id}`}>{formatBitcoin(tx.amount)} USDT</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
 
-        {/* Rejected Investments */}
-          {rejectedInvestments.length > 0 && (
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold mb-4 text-foreground">Rejected Investments</h3>
-              <div className="space-y-4">
-                {rejectedInvestments.map((transaction) => (
-                  <Card key={transaction.id} className="bg-card/30 backdrop-blur border-destructive/20 rounded-2xl p-5 opacity-90">
-                    <div className="flex justify-between items-start mb-4">
+            {/* Active Investments */}
+            {activeInvestments.map((inv) => {
+              const daysLeft = Math.ceil(
+                (new Date(inv.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+              );
+
+              return (
+                <Card 
+                  key={inv.id}
+                  className="rounded-lg border"
+                  style={{ 
+                    backgroundColor: '#1A1A1A',
+                    borderColor: '#2A2A2A'
+                  }}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-3">
                       <div>
-                        <h4 className="font-semibold text-destructive text-lg">{getPlanName(transaction.planId || 1)}</h4>
-                        <p className="text-muted-foreground text-sm mt-1">
-                          Rejected: {transaction.confirmedAt ? formatDate(new Date(transaction.confirmedAt)) : 'Recently'}
+                        <p className="font-semibold" style={{ color: '#FFFFFF' }} data-testid={`text-plan-name-active-${inv.id}`}>
+                          {getPlanName(inv.planId)}
+                        </p>
+                        <p className="text-sm" style={{ color: '#BFBFBF' }} data-testid={`text-days-remaining-active-${inv.id}`}>
+                          {daysLeft > 0 ? `${daysLeft} days remaining` : 'Completed'}
                         </p>
                       </div>
-                      <Badge className="bg-destructive/10 text-destructive border-destructive/20 px-3 py-1">
-                        Rejected
+                      <Badge 
+                        className="rounded-full px-3 py-1"
+                        style={{ 
+                          backgroundColor: 'rgba(0, 255, 153, 0.2)',
+                          color: '#00FF99',
+                          border: '1px solid rgba(0, 255, 153, 0.3)'
+                        }}
+                        data-testid={`badge-status-active-${inv.id}`}
+                      >
+                        Active
                       </Badge>
                     </div>
-                    <Separator className="my-3" />
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Amount</span>
-                        <span className="text-foreground font-semibold">{formatBitcoin(transaction.amount)} BTC</span>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm" style={{ color: '#BFBFBF' }}>Amount</span>
+                        <span style={{ color: '#FFFFFF' }} data-testid={`text-amount-active-${inv.id}`}>{formatBitcoin(inv.amount)} USDT</span>
                       </div>
-                      {transaction.notes && (
-                        <div className="bg-destructive/5 border border-destructive/10 p-3 rounded-xl">
-                          <span className="text-destructive font-medium text-sm">Reason: </span>
-                          <span className="text-muted-foreground text-sm">{transaction.notes}</span>
-                        </div>
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-
-        {/* Active Investments */}
-          {activeInvestments.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <TrendingUp className="w-5 h-5 text-emerald" />
-                <h3 className="text-xl font-semibold text-foreground">Active Investments</h3>
-              </div>
-              <div className="space-y-4">
-                {activeInvestments.map((investment) => {
-                  const progress = calculateInvestmentProgress(
-                    new Date(investment.startDate),
-                    new Date(investment.endDate)
-                  );
-                  const daysLeft = Math.ceil(
-                    (new Date(investment.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-                  );
-
-                  return (
-                    <Card key={investment.id} className="bg-gradient-to-br from-card/50 to-emerald/5 backdrop-blur border-emerald/20 rounded-2xl p-5 hover:border-emerald/40 transition-all">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h4 className="font-semibold text-foreground text-lg">{getPlanName(investment.planId)}</h4>
-                          <p className="text-muted-foreground text-sm mt-1">
-                            Started: {formatDate(new Date(investment.startDate))}
-                          </p>
-                        </div>
-                        <Badge className="bg-emerald/10 text-emerald border-emerald/20 px-3 py-1">
-                          Active
-                        </Badge>
-                      </div>
-                      <Separator className="my-3" />
-                      <div className="space-y-3 mb-4">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Invested</span>
-                          <span className="text-foreground font-semibold">{formatBitcoin(investment.amount)} BTC</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Current Profit</span>
-                          <span className="text-emerald font-semibold">+{formatBitcoin(investment.currentProfit)} BTC</span>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Progress value={progress} className="h-2" />
-                        <div className="flex justify-between items-center">
-                          <p className="text-xs text-muted-foreground">
-                            {daysLeft > 0 ? `${daysLeft} days remaining` : 'Completed'}
-                          </p>
-                          <p className="text-xs text-emerald font-medium">{progress.toFixed(0)}%</p>
-                        </div>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Completed Investments */}
-          {completedInvestments.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <Award className="w-5 h-5 text-flux-purple" />
-                <h3 className="text-xl font-semibold text-foreground">Completed Investments</h3>
-              </div>
-              <div className="space-y-4">
-                {completedInvestments.map((investment) => (
-                  <Card key={investment.id} className="bg-card/30 backdrop-blur border-border/50 rounded-2xl p-5 opacity-90">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h4 className="font-semibold text-foreground text-lg">{getPlanName(investment.planId)}</h4>
-                        <p className="text-muted-foreground text-sm mt-1">
-                          Completed: {formatDate(new Date(investment.endDate))}
-                        </p>
-                      </div>
-                      <Badge className="bg-muted/50 text-muted-foreground border-border px-3 py-1">
-                        Completed
-                      </Badge>
-                    </div>
-                    <Separator className="my-3" />
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Invested</span>
-                        <span className="text-foreground font-semibold">{formatBitcoin(investment.amount)} BTC</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Final Profit</span>
-                        <span className="text-emerald font-semibold">+{formatBitcoin(investment.currentProfit)} BTC</span>
+                      <div className="flex justify-between">
+                        <span className="text-sm" style={{ color: '#BFBFBF' }}>Profit</span>
+                        <span style={{ color: '#00FF99' }} data-testid={`text-profit-active-${inv.id}`}>+{formatBitcoin(inv.currentProfit)} USDT</span>
                       </div>
                     </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
+                  </CardContent>
+                </Card>
+              );
+            })}
 
-          {/* Empty State */}
-          {(!investments || investments.length === 0) && pendingInvestments.length === 0 && (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-flux-cyan/10 to-flux-purple/10 flex items-center justify-center mx-auto mb-6">
-                <Target className="w-10 h-10 text-flux-cyan" />
-              </div>
-              <div className="text-muted-foreground max-w-md mx-auto">
-                <p className="text-xl font-semibold mb-2 text-foreground">No investments yet</p>
-                <p className="text-sm">Choose an investment plan above to start growing your Bitcoin</p>
-              </div>
-            </div>
-          )}
+            {/* Completed Investments */}
+            {completedInvestments.map((inv) => (
+              <Card 
+                key={inv.id}
+                className="rounded-lg border opacity-80"
+                style={{ 
+                  backgroundColor: '#1A1A1A',
+                  borderColor: '#2A2A2A'
+                }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <p className="font-semibold" style={{ color: '#FFFFFF' }} data-testid={`text-plan-name-completed-${inv.id}`}>
+                        {getPlanName(inv.planId)}
+                      </p>
+                      <p className="text-sm" style={{ color: '#BFBFBF' }} data-testid={`text-date-completed-${inv.id}`}>
+                        Completed: {formatDate(new Date(inv.endDate))}
+                      </p>
+                    </div>
+                    <Badge 
+                      className="rounded-full px-3 py-1"
+                      style={{ 
+                        backgroundColor: 'rgba(128, 128, 128, 0.2)',
+                        color: '#BFBFBF',
+                        border: '1px solid rgba(128, 128, 128, 0.3)'
+                      }}
+                      data-testid={`badge-status-completed-${inv.id}`}
+                    >
+                      Completed
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm" style={{ color: '#BFBFBF' }}>Amount</span>
+                      <span style={{ color: '#FFFFFF' }} data-testid={`text-amount-completed-${inv.id}`}>{formatBitcoin(inv.amount)} USDT</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm" style={{ color: '#BFBFBF' }}>Profit</span>
+                      <span style={{ color: '#00FF99' }} data-testid={`text-profit-completed-${inv.id}`}>+{formatBitcoin(inv.currentProfit)} USDT</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            {/* Empty State */}
+            {!pendingInvestments.length && !activeInvestments.length && !completedInvestments.length && (
+              <Card 
+                className="rounded-lg border"
+                style={{ 
+                  backgroundColor: '#1A1A1A',
+                  borderColor: '#2A2A2A'
+                }}
+              >
+                <CardContent className="p-8 text-center">
+                  <p style={{ color: '#BFBFBF' }} data-testid="text-empty-state">No investments yet. Start investing to see your portfolio here.</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 }
