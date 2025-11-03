@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import AuthContainer from "@/components/auth-container";
 import FluxTradeLogo from "@/components/fluxtrade-logo";
 import CryptoJetIcon from "@/components/crypto-jet-icon";
@@ -25,6 +26,7 @@ const cryptoLogos = [
 export default function Login() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -63,30 +65,21 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        toast({
-          title: "Welcome back!",
-          description: "Login successful",
-        });
-        setLocation("/");
-      } else {
-        const error = await response.text();
-        toast({
-          title: "Login failed",
-          description: error,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
+      await login(formData.email, formData.password);
+      
       toast({
-        title: "Error",
-        description: "An error occurred during login",
+        title: "Welcome back!",
+        description: "Login successful",
+      });
+      
+      // Small delay to ensure auth state is updated
+      setTimeout(() => {
+        setLocation("/");
+      }, 100);
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.message || "Invalid credentials",
         variant: "destructive",
       });
     } finally {

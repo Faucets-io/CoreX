@@ -11,13 +11,16 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   
   // Connect to WebSocket for real-time investment updates
   useInvestmentWebSocket(user?.id);
 
   useEffect(() => {
+    // Wait for auth to finish loading before redirecting
+    if (isLoading) return;
+    
     if (!user) {
       setLocation('/login');
       return;
@@ -26,10 +29,14 @@ export default function Home() {
     if (!user.hasWallet) {
       setLocation('/wallet-setup');
     }
-  }, [user, setLocation]);
+  }, [user, isLoading, setLocation]);
+
+  if (isLoading) {
+    return <div className="neon-bg min-h-screen flex items-center justify-center neon-text">Loading...</div>;
+  }
 
   if (!user) {
-    return <div className="neon-bg min-h-screen flex items-center justify-center neon-text">Redirecting to login...</div>;
+    return null; // Will redirect in useEffect
   }
 
   return (
