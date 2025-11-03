@@ -653,12 +653,12 @@ async function generateSimulatedMarketTrade(): Promise<void> {
     const tokens = ['BTC', 'ETH', 'BNB', 'XRP', 'TRUMP', 'SOL', 'ADA', 'DOGE'];
     const token = tokens[Math.floor(Math.random() * tokens.length)];
 
-    // Simulate realistic trader behavior with varying position sizes
+    // Simulate realistic trader behavior with varying position sizes - increased for higher volume
     const traderTypes = [
-      { name: 'whale', probability: 0.05, sizeMultiplier: 5.0 },
-      { name: 'large', probability: 0.15, sizeMultiplier: 2.5 },
-      { name: 'medium', probability: 0.30, sizeMultiplier: 1.0 },
-      { name: 'small', probability: 0.50, sizeMultiplier: 0.3 },
+      { name: 'whale', probability: 0.08, sizeMultiplier: 15.0 },
+      { name: 'large', probability: 0.20, sizeMultiplier: 6.0 },
+      { name: 'medium', probability: 0.35, sizeMultiplier: 2.5 },
+      { name: 'small', probability: 0.37, sizeMultiplier: 0.8 },
     ];
 
     const rand = Math.random();
@@ -673,29 +673,29 @@ async function generateSimulatedMarketTrade(): Promise<void> {
       }
     }
 
-    // Generate realistic trade amounts based on token and trader type
+    // Generate realistic trade amounts based on token and trader type - increased sizes
     let baseAmount: number;
     switch(token) {
       case 'BTC':
-        baseAmount = (Math.random() * 0.15 + 0.005) * selectedTrader.sizeMultiplier;
+        baseAmount = (Math.random() * 0.5 + 0.02) * selectedTrader.sizeMultiplier;
         break;
       case 'ETH':
-        baseAmount = (Math.random() * 2 + 0.05) * selectedTrader.sizeMultiplier;
+        baseAmount = (Math.random() * 8 + 0.2) * selectedTrader.sizeMultiplier;
         break;
       case 'BNB':
       case 'SOL':
-        baseAmount = (Math.random() * 5 + 0.5) * selectedTrader.sizeMultiplier;
+        baseAmount = (Math.random() * 20 + 2) * selectedTrader.sizeMultiplier;
         break;
       case 'XRP':
       case 'ADA':
       case 'DOGE':
-        baseAmount = (Math.random() * 500 + 50) * selectedTrader.sizeMultiplier;
+        baseAmount = (Math.random() * 2000 + 200) * selectedTrader.sizeMultiplier;
         break;
       case 'TRUMP':
-        baseAmount = (Math.random() * 50 + 5) * selectedTrader.sizeMultiplier;
+        baseAmount = (Math.random() * 200 + 20) * selectedTrader.sizeMultiplier;
         break;
       default:
-        baseAmount = (Math.random() * 0.5 + 0.01) * selectedTrader.sizeMultiplier;
+        baseAmount = (Math.random() * 2 + 0.05) * selectedTrader.sizeMultiplier;
     }
 
     // Format amount with appropriate precision
@@ -742,40 +742,60 @@ async function generateSimulatedMarketTrade(): Promise<void> {
 function startSimulatedMarketMaking(): void {
   console.log('🚀 Starting market maker simulation (Binance/Bybit style)...');
 
-  // High frequency market maker (every 2-5 seconds)
+  // Ultra high frequency market maker (every 0.5-1.5 seconds)
+  function scheduleUltraHighFrequencyTrade() {
+    const delay = Math.random() * 1000 + 500; // 0.5-1.5 seconds
+    setTimeout(async () => {
+      await generateSimulatedMarketTrade();
+      scheduleUltraHighFrequencyTrade();
+    }, delay);
+  }
+
+  // High frequency market maker (every 1-3 seconds)
   function scheduleHighFrequencyTrade() {
-    const delay = Math.random() * 3000 + 2000; // 2-5 seconds
+    const delay = Math.random() * 2000 + 1000; // 1-3 seconds
     setTimeout(async () => {
       await generateSimulatedMarketTrade();
       scheduleHighFrequencyTrade();
     }, delay);
   }
 
-  // Medium frequency market maker (every 5-10 seconds)
+  // Medium frequency market maker (every 2-5 seconds)
   function scheduleMediumFrequencyTrade() {
-    const delay = Math.random() * 5000 + 5000; // 5-10 seconds
+    const delay = Math.random() * 3000 + 2000; // 2-5 seconds
     setTimeout(async () => {
       await generateSimulatedMarketTrade();
       scheduleMediumFrequencyTrade();
     }, delay);
   }
 
-  // Low frequency large trades (every 15-30 seconds)
+  // Low frequency large trades (every 5-10 seconds)
   function scheduleLowFrequencyTrade() {
-    const delay = Math.random() * 15000 + 15000; // 15-30 seconds
+    const delay = Math.random() * 5000 + 5000; // 5-10 seconds
     setTimeout(async () => {
       await generateSimulatedMarketTrade();
       scheduleLowFrequencyTrade();
     }, delay);
   }
 
+  // Whale trades (every 10-20 seconds)
+  function scheduleWhaleTrade() {
+    const delay = Math.random() * 10000 + 10000; // 10-20 seconds
+    setTimeout(async () => {
+      await generateSimulatedMarketTrade();
+      scheduleWhaleTrade();
+    }, delay);
+  }
+
   // Start all market makers
+  scheduleUltraHighFrequencyTrade();
   scheduleHighFrequencyTrade();
   scheduleMediumFrequencyTrade();
   scheduleLowFrequencyTrade();
+  scheduleWhaleTrade();
 
-  console.log('✅ Market makers active - simulating realistic order flow');
-  console.log('📊 High frequency: 2-5s | Medium: 5-10s | Large trades: 15-30s');
+  console.log('✅ Market makers active - simulating realistic high-volume order flow');
+  console.log('📊 Ultra-high: 0.5-1.5s | High: 1-3s | Medium: 2-5s | Large: 5-10s | Whale: 10-20s');
 }
 
 // Send periodic platform notifications to users
@@ -2342,10 +2362,10 @@ You are now on the free plan and will no longer receive automatic profit updates
           createdAt: trade.createdAt
         }));
 
-      // Sort by most recent and limit to last 40 trades for active order book
+      // Sort by most recent and limit to last 200 trades for active order book
       const recentTrades = marketTrades
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 40);
+        .slice(0, 200);
 
       res.json(recentTrades);
     } catch (error: any) {

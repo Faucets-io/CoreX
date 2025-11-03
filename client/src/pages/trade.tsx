@@ -281,8 +281,14 @@ export default function Trade() {
   const buyTotal = buyAmount ? (parseFloat(buyAmount) * currentPrice).toFixed(2) : '0.00';
   const sellTotal = sellAmount ? (parseFloat(sellAmount) * currentPrice).toFixed(2) : '0.00';
 
-  // Calculate advanced stats
-  const totalVolume = allTrades?.reduce((sum, trade) => sum + trade.total, 0) || 0;
+  // Calculate advanced stats with minimum volume guarantee
+  const calculatedVolume = allTrades?.reduce((sum, trade) => {
+    const amount = parseFloat(trade.amount);
+    return sum + (amount * currentPrice);
+  }, 0) || 0;
+  
+  // Ensure 24h volume is always in millions (minimum 2 million)
+  const totalVolume = Math.max(calculatedVolume * 720, 2000000); // Multiply by 720 to simulate 24h (200 trades * 720 = full day estimate)
   const buyOrders = allTrades?.filter(t => t.type === 'buy').length || 0;
   const sellOrders = allTrades?.filter(t => t.type === 'sell').length || 0;
 
@@ -527,7 +533,7 @@ export default function Trade() {
                     }}
                     data-testid="badge-live-orders"
                   >
-                    {allTrades?.length || 0} Orders
+                    {allTrades?.length || 0}+ Orders
                   </Badge>
                 </div>
               </CardHeader>
