@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
-import fluxTradeLogo from "@assets/generated_images/FluxTrade_modern_logo_design_0d50e08c.png";
+import { FluxTradeLogo } from "@/components/fluxtrade-logo";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -47,7 +47,7 @@ export default function Login() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-flux-cyan/10 to-flux-purple/10 p-3 flex items-center justify-center">
-            <img src={fluxTradeLogo} alt="FluxTrade" className="w-full h-full object-contain" />
+            <FluxTradeLogo className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-foreground dark:bg-gradient-to-r dark:from-flux-cyan dark:to-flux-purple dark:bg-clip-text dark:text-transparent">
             FluxTrade

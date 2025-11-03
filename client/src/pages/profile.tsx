@@ -1,15 +1,15 @@
+
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { AppLayout } from "@/components/app-layout";
-import { Copy, User, Bitcoin, Key, ExternalLink, Shield, ArrowLeft, TrendingUp, Activity, Calendar, Mail, Hash, Award, Wallet, Eye, EyeOff } from "lucide-react";
+import { Copy, User, ArrowLeft, TrendingUp, Activity, Calendar, Mail, Award, Wallet, Eye, EyeOff, LogOut, Shield, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useCurrency } from "@/hooks/use-currency";
 import { formatBitcoin, formatCurrency } from "@/lib/utils";
@@ -28,8 +28,8 @@ export default function Profile() {
   const { data: investments } = useQuery<Investment[]>({
     queryKey: ['/api/investments/user', user?.id],
     enabled: !!user?.id,
-    refetchInterval: 30000, // Refetch every 30 seconds
-    initialData: [], // Initialize with an empty array to avoid undefined state on load
+    refetchInterval: 30000,
+    initialData: [],
   });
 
   const { data: transactions } = useQuery<Transaction[]>({
@@ -55,6 +55,14 @@ export default function Profile() {
     });
   };
 
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Signed Out",
+      description: "You have been signed out successfully",
+    });
+  };
+
   const fiatValue = parseFloat(user.balance) * (currency === 'USD' ? (price?.usd.price || 0) : (price?.gbp.price || 0));
   const totalInvested = investments?.reduce((sum, inv) => sum + parseFloat(inv.amount), 0) || 0;
   const totalProfit = investments?.reduce((sum, inv) => sum + parseFloat(inv.currentProfit), 0) || 0;
@@ -66,252 +74,216 @@ export default function Profile() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen dark-bg">
-        {/* Navigation Header */}
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b dark-border">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setLocation('/')}
-                className="rounded-xl hover:bg-muted"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold dark-text">Profile</h1>
-                <p className="text-muted-foreground text-sm">Your account overview</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      <div className="max-w-sm mx-auto p-4 pb-20">
-        {/* Profile Header Card */}
-        <Card className="dark-card dark-border mb-6 overflow-hidden">
-          <div className="bitcoin-gradient p-6 text-white relative">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -translate-y-16 translate-x-16"></div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+      <div className="min-h-screen bg-background">
+        <div className="max-w-sm mx-auto px-6 pb-24">
+          {/* Profile Header Card */}
+          <Card className="mt-6 mb-8 overflow-hidden border-0 shadow-lg bg-gradient-to-br from-primary/5 to-primary/10">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
                   <User className="w-8 h-8 text-white" />
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white">{user.email.split('@')[0]}</h2>
-                  <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-foreground">{user.email.split('@')[0]}</h3>
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                  <div className="flex items-center gap-2 mt-2">
                     {user.isAdmin ? (
-                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
                         <Shield className="w-3 h-3 mr-1" />
                         Admin
                       </Badge>
                     ) : (
-                      <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                      <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                         Member
                       </Badge>
                     )}
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-orange-100 text-xs">Account Age</p>
-                  <p className="text-white font-semibold">{accountAge} days</p>
-                </div>
-                <div>
-                  <p className="text-orange-100 text-xs">Total Transactions</p>
-                  <p className="text-white font-semibold">{userTransactions}</p>
-                </div>
-              </div>
-            </div>
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-4 text-center">
+                <Calendar className="w-5 h-5 mx-auto mb-2 text-primary" />
+                <p className="text-2xl font-bold text-foreground">{accountAge}</p>
+                <p className="text-xs text-muted-foreground">Days Active</p>
+              </CardContent>
+            </Card>
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-4 text-center">
+                <Activity className="w-5 h-5 mx-auto mb-2 text-primary" />
+                <p className="text-2xl font-bold text-foreground">{userTransactions}</p>
+                <p className="text-xs text-muted-foreground">Transactions</p>
+              </CardContent>
+            </Card>
           </div>
-        </Card>
 
-        {/* Balance Overview */}
-        <Card className="dark-card dark-border mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 dark-text">
-              <Wallet className="w-5 h-5 text-bitcoin" />
-              Balance Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Current Balance</p>
-                <p className="text-2xl font-bold dark-text">{formatBitcoin(user.balance)} BTC</p>
-                <p className="text-sm text-muted-foreground">≈ {price ? formatCurrency(fiatValue, currency) : 'Loading...'}</p>
-              </div>
-              <div className="text-right">
+          {/* Balance Card */}
+          <Card className="border-0 shadow-lg mb-8">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <Wallet className="w-4 h-4 text-primary" />
+                </div>
+                Balance Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Current Balance</p>
+                  <p className="text-2xl font-bold text-foreground">{formatBitcoin(user.balance)} BTC</p>
+                  <p className="text-sm text-muted-foreground">≈ {price ? formatCurrency(fiatValue, currency) : 'Loading...'}</p>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowSensitiveInfo(!showSensitiveInfo)}
-                  className="mb-2"
+                  className="rounded-lg"
                 >
                   {showSensitiveInfo ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
               </div>
-            </div>
 
-            {showSensitiveInfo && (
-              <>
-                <Separator />
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div className="p-3 bg-muted/30 rounded-lg">
-                    <p className="text-xs text-muted-foreground">User ID</p>
-                    <p className="font-mono text-sm dark-text">#{user.id}</p>
+              {showSensitiveInfo && (
+                <>
+                  <Separator />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-muted/50 rounded-xl text-center">
+                      <p className="text-xs text-muted-foreground">User ID</p>
+                      <p className="font-mono text-sm text-foreground">#{user.id}</p>
+                    </div>
+                    <div className="p-3 bg-muted/50 rounded-xl text-center">
+                      <p className="text-xs text-muted-foreground">Type</p>
+                      <p className="text-sm text-foreground">{user.isAdmin ? 'Admin' : 'Standard'}</p>
+                    </div>
                   </div>
-                  <div className="p-3 bg-muted/30 rounded-lg">
-                    <p className="text-xs text-muted-foreground">Account Type</p>
-                    <p className="text-sm dark-text">{user.isAdmin ? 'Admin' : 'Standard'}</p>
-                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Investment Statistics */}
+          <Card className="border-0 shadow-lg mb-8">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-green-500" />
                 </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+                Investment Statistics
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-muted/50 rounded-xl">
+                  <Activity className="w-5 h-5 mx-auto mb-2 text-blue-500" />
+                  <p className="text-lg font-bold text-foreground">{activeInvestments}</p>
+                  <p className="text-xs text-muted-foreground">Active Plans</p>
+                </div>
+                <div className="text-center p-4 bg-muted/50 rounded-xl">
+                  <Award className="w-5 h-5 mx-auto mb-2 text-green-500" />
+                  <p className="text-lg font-bold text-foreground">{completedInvestments}</p>
+                  <p className="text-xs text-muted-foreground">Completed</p>
+                </div>
+              </div>
 
-        {/* Investment Statistics */}
-        <Card className="dark-card dark-border mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 dark-text">
-              <TrendingUp className="w-5 h-5 text-green-500" />
-              Investment Statistics
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-3 bg-muted/30 rounded-lg">
-                <Activity className="w-5 h-5 mx-auto mb-2 text-blue-500" />
-                <p className="text-lg font-bold dark-text">{activeInvestments}</p>
-                <p className="text-xs text-muted-foreground">Active Plans</p>
-              </div>
-              <div className="text-center p-3 bg-muted/30 rounded-lg">
-                <Award className="w-5 h-5 mx-auto mb-2 text-green-500" />
-                <p className="text-lg font-bold dark-text">{completedInvestments}</p>
-                <p className="text-xs text-muted-foreground">Completed</p>
-              </div>
-            </div>
+              <Separator />
 
-            <Separator />
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-muted/50 rounded-xl">
+                  <span className="text-sm text-muted-foreground">Total Invested</span>
+                  <span className="font-semibold text-foreground">{formatBitcoin(totalInvested.toString())} BTC</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-950/20 rounded-xl">
+                  <span className="text-sm text-muted-foreground">Total Profit</span>
+                  <span className="font-semibold text-green-500">+{formatBitcoin(totalProfit.toString())} BTC</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-primary/5 rounded-xl">
+                  <span className="text-sm text-muted-foreground">Portfolio Value</span>
+                  <span className="font-bold text-primary">{formatBitcoin((totalInvested + totalProfit).toString())} BTC</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Total Invested</span>
-                <span className="font-semibold dark-text">{formatBitcoin(totalInvested.toString())} BTC</span>
+          {/* Account Details */}
+          <Card className="border-0 shadow-lg mb-8">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                  <User className="w-4 h-4 text-blue-500" />
+                </div>
+                Account Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Email</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-foreground">{user.email}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyToClipboard(user.email, 'Email')}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Total Profit</span>
-                <span className="font-semibold text-green-500">+{formatBitcoin(totalProfit.toString())} BTC</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Portfolio Value</span>
-                <span className="font-bold dark-text">{formatBitcoin((totalInvested + totalProfit).toString())} BTC</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Account Information */}
-        <Card className="dark-card dark-border mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 dark-text">
-              <User className="w-5 h-5" />
-              Account Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Email</span>
+              <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Member Since</span>
+                </div>
+                <span className="text-sm text-foreground">
+                  {new Date(user.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })}
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm dark-text">{user.email}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copyToClipboard(user.email, 'Email')}
-                  className="h-6 w-6 p-0"
-                >
-                  <Copy className="w-3 h-3" />
-                </Button>
+
+              <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Security Level</span>
+                </div>
+                <Badge variant="outline" className="text-green-600 border-green-600 bg-green-50 dark:bg-green-950/20">
+                  High Security
+                </Badge>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Member Since</span>
-              </div>
-              <span className="text-sm dark-text">
-                {new Date(user.createdAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Security Level</span>
-              </div>
-              <Badge variant="outline" className="text-green-600 border-green-600">
-                High Security
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Security Information */}
-        <Card className="dark-card dark-border mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 dark-text">
-              <Shield className="w-5 h-5 text-green-500" />
-              Platform Security
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
-              <h4 className="font-medium dark-text mb-2 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-green-600" />
-                Custodial Security System
-              </h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Your Bitcoin is secured in our institutional-grade vault</li>
-                <li>• Multi-signature security protocols</li>
-                <li>• Cold storage for maximum protection</li>
-                <li>• 24/7 monitoring and threat detection</li>
-                <li>• Insurance coverage for digital assets</li>
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <Link href="/settings">
-            <Button variant="outline" className="w-full h-12">
-              <User className="w-4 h-4 mr-2" />
-              Settings
+          {/* Quick Actions */}
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <Link href="/settings">
+              <Button variant="outline" className="w-full h-12 rounded-xl border-primary/20 hover:bg-primary/5">
+                <User className="w-4 h-4 mr-2" />
+                Settings
+              </Button>
+            </Link>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="w-full h-12 rounded-xl text-red-600 border-red-200 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950/20"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
             </Button>
-          </Link>
-          <Button
-            onClick={logout}
-            variant="outline"
-            className="w-full h-12 text-red-600 border-red-200 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950"
-          >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
+          </div>
         </div>
-      </div>
 
-      <BottomNavigation />
+        <BottomNavigation />
       </div>
     </AppLayout>
   );

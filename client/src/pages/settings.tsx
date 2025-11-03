@@ -1,14 +1,13 @@
+
 import { useAuth } from "@/hooks/use-auth";
 import { useCurrency } from "@/hooks/use-currency";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { AppLayout } from "@/components/app-layout";
-
-import { User, Globe, LogOut, ArrowLeft, Bell, HelpCircle, ChevronRight, Crown } from "lucide-react";
+import { User, Globe, LogOut, Bell, Crown, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +20,6 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState("account");
   const [notifications, setNotifications] = useState(true);
   const [, setLocation] = useLocation();
-
 
   const handleLogout = () => {
     logout();
@@ -68,7 +66,7 @@ export default function Settings() {
                     {user.isAdmin ? (
                       <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
                         <Crown className="w-3 h-3 mr-1" />
-                        Manager
+                        Admin
                       </Badge>
                     ) : (
                       <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
@@ -92,7 +90,7 @@ export default function Settings() {
                   key={item.id}
                   className={`cursor-pointer transition-all duration-300 border-0 shadow-sm hover:shadow-md ${
                     isActive
-                      ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'
+                      ? 'bg-gradient-to-r from-primary/10 to-primary/5'
                       : 'bg-card hover:bg-primary/5'
                   }`}
                   onClick={() => setActiveTab(item.id)}
@@ -100,7 +98,7 @@ export default function Settings() {
                   <CardContent className="p-4">
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        isActive ? 'bg-primary/20' : 'bg-muted'
+                        isActive ? 'bg-primary/20' : 'bg-muted/50'
                       }`}>
                         <Icon className={`w-5 h-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
                       </div>
@@ -168,8 +166,6 @@ export default function Settings() {
               </Card>
             )}
 
-
-
             {activeTab === "notifications" && (
               <Card className="border-0 shadow-lg">
                 <CardHeader className="pb-4">
@@ -230,18 +226,8 @@ export default function Settings() {
             )}
           </div>
 
-          {/* Help Section */}
-          <Card className="mt-8 border-0 shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 text-muted-foreground">
-                <HelpCircle className="w-5 h-5" />
-                <span className="text-sm">Need help? Contact our support team</span>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Logout Section */}
-          <Card className="mt-6 border-0 shadow-lg bg-gradient-to-r from-red-50 to-red-100 dark:from-red-950/20 dark:to-red-900/20">
+          <Card className="mt-8 border-0 shadow-lg bg-gradient-to-r from-red-50 to-red-100 dark:from-red-950/20 dark:to-red-900/20">
             <CardContent className="p-6">
               <Button
                 onClick={handleLogout}

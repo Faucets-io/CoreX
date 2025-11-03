@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useLocation } from "wouter";
 import { Eye, EyeOff, Lock, Mail, ArrowRight, Shield, RefreshCw } from "lucide-react";
-import fluxTradeLogo from "@assets/generated_images/FluxTrade_modern_logo_design_0d50e08c.png";
+import { FluxTradeLogo } from "@/components/fluxtrade-logo";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -16,12 +15,12 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Puzzle verification state
   const [puzzleAnswer, setPuzzleAnswer] = useState("");
   const [puzzleQuestion, setPuzzleQuestion] = useState({ question: "", answer: 0 });
   const [isPuzzleVerified, setIsPuzzleVerified] = useState(false);
-  
+
   const { register } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -32,10 +31,10 @@ export default function Register() {
     const num2 = Math.floor(Math.random() * 10) + 1;
     const operations = ['+', '-', '*'];
     const operation = operations[Math.floor(Math.random() * operations.length)];
-    
+
     let answer = 0;
     let question = "";
-    
+
     switch (operation) {
       case '+':
         answer = num1 + num2;
@@ -50,7 +49,7 @@ export default function Register() {
         question = `${num1} × ${num2}`;
         break;
     }
-    
+
     setPuzzleQuestion({ question, answer });
     setPuzzleAnswer("");
     setIsPuzzleVerified(false);
@@ -79,7 +78,7 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isPuzzleVerified) {
       toast({
         title: "Verification required",
@@ -88,7 +87,7 @@ export default function Register() {
       });
       return;
     }
-    
+
     if (password !== confirmPassword) {
       toast({
         title: "Passwords don't match",
@@ -133,7 +132,7 @@ export default function Register() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-flux-cyan/10 to-flux-purple/10 p-3 flex items-center justify-center">
-            <img src={fluxTradeLogo} alt="FluxTrade" className="w-full h-full object-contain" />
+            <FluxTradeLogo className="w-full h-full object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-foreground dark:bg-gradient-to-r dark:from-flux-cyan dark:to-flux-purple dark:bg-clip-text dark:text-transparent">
             FluxTrade
