@@ -1,20 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from "@/hooks/use-auth";
-import { AppLayout } from "@/components/app-layout";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowUpRight, ArrowDownLeft, Activity, TrendingUp, Info } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Activity, TrendingUp, ArrowLeft, RefreshCw, BarChart3 } from 'lucide-react';
 import { formatBitcoin } from '@/lib/utils';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { TokenBalance } from '@shared/schema';
+import GLOBE from "vanta/dist/vanta.globe.min";
+import * as THREE from "three";
 
 interface TradeOrder {
   id: number;
@@ -58,33 +59,27 @@ function TokenBalanceDisplay({ userId, selectedToken, currentPrice }: { userId: 
   const usdtBal = parseFloat(usdtBalance?.balance || '0');
 
   return (
-    <div className="flex items-center gap-4">
-      <Card className="flex-1 lg:flex-none bg-card/50 border-border">
-        <CardContent className="p-3">
-          <p className="text-xs text-muted-foreground mb-1">{selectedToken} Balance</p>
-          <p className="text-lg font-bold text-foreground" data-testid="text-balance">
-            {formatBitcoin(balance.toString())} {selectedToken}
-          </p>
-        </CardContent>
-      </Card>
+    <div className="flex flex-wrap items-center gap-3">
+      <div className="rounded-lg p-3 border" style={{ backgroundColor: '#1A1A1A', borderColor: '#2A2A2A' }}>
+        <p className="text-xs mb-1" style={{ color: '#BFBFBF' }}>{selectedToken} Balance</p>
+        <p className="text-lg font-bold" style={{ color: '#FFFFFF' }} data-testid="text-balance">
+          {formatBitcoin(balance.toString())} {selectedToken}
+        </p>
+      </div>
       
-      <Card className="flex-1 lg:flex-none bg-card/50 border-border">
-        <CardContent className="p-3">
-          <p className="text-xs text-muted-foreground mb-1">USD Value</p>
-          <p className="text-lg font-bold text-foreground" data-testid="text-usd-value">
-            ${(balance * currentPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </p>
-        </CardContent>
-      </Card>
+      <div className="rounded-lg p-3 border" style={{ backgroundColor: '#1A1A1A', borderColor: '#2A2A2A' }}>
+        <p className="text-xs mb-1" style={{ color: '#BFBFBF' }}>USD Value</p>
+        <p className="text-lg font-bold" style={{ color: '#00FF99' }} data-testid="text-usd-value">
+          ${(balance * currentPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </p>
+      </div>
 
-      <Card className="flex-1 lg:flex-none bg-card/50 border-border">
-        <CardContent className="p-3">
-          <p className="text-xs text-muted-foreground mb-1">USDT Balance</p>
-          <p className="text-lg font-bold text-foreground" data-testid="text-usdt-balance">
-            ${usdtBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </p>
-        </CardContent>
-      </Card>
+      <div className="rounded-lg p-3 border" style={{ backgroundColor: '#1A1A1A', borderColor: '#2A2A2A' }}>
+        <p className="text-xs mb-1" style={{ color: '#BFBFBF' }}>USDT Balance</p>
+        <p className="text-lg font-bold" style={{ color: '#FFFFFF' }} data-testid="text-usdt-balance">
+          ${usdtBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </p>
+      </div>
     </div>
   );
 }
@@ -93,6 +88,7 @@ export default function Trade() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const [buyAmount, setBuyAmount] = useState('');
   const [sellAmount, setSellAmount] = useState('');
@@ -101,6 +97,35 @@ export default function Trade() {
   const [tokenPrice, setTokenPrice] = useState<number>(0);
   const [priceChange24h, setPriceChange24h] = useState<number>(0);
   const [localTradeHistory, setLocalTradeHistory] = useState<TradeOrder[]>([]);
+  const [vantaEffect, setVantaEffect] = useState<any>(null);
+  const vantaRef = useRef<HTMLDivElement>(null);
+  const [showAdvancedStats, setShowAdvancedStats] = useState(false);
+
+  // Vanta.js Globe Effect
+  useEffect(() => {
+    if (!vantaEffect && vantaRef.current) {
+      setVantaEffect(
+        GLOBE({
+          el: vantaRef.current,
+          THREE: THREE,
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 200.00,
+          minWidth: 200.00,
+          scale: 1.00,
+          scaleMobile: 1.00,
+          color: 0x00ff99,
+          color2: 0x00cc66,
+          backgroundColor: 0x0a0a0a,
+          size: 1.5,
+        })
+      );
+    }
+    return () => {
+      if (vantaEffect) vantaEffect.destroy();
+    };
+  }, [vantaEffect]);
 
   // Fetch token price from CoinGecko
   useEffect(() => {
@@ -129,6 +154,11 @@ export default function Trade() {
 
   // Load TradingView widget
   useEffect(() => {
+    const container = document.getElementById('tradingview_chart');
+    if (!container) return;
+
+    container.innerHTML = '';
+
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/tv.js';
     script.async = true;
@@ -142,13 +172,13 @@ export default function Trade() {
           theme: "dark",
           style: "1",
           locale: "en",
-          toolbar_bg: "#0a0e1a",
+          toolbar_bg: "#0a0a0a",
           enable_publishing: false,
           hide_side_toolbar: false,
           allow_symbol_change: true,
           container_id: "tradingview_chart",
-          backgroundColor: "#0a0e1a",
-          gridColor: "#1a1e2e",
+          backgroundColor: "#0a0a0a",
+          gridColor: "#1a1a1a",
           height: 600,
         });
       }
@@ -156,7 +186,9 @@ export default function Trade() {
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, [selectedToken]);
 
@@ -165,7 +197,7 @@ export default function Trade() {
     return null;
   }
 
-  const { data: allTrades } = useQuery<TradeOrder[]>({
+  const { data: allTrades, refetch: refetchTrades } = useQuery<TradeOrder[]>({
     queryKey: ['/api/trades/all', selectedToken.symbol],
     queryFn: () => fetch(`/api/trades/all?token=${selectedToken.symbol}`).then(res => res.json()),
     refetchInterval: 3000,
@@ -194,6 +226,7 @@ export default function Trade() {
     },
     onSuccess: (data) => {
       setLocalTradeHistory(prev => [{...data, token: selectedToken.symbol}, ...prev].slice(0, 50));
+      queryClient.invalidateQueries({ queryKey: [`/api/token-balances/${user.id}`] });
       
       toast({
         title: "Trade Executed",
@@ -236,92 +269,271 @@ export default function Trade() {
     executeTradeMutation.mutate({ type: 'sell', amount: sellAmount });
   };
 
+  const handleRefresh = () => {
+    refetchTrades();
+    queryClient.invalidateQueries({ queryKey: [`/api/token-balances/${user.id}`] });
+    toast({
+      title: "Refreshed",
+      description: "Market data has been refreshed",
+    });
+  };
+
   const buyTotal = buyAmount ? (parseFloat(buyAmount) * currentPrice).toFixed(2) : '0.00';
   const sellTotal = sellAmount ? (parseFloat(sellAmount) * currentPrice).toFixed(2) : '0.00';
 
-  return (
-    <AppLayout>
-      {/* Trading Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="px-4 lg:px-6 py-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-full lg:w-64">
-                <Select value={selectedToken.symbol} onValueChange={(value) => {
-                  const token = SUPPORTED_TOKENS.find(t => t.symbol === value);
-                  if (token) setSelectedToken(token);
-                }}>
-                  <SelectTrigger className="h-12 bg-card" data-testid="select-token">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SUPPORTED_TOKENS.map((token) => (
-                      <SelectItem key={token.symbol} value={token.symbol}>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold">{token.symbol}</span>
-                          <span className="text-muted-foreground text-sm">- {token.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="hidden lg:block">
-                <div className="flex items-center gap-4">
-                  <div>
-                    <p className="text-2xl font-bold text-foreground" data-testid="text-price">
-                      ${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
-                    </p>
-                  </div>
-                  <Badge 
-                    variant={priceChange24h >= 0 ? "default" : "destructive"} 
-                    className="text-sm px-3 py-1"
-                    data-testid="badge-price-change"
-                  >
-                    {priceChange24h >= 0 ? '+' : ''}{priceChange24h.toFixed(2)}% (24h)
-                  </Badge>
-                </div>
-              </div>
-            </div>
+  // Calculate advanced stats
+  const totalVolume = allTrades?.reduce((sum, trade) => sum + trade.total, 0) || 0;
+  const buyOrders = allTrades?.filter(t => t.type === 'buy').length || 0;
+  const sellOrders = allTrades?.filter(t => t.type === 'sell').length || 0;
 
-            <TokenBalanceDisplay 
-              userId={user.id} 
-              selectedToken={selectedToken.symbol} 
-              currentPrice={currentPrice}
-            />
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A' }}>
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b" style={{ backgroundColor: '#0A0A0A', borderColor: '#1A1A1A' }}>
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setLocation('/')}
+              variant="ghost"
+              size="sm"
+              className="rounded-full hover:bg-white/10"
+              style={{ color: '#00FF99' }}
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div className="text-2xl font-bold" style={{ 
+              background: 'linear-gradient(90deg, #00FF99, #00CC66)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              FluxTrade
+            </div>
+          </div>
+          <Button 
+            onClick={handleRefresh}
+            variant="outline"
+            className="rounded-full px-4 py-2 border hover:scale-105 transition-transform"
+            style={{ 
+              borderColor: '#00FF99',
+              color: '#00FF99',
+              backgroundColor: 'transparent',
+              boxShadow: '0 0 15px rgba(0, 255, 153, 0.2)'
+            }}
+            data-testid="button-refresh"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
+      </header>
+
+      {/* Hero Section with Globe Animation */}
+      <section className="relative h-[300px] overflow-hidden">
+        <div ref={vantaRef} className="absolute inset-0" />
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
+          <div className="text-4xl md:text-5xl font-bold mb-4" style={{ 
+            background: 'linear-gradient(90deg, #00FF99, #00CC66)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            Trade Crypto
+          </div>
+          <p className="text-lg mb-6" style={{ color: '#BFBFBF' }}>
+            Buy and Sell Digital Assets in Real-Time
+          </p>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Button 
+              variant="outline" 
+              className="rounded-full border-2 hover:scale-105 transition-all duration-300"
+              style={{ 
+                borderColor: '#00FF99',
+                color: '#00FF99',
+                backgroundColor: 'transparent',
+                boxShadow: '0 0 15px rgba(0, 255, 153, 0.2)'
+              }}
+              onClick={() => setShowAdvancedStats(!showAdvancedStats)}
+              data-testid="button-stats"
+            >
+              <BarChart3 className="mr-2 w-4 h-4" />
+              {showAdvancedStats ? 'Hide Stats' : 'Market Stats'}
+            </Button>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Main Trading Interface - Desktop Grid Layout */}
-      <div className="p-4 lg:p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-          {/* Chart Area - Takes up most space on desktop */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Token Selection & Price Display */}
+        <div className="mb-6">
+          <Card 
+            className="rounded-2xl border overflow-hidden"
+            style={{ 
+              backgroundColor: '#1A1A1A',
+              borderColor: '#2A2A2A',
+              boxShadow: '0 0 20px rgba(0, 255, 128, 0.1)'
+            }}
+          >
+            <CardContent className="p-6">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="w-full sm:w-64">
+                    <Label className="text-sm mb-2 block" style={{ color: '#BFBFBF' }}>Select Token</Label>
+                    <Select value={selectedToken.symbol} onValueChange={(value) => {
+                      const token = SUPPORTED_TOKENS.find(t => t.symbol === value);
+                      if (token) setSelectedToken(token);
+                    }}>
+                      <SelectTrigger 
+                        className="h-12 rounded-lg border"
+                        style={{ 
+                          backgroundColor: '#0A0A0A',
+                          borderColor: '#2A2A2A',
+                          color: '#FFFFFF'
+                        }}
+                        data-testid="select-token"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent style={{ backgroundColor: '#1A1A1A', borderColor: '#2A2A2A' }}>
+                        {SUPPORTED_TOKENS.map((token) => (
+                          <SelectItem 
+                            key={token.symbol} 
+                            value={token.symbol}
+                            style={{ color: '#FFFFFF' }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold">{token.symbol}</span>
+                              <span style={{ color: '#BFBFBF' }} className="text-sm">- {token.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <p className="text-sm mb-1" style={{ color: '#BFBFBF' }}>Current Price</p>
+                        <p className="text-2xl font-bold" style={{ color: '#FFFFFF' }} data-testid="text-price">
+                          ${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
+                        </p>
+                      </div>
+                      <Badge 
+                        className="rounded-full px-3 py-1"
+                        style={priceChange24h >= 0 ? {
+                          backgroundColor: 'rgba(0, 255, 153, 0.2)',
+                          color: '#00FF99',
+                          border: '1px solid rgba(0, 255, 153, 0.3)'
+                        } : {
+                          backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                          color: '#EF4444',
+                          border: '1px solid rgba(239, 68, 68, 0.3)'
+                        }}
+                        data-testid="badge-price-change"
+                      >
+                        {priceChange24h >= 0 ? '+' : ''}{priceChange24h.toFixed(2)}% (24h)
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <TokenBalanceDisplay 
+                  userId={user.id} 
+                  selectedToken={selectedToken.symbol} 
+                  currentPrice={currentPrice}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Advanced Market Stats */}
+        {showAdvancedStats && (
+          <div className="mb-6">
+            <Card 
+              className="rounded-2xl border overflow-hidden"
+              style={{ 
+                backgroundColor: '#1A1A1A',
+                borderColor: '#00FF99',
+                boxShadow: '0 0 20px rgba(0, 255, 153, 0.2)'
+              }}
+            >
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4" style={{ color: '#00FF99' }}>
+                  Market Statistics
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-lg" style={{ backgroundColor: '#0A0A0A' }}>
+                    <p className="text-sm mb-1" style={{ color: '#BFBFBF' }}>24h Volume</p>
+                    <p className="text-xl font-bold" style={{ color: '#FFFFFF' }}>
+                      ${totalVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-lg" style={{ backgroundColor: '#0A0A0A' }}>
+                    <p className="text-sm mb-1" style={{ color: '#BFBFBF' }}>Buy Orders</p>
+                    <p className="text-xl font-bold" style={{ color: '#00FF99' }}>{buyOrders}</p>
+                  </div>
+                  <div className="p-4 rounded-lg" style={{ backgroundColor: '#0A0A0A' }}>
+                    <p className="text-sm mb-1" style={{ color: '#BFBFBF' }}>Sell Orders</p>
+                    <p className="text-xl font-bold" style={{ color: '#EF4444' }}>{sellOrders}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Main Trading Interface */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Chart Area */}
           <div className="lg:col-span-8">
-            <Card className="bg-card border-border overflow-hidden">
+            <Card 
+              className="rounded-2xl border overflow-hidden"
+              style={{ 
+                backgroundColor: '#1A1A1A',
+                borderColor: '#2A2A2A',
+                boxShadow: '0 0 20px rgba(0, 255, 128, 0.1)'
+              }}
+            >
               <div id="tradingview_chart" style={{ height: '600px' }}></div>
             </Card>
           </div>
 
           {/* Right Sidebar - Order Book and Trading Panel */}
-          <div className="lg:col-span-4 space-y-4 lg:space-y-6">
+          <div className="lg:col-span-4 space-y-6">
             {/* Order Book */}
-            <Card className="bg-card border-border">
+            <Card 
+              className="rounded-2xl border"
+              style={{ 
+                backgroundColor: '#1A1A1A',
+                borderColor: '#2A2A2A',
+                boxShadow: '0 0 20px rgba(0, 255, 128, 0.1)'
+              }}
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-primary animate-pulse" />
+                  <CardTitle className="text-lg flex items-center gap-2" style={{ color: '#FFFFFF' }}>
+                    <Activity className="w-5 h-5 animate-pulse" style={{ color: '#00FF99' }} />
                     Order Book
                   </CardTitle>
-                  <Badge variant="outline" className="text-xs" data-testid="badge-live-orders">
+                  <Badge 
+                    className="rounded-full px-3 py-1"
+                    style={{ 
+                      backgroundColor: 'rgba(0, 255, 153, 0.2)',
+                      color: '#00FF99',
+                      border: '1px solid rgba(0, 255, 153, 0.3)'
+                    }}
+                    data-testid="badge-live-orders"
+                  >
                     {allTrades?.length || 0} Orders
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="px-4 pb-3">
-                  <div className="grid grid-cols-3 gap-2 pb-2 text-xs text-muted-foreground font-medium">
+                  <div className="grid grid-cols-3 gap-2 pb-2 text-xs font-medium" style={{ color: '#BFBFBF' }}>
                     <div className="text-left">Price (USD)</div>
                     <div className="text-right">Amount</div>
                     <div className="text-right">Total</div>
@@ -340,32 +552,41 @@ export default function Trade() {
                           <div
                             key={trade.id}
                             className={`relative grid grid-cols-3 gap-2 py-1.5 px-2 text-xs rounded transition-all ${
-                              trade.type === 'sell' ? 'hover:bg-destructive/5' : 'hover:bg-emerald/5'
-                            } ${index === 0 ? 'animate-pulse' : ''}`}
+                              index === 0 ? 'animate-pulse' : ''
+                            }`}
+                            style={{ 
+                              backgroundColor: trade.type === 'sell' 
+                                ? 'rgba(239, 68, 68, 0.05)' 
+                                : 'rgba(0, 255, 153, 0.05)' 
+                            }}
                           >
                             <div 
-                              className={`absolute right-0 top-0 bottom-0 rounded ${
-                                trade.type === 'sell' ? 'bg-destructive/10' : 'bg-emerald/10'
-                              }`}
-                              style={{ width: `${depth}%` }}
+                              className="absolute right-0 top-0 bottom-0 rounded"
+                              style={{ 
+                                width: `${depth}%`,
+                                backgroundColor: trade.type === 'sell' 
+                                  ? 'rgba(239, 68, 68, 0.1)' 
+                                  : 'rgba(0, 255, 153, 0.1)'
+                              }}
                             />
                             
-                            <div className={`font-mono font-semibold relative z-10 ${
-                              trade.type === 'sell' ? 'text-destructive' : 'text-emerald'
-                            }`}>
+                            <div 
+                              className="font-mono font-semibold relative z-10"
+                              style={{ color: trade.type === 'sell' ? '#EF4444' : '#00FF99' }}
+                            >
                               ${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </div>
-                            <div className="text-foreground text-right font-mono relative z-10">
+                            <div className="font-mono relative z-10 text-right" style={{ color: '#FFFFFF' }}>
                               {amount.toFixed(6)}
                             </div>
-                            <div className="text-muted-foreground text-right font-mono relative z-10">
+                            <div className="font-mono relative z-10 text-right" style={{ color: '#BFBFBF' }}>
                               ${total.toFixed(2)}
                             </div>
                           </div>
                         );
                       })
                     ) : (
-                      <div className="py-8 text-center text-sm text-muted-foreground">
+                      <div className="py-8 text-center text-sm" style={{ color: '#BFBFBF' }}>
                         No orders
                       </div>
                     )}
@@ -375,32 +596,57 @@ export default function Trade() {
             </Card>
 
             {/* Trading Panel */}
-            <Card className="bg-card border-border">
+            <Card 
+              className="rounded-2xl border"
+              style={{ 
+                backgroundColor: '#1A1A1A',
+                borderColor: '#2A2A2A',
+                boxShadow: '0 0 20px rgba(0, 255, 128, 0.1)'
+              }}
+            >
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Trade {selectedToken.symbol}</CardTitle>
+                <CardTitle className="text-lg" style={{ color: '#FFFFFF' }}>Trade {selectedToken.symbol}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'buy' | 'sell')}>
-                  <TabsList className="grid w-full grid-cols-2 mb-4">
-                    <TabsTrigger 
-                      value="buy" 
-                      className="data-[state=active]:bg-emerald data-[state=active]:text-white"
+                  <div className="grid grid-cols-2 gap-2 mb-4 p-1 rounded-lg" style={{ backgroundColor: '#0A0A0A' }}>
+                    <Button
+                      onClick={() => setActiveTab('buy')}
+                      className="rounded-lg transition-all"
+                      style={activeTab === 'buy' ? {
+                        background: 'linear-gradient(90deg, #00FF99, #00CC66)',
+                        color: '#0A0A0A',
+                        boxShadow: '0 0 15px rgba(0, 255, 153, 0.3)'
+                      } : {
+                        backgroundColor: 'transparent',
+                        color: '#BFBFBF'
+                      }}
                       data-testid="tab-buy"
                     >
                       Buy
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="sell"
-                      className="data-[state=active]:bg-destructive data-[state=active]:text-white"
+                    </Button>
+                    <Button
+                      onClick={() => setActiveTab('sell')}
+                      className="rounded-lg transition-all"
+                      style={activeTab === 'sell' ? {
+                        background: 'linear-gradient(90deg, #EF4444, #DC2626)',
+                        color: '#FFFFFF',
+                        boxShadow: '0 0 15px rgba(239, 68, 68, 0.3)'
+                      } : {
+                        backgroundColor: 'transparent',
+                        color: '#BFBFBF'
+                      }}
                       data-testid="tab-sell"
                     >
                       Sell
-                    </TabsTrigger>
-                  </TabsList>
+                    </Button>
+                  </div>
 
-                  <TabsContent value="buy" className="space-y-4">
+                  <TabsContent value="buy" className="space-y-4 mt-0">
                     <div>
-                      <Label htmlFor="buy-amount" className="text-sm">Amount ({selectedToken.symbol})</Label>
+                      <Label htmlFor="buy-amount" className="text-sm mb-2 block" style={{ color: '#BFBFBF' }}>
+                        Amount ({selectedToken.symbol})
+                      </Label>
                       <Input
                         id="buy-amount"
                         type="number"
@@ -408,35 +654,49 @@ export default function Trade() {
                         placeholder="0.00000000"
                         value={buyAmount}
                         onChange={(e) => setBuyAmount(e.target.value)}
-                        className="mt-1.5 font-mono"
+                        className="font-mono rounded-lg border"
+                        style={{ 
+                          backgroundColor: '#0A0A0A',
+                          borderColor: '#2A2A2A',
+                          color: '#FFFFFF'
+                        }}
                         data-testid="input-buy-amount"
                       />
                     </div>
 
-                    <div className="bg-accent/50 rounded-lg p-3 space-y-1">
+                    <div className="rounded-lg p-4 space-y-2" style={{ backgroundColor: '#0A0A0A' }}>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Price</span>
-                        <span className="text-foreground font-medium">${currentPrice.toLocaleString()}</span>
+                        <span style={{ color: '#BFBFBF' }}>Price</span>
+                        <span style={{ color: '#FFFFFF' }} className="font-medium">
+                          ${currentPrice.toLocaleString()}
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Total</span>
-                        <span className="text-foreground font-bold">${buyTotal}</span>
+                        <span style={{ color: '#BFBFBF' }}>Total</span>
+                        <span style={{ color: '#00FF99' }} className="font-bold">${buyTotal}</span>
                       </div>
                     </div>
 
                     <Button 
                       onClick={handleBuy}
                       disabled={executeTradeMutation.isPending || !buyAmount}
-                      className="w-full bg-emerald hover:bg-emerald/90 text-white h-11"
+                      className="w-full rounded-lg py-6 text-lg font-semibold hover:scale-[1.02] transition-transform"
+                      style={{ 
+                        background: 'linear-gradient(90deg, #00FF99, #00CC66)',
+                        color: '#0A0A0A',
+                        boxShadow: '0 0 20px rgba(0, 255, 153, 0.3)'
+                      }}
                       data-testid="button-buy"
                     >
                       {executeTradeMutation.isPending ? 'Processing...' : `Buy ${selectedToken.symbol}`}
                     </Button>
                   </TabsContent>
 
-                  <TabsContent value="sell" className="space-y-4">
+                  <TabsContent value="sell" className="space-y-4 mt-0">
                     <div>
-                      <Label htmlFor="sell-amount" className="text-sm">Amount ({selectedToken.symbol})</Label>
+                      <Label htmlFor="sell-amount" className="text-sm mb-2 block" style={{ color: '#BFBFBF' }}>
+                        Amount ({selectedToken.symbol})
+                      </Label>
                       <Input
                         id="sell-amount"
                         type="number"
@@ -444,29 +704,38 @@ export default function Trade() {
                         placeholder="0.00000000"
                         value={sellAmount}
                         onChange={(e) => setSellAmount(e.target.value)}
-                        className="mt-1.5 font-mono"
+                        className="font-mono rounded-lg border"
+                        style={{ 
+                          backgroundColor: '#0A0A0A',
+                          borderColor: '#2A2A2A',
+                          color: '#FFFFFF'
+                        }}
                         data-testid="input-sell-amount"
                       />
-                      <p className="text-xs text-muted-foreground mt-1.5">
-                        Available: {formatBitcoin(user.balance)} {selectedToken.symbol}
-                      </p>
                     </div>
 
-                    <div className="bg-accent/50 rounded-lg p-3 space-y-1">
+                    <div className="rounded-lg p-4 space-y-2" style={{ backgroundColor: '#0A0A0A' }}>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Price</span>
-                        <span className="text-foreground font-medium">${currentPrice.toLocaleString()}</span>
+                        <span style={{ color: '#BFBFBF' }}>Price</span>
+                        <span style={{ color: '#FFFFFF' }} className="font-medium">
+                          ${currentPrice.toLocaleString()}
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Total</span>
-                        <span className="text-foreground font-bold">${sellTotal}</span>
+                        <span style={{ color: '#BFBFBF' }}>Total</span>
+                        <span style={{ color: '#EF4444' }} className="font-bold">${sellTotal}</span>
                       </div>
                     </div>
 
                     <Button 
                       onClick={handleSell}
                       disabled={executeTradeMutation.isPending || !sellAmount}
-                      className="w-full bg-destructive hover:bg-destructive/90 text-white h-11"
+                      className="w-full rounded-lg py-6 text-lg font-semibold hover:scale-[1.02] transition-transform"
+                      style={{ 
+                        background: 'linear-gradient(90deg, #EF4444, #DC2626)',
+                        color: '#FFFFFF',
+                        boxShadow: '0 0 20px rgba(239, 68, 68, 0.3)'
+                      }}
                       data-testid="button-sell"
                     >
                       {executeTradeMutation.isPending ? 'Processing...' : `Sell ${selectedToken.symbol}`}
@@ -479,47 +748,85 @@ export default function Trade() {
 
           {/* Trade History - Full Width Below */}
           <div className="lg:col-span-12">
-            <Card className="bg-card border-border">
+            <Card 
+              className="rounded-2xl border"
+              style={{ 
+                backgroundColor: '#1A1A1A',
+                borderColor: '#2A2A2A',
+                boxShadow: '0 0 20px rgba(0, 255, 128, 0.1)'
+              }}
+            >
               <CardHeader>
-                <CardTitle className="text-lg">Recent Trades</CardTitle>
-                <p className="text-sm text-muted-foreground">Your latest trading activity</p>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="text-lg" style={{ color: '#FFFFFF' }}>Recent Trades</CardTitle>
+                    <p className="text-sm mt-1" style={{ color: '#BFBFBF' }}>Your latest trading activity</p>
+                  </div>
+                  <Badge 
+                    className="rounded-full px-3 py-1"
+                    style={{ 
+                      backgroundColor: 'rgba(0, 255, 153, 0.2)',
+                      color: '#00FF99',
+                      border: '1px solid rgba(0, 255, 153, 0.3)'
+                    }}
+                  >
+                    {localTradeHistory.length} Trades
+                  </Badge>
+                </div>
               </CardHeader>
               <CardContent>
                 {localTradeHistory && localTradeHistory.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {localTradeHistory.slice(0, 10).map((trade) => (
-                      <div key={trade.id} className="flex items-center justify-between p-3 rounded-lg bg-accent/30 hover:bg-accent/50 transition-colors" data-testid={`trade-item-${trade.id}`}>
+                      <div 
+                        key={trade.id} 
+                        className="flex items-center justify-between p-4 rounded-lg transition-all hover:scale-[1.01]" 
+                        style={{ 
+                          backgroundColor: '#0A0A0A',
+                          border: '1px solid #2A2A2A'
+                        }}
+                        data-testid={`trade-item-${trade.id}`}
+                      >
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            trade.type === 'buy' ? 'bg-emerald/20' : 'bg-destructive/20'
-                          }`}>
+                          <div 
+                            className="w-10 h-10 rounded-lg flex items-center justify-center"
+                            style={{
+                              backgroundColor: trade.type === 'buy' 
+                                ? 'rgba(0, 255, 153, 0.2)' 
+                                : 'rgba(239, 68, 68, 0.2)'
+                            }}
+                          >
                             {trade.type === 'buy' ? (
-                              <ArrowDownLeft className="w-5 h-5 text-emerald" />
+                              <ArrowDownLeft className="w-5 h-5" style={{ color: '#00FF99' }} />
                             ) : (
-                              <ArrowUpRight className="w-5 h-5 text-destructive" />
+                              <ArrowUpRight className="w-5 h-5" style={{ color: '#EF4444' }} />
                             )}
                           </div>
                           <div>
-                            <p className="font-medium text-foreground">
+                            <p className="font-medium" style={{ color: '#FFFFFF' }}>
                               {trade.type === 'buy' ? 'Buy' : 'Sell'} {trade.token || selectedToken.symbol}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs" style={{ color: '#BFBFBF' }}>
                               {new Date(trade.createdAt).toLocaleString()}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium text-foreground">{trade.amount} {trade.token || selectedToken.symbol}</p>
-                          <p className="text-xs text-muted-foreground">${trade.total.toFixed(2)}</p>
+                          <p className="font-medium" style={{ color: '#FFFFFF' }}>
+                            {trade.amount} {trade.token || selectedToken.symbol}
+                          </p>
+                          <p className="text-xs" style={{ color: '#BFBFBF' }}>${trade.total.toFixed(2)}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <Activity className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-                    <p className="text-sm text-muted-foreground">No trades yet</p>
-                    <p className="text-xs text-muted-foreground mt-1">Start trading to see your order history here</p>
+                    <Activity className="w-12 h-12 mx-auto mb-3" style={{ color: '#2A2A2A' }} />
+                    <p className="text-sm" style={{ color: '#BFBFBF' }}>No trades yet</p>
+                    <p className="text-xs mt-1" style={{ color: '#2A2A2A' }}>
+                      Start trading to see your order history here
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -527,6 +834,6 @@ export default function Trade() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 }
