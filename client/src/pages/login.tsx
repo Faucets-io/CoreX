@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import AuthContainer from "@/components/auth-container";
 import FluxTradeLogo from "@/components/fluxtrade-logo";
+import CryptoJetIcon from "@/components/crypto-jet-icon";
 import { Loader2 } from "lucide-react";
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
@@ -163,8 +164,11 @@ export default function Login() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        {/* Logo */}
-        <div className="mb-8 flex justify-center">
+        {/* Logo with Crypto Jet */}
+        <div className="mb-8 flex items-center justify-center gap-3">
+          <div className="w-10 h-10">
+            <CryptoJetIcon />
+          </div>
           <FluxTradeLogo className="h-12" />
         </div>
 
