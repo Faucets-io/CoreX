@@ -8,7 +8,9 @@ export function useInvestmentWebSocket(userId: number | undefined) {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
 
   const connect = useCallback(() => {
-    if (!userId) return;
+    if (!userId || typeof userId !== 'number' || userId <= 0) {
+      return;
+    }
     
     // Close existing connection if any
     if (wsRef.current) {
@@ -24,7 +26,6 @@ export function useInvestmentWebSocket(userId: number | undefined) {
       const ws = new WebSocket(`${protocol}//${window.location.host}`);
 
       ws.onopen = () => {
-        console.log('WebSocket connected');
         try {
           ws.send(JSON.stringify({ type: 'subscribe', userId }));
         } catch (error) {
