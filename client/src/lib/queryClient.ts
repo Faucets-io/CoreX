@@ -44,11 +44,21 @@ export const getQueryFn: <T>(options: {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
-      refetchInterval: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
+      queryFn: async ({ queryKey }) => {
+        const response = await fetch(queryKey[0] as string, {
+          credentials: 'include', // Include session cookies
+        });
+        if (!response.ok) {
+          if (response.status >= 500) {
+            throw new Error(`${response.status}: ${response.statusText}`);
+          }
+          throw new Error(`${response.status}: ${await response.text()}`);
+        }
+        return response.json();
+      },
       retry: false,
+      staleTime: Infinity,
+      refetchOnWindowFocus: false,
     },
     mutations: {
       retry: false,
