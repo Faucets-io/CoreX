@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,17 @@ import { useToast } from "@/hooks/use-toast";
 import AuthContainer from "@/components/auth-container";
 import FluxTradeLogo from "@/components/fluxtrade-logo";
 import { Loader2 } from "lucide-react";
+import GLOBE from "vanta/dist/vanta.globe.min";
+import * as THREE from "three";
+
+const cryptoLogos = [
+  { name: "BTC", color: "#F7931A", delay: 0 },
+  { name: "ETH", color: "#627EEA", delay: 0.5 },
+  { name: "USDT", color: "#26A17B", delay: 1 },
+  { name: "BNB", color: "#F3BA2F", delay: 1.5 },
+  { name: "XRP", color: "#23292F", delay: 2 },
+  { name: "SOL", color: "#14F195", delay: 2.5 },
+];
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -18,6 +29,33 @@ export default function Login() {
     email: "",
     password: "",
   });
+  const [vantaEffect, setVantaEffect] = useState<any>(null);
+  const vantaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!vantaEffect && vantaRef.current) {
+      setVantaEffect(
+        GLOBE({
+          el: vantaRef.current,
+          THREE: THREE,
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 200.00,
+          minWidth: 200.00,
+          scale: 1.00,
+          scaleMobile: 1.00,
+          color: 0x00ff99,
+          color2: 0x00cc66,
+          backgroundColor: 0x0a0a0a,
+          size: 1.2,
+        })
+      );
+    }
+    return () => {
+      if (vantaEffect) vantaEffect.destroy();
+    };
+  }, [vantaEffect]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,8 +95,67 @@ export default function Login() {
 
   return (
     <AuthContainer>
+      {/* Globe Animation Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div ref={vantaRef} className="absolute inset-0" style={{ opacity: 0.6 }} />
+        {/* Orbiting crypto logos */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {cryptoLogos.map((crypto, index) => {
+            const angle = (index / cryptoLogos.length) * 360;
+            return (
+              <motion.div
+                key={crypto.name}
+                className="absolute"
+                style={{
+                  left: "50%",
+                  top: "50%",
+                  marginLeft: "-24px",
+                  marginTop: "-24px",
+                }}
+                animate={{
+                  rotate: [angle, angle + 360],
+                }}
+                transition={{
+                  duration: 20,
+                  repeat: Infinity,
+                  ease: "linear",
+                  delay: crypto.delay,
+                }}
+              >
+                <motion.div
+                  className="relative"
+                  style={{
+                    transform: `translateX(180px)`,
+                  }}
+                  animate={{
+                    scale: [1, 1.2, 1],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    delay: crypto.delay,
+                  }}
+                >
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-xs border-2"
+                    style={{
+                      backgroundColor: `${crypto.color}20`,
+                      borderColor: crypto.color,
+                      boxShadow: `0 0 20px ${crypto.color}50`,
+                      color: crypto.color,
+                    }}
+                  >
+                    {crypto.name}
+                  </div>
+                </motion.div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+
       <motion.div
-        className="relative bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-8 border-2 border-[#00FF80]/30"
+        className="relative bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-8 border-2 border-[#00FF80]/30 z-10"
         style={{
           boxShadow: "0 0 40px rgba(0, 255, 128, 0.2), inset 0 0 20px rgba(0, 255, 128, 0.05)",
         }}
