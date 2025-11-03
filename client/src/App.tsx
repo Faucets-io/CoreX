@@ -13,6 +13,9 @@ import Management from "@/pages/admin";
 import ManagementTransactions from "@/pages/admin-transactions";
 import ManagementNotifications from "@/pages/admin-notifications";
 import Investment from "@/pages/investment";
+import HowToInvest from "@/pages/how-to-invest";
+import ProfitPlans from "@/pages/profit-plans";
+import InvestmentMore from "@/pages/investment-more";
 import History from "@/pages/history";
 import Transactions from "@/pages/transactions";
 import Settings from "@/pages/settings";
@@ -37,6 +40,9 @@ function Router() {
       <Route path="/admin-notifications" component={ManagementNotifications} />
       <Route path="/Hello10122" component={Management} />
       <Route path="/investment" component={Investment} />
+      <Route path="/how-to-invest" component={HowToInvest} />
+      <Route path="/profit-plans" component={ProfitPlans} />
+      <Route path="/investment-more" component={InvestmentMore} />
       <Route path="/history" component={History} />
       <Route path="/transactions" component={Transactions} />
       <Route path="/settings" component={Settings} />

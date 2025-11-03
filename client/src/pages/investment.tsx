@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCw, ChevronDown } from "lucide-react";
+import { RefreshCw, ChevronDown, ArrowLeft } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
@@ -142,9 +142,9 @@ export default function Investment() {
 
   const durations = [
     { days: 1, rate: 0.4 },
-    { days: 7, rate: 0.5 },
-    { days: 14, rate: 0.6 },
-    { days: 28, rate: 0.7 }
+    { days: 7, rate: 0.561868495 },
+    { days: 14, rate: 0.650351110 },
+    { days: 28, rate: 0.771213577 }
   ];
   
   const activeInvestments = investments?.filter(inv => inv.isActive) || [];
@@ -181,13 +181,24 @@ export default function Investment() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b" style={{ backgroundColor: '#0A0A0A', borderColor: '#1A1A1A' }}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold" style={{ 
-            background: 'linear-gradient(90deg, #00FF99, #00CC66)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}>
-            FluxTrade
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setLocation('/')}
+              variant="ghost"
+              size="sm"
+              className="rounded-full"
+              style={{ color: '#00FF99' }}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div className="text-2xl font-bold" style={{ 
+              background: 'linear-gradient(90deg, #00FF99, #00CC66)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              FluxTrade
+            </div>
           </div>
           <Button 
             onClick={handleStartInvestment}
@@ -231,6 +242,7 @@ export default function Investment() {
                 boxShadow: '0 0 15px rgba(0, 255, 153, 0.2)'
               }}
               data-testid="button-how-to-invest"
+              onClick={() => setLocation('/how-to-invest')}
             >
               How to Invest
             </Button>
@@ -244,6 +256,7 @@ export default function Investment() {
                 boxShadow: '0 0 15px rgba(0, 255, 153, 0.2)'
               }}
               data-testid="button-profit-plans"
+              onClick={() => setLocation('/profit-plans')}
             >
               Profit Plans
             </Button>
@@ -257,6 +270,7 @@ export default function Investment() {
                 boxShadow: '0 0 15px rgba(0, 255, 153, 0.2)'
               }}
               data-testid="button-more"
+              onClick={() => setLocation('/investment-more')}
             >
               More <ChevronDown className="ml-1 w-4 h-4" />
             </Button>
@@ -340,7 +354,7 @@ export default function Investment() {
                   >
                     <div className="flex flex-col items-center">
                       <span>{d.days} Day{d.days > 1 ? 's' : ''}</span>
-                      <span className="text-xs opacity-80">{d.rate}% daily</span>
+                      <span className="text-xs opacity-80">{d.rate.toFixed(6)}%</span>
                     </div>
                   </Button>
                 ))}
