@@ -101,6 +101,26 @@
   --shadow-lg: 0 10px 20px -5px rgb(0 0 0 / 0.4);
   --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
   --shadow-trading: 0 8px 32px rgba(0, 191, 255, 0.15);
+  
+  /* Neon Dashboard Theme - FluxTrade Homepage */
+  --neon-bg: hsl(0, 0%, 4%); /* #0A0A0A */
+  --neon-card: hsl(0, 0%, 10%); /* #1A1A1A */
+  --neon-border: hsl(0, 0%, 16%); /* #2A2A2A */
+  --neon-green: hsl(150, 100%, 50%); /* #00FF80 */
+  --neon-green-bright: hsl(150, 100%, 60%); /* #00FF99 */
+  --neon-green-dark: hsl(150, 100%, 40%); /* #00CC66 */
+  --neon-text-primary: hsl(0, 0%, 100%); /* #FFFFFF */
+  --neon-text-secondary: hsl(0, 0%, 75%); /* #BFBFBF */
+  
+  /* Neon Gradients */
+  --gradient-neon: linear-gradient(90deg, hsl(150, 100%, 60%), hsl(150, 100%, 40%));
+  --gradient-neon-radial: radial-gradient(circle at 50% 50%, hsl(150, 100%, 60%, 0.2) 0%, hsl(150, 100%, 40%, 0) 70%);
+  
+  /* Neon Glow Shadows */
+  --shadow-neon-sm: 0 0 10px rgba(0, 255, 128, 0.2);
+  --shadow-neon-md: 0 0 20px rgba(0, 255, 128, 0.2);
+  --shadow-neon-lg: 0 0 30px rgba(0, 255, 153, 0.3);
+  --shadow-neon-pulse: 0 0 20px rgba(0, 255, 153, 0.3), 0 0 40px rgba(0, 255, 153, 0.2);
 }
 
 .light {
@@ -353,6 +373,48 @@
     animation: glow 2s ease-in-out infinite alternate;
   }
   
+  .animate-shimmer {
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  
+  /* Neon Dashboard Utilities */
+  .neon-bg {
+    background-color: var(--neon-bg);
+  }
+  
+  .neon-card {
+    background-color: var(--neon-card);
+  }
+  
+  .neon-border {
+    border-color: var(--neon-border);
+  }
+  
+  .neon-text {
+    color: var(--neon-text-primary);
+  }
+  
+  .neon-text-secondary {
+    color: var(--neon-text-secondary);
+  }
+  
+  .neon-gradient {
+    background: var(--gradient-neon);
+  }
+  
+  .neon-glow {
+    box-shadow: var(--shadow-neon-md);
+  }
+  
+  .neon-glow-lg {
+    box-shadow: var(--shadow-neon-lg);
+  }
+  
+  .neon-glow-pulse {
+    box-shadow: var(--shadow-neon-pulse);
+    animation: neon-pulse 2s ease-in-out infinite;
+  }
+  
   /* Theme-aware utility classes */
   .dark-bg {
     @apply bg-background;
@@ -404,5 +466,23 @@
   }
   to {
     box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), 0 0 40px rgba(0, 191, 255, 0.4);
+  }
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 255, 153, 0.3), 0 0 40px rgba(0, 255, 153, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(0, 255, 153, 0.5), 0 0 60px rgba(0, 255, 153, 0.3);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
   }
 }
