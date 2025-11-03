@@ -2,7 +2,7 @@
 export function FluxTradeLogo({ className = "w-full h-full" }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 240 80"
+      viewBox="0 0 320 70"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
@@ -21,57 +21,57 @@ export function FluxTradeLogo({ className = "w-full h-full" }: { className?: str
       </defs>
       
       {/* Icon Symbol - Left Side */}
-      <g transform="translate(40, 40)">
+      <g transform="translate(35, 35)">
         {/* Outer Ring */}
-        <circle cx="0" cy="0" r="28" stroke="url(#fluxGradient)" strokeWidth="3" fill="none" />
+        <circle cx="0" cy="0" r="26" stroke="url(#fluxGradient)" strokeWidth="3" fill="none" />
         
         {/* Dynamic Flux Lines */}
         <path
-          d="M -18 -9 Q -9 -13, 0 -11 Q 9 -9, 18 -13"
+          d="M -16 -8 Q -8 -12, 0 -10 Q 8 -8, 16 -12"
           stroke="url(#fluxGradient)"
-          strokeWidth="2"
+          strokeWidth="2.5"
           fill="none"
           strokeLinecap="round"
         />
         <path
-          d="M -18 0 Q -9 4, 0 2 Q 9 0, 18 4"
+          d="M -16 0 Q -8 4, 0 2 Q 8 0, 16 4"
           stroke="url(#fluxGradient)"
-          strokeWidth="2"
+          strokeWidth="2.5"
           fill="none"
           strokeLinecap="round"
         />
         <path
-          d="M -18 9 Q -9 13, 0 11 Q 9 9, 18 13"
+          d="M -16 8 Q -8 12, 0 10 Q 8 8, 16 12"
           stroke="url(#fluxGradient)"
-          strokeWidth="2"
+          strokeWidth="2.5"
           fill="none"
           strokeLinecap="round"
         />
         
         {/* Central F Letter */}
         <path
-          d="M -7 -16 L -7 16 M -7 -16 L 7 -16 M -7 0 L 5 0"
+          d="M -6 -14 L -6 14 M -6 -14 L 6 -14 M -6 0 L 4 0"
           stroke="#00BFFF"
-          strokeWidth="3"
+          strokeWidth="3.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         
         {/* Accent Dots */}
-        <circle cx="12" cy="-12" r="2" fill="#9D7EFF" />
-        <circle cx="12" cy="12" r="2" fill="#9D7EFF" />
+        <circle cx="11" cy="-11" r="2.5" fill="#9D7EFF" />
+        <circle cx="11" cy="11" r="2.5" fill="#9D7EFF" />
       </g>
       
       {/* FluxTrade Text - Professional Typography */}
-      <g transform="translate(80, 52)">
+      <g transform="translate(75, 47)">
         {/* Flux - Bold Modern Sans */}
         <text
           x="0"
           y="0"
           fontFamily="system-ui, -apple-system, sans-serif"
-          fontSize="32"
+          fontSize="38"
           fontWeight="700"
-          letterSpacing="-0.5"
+          letterSpacing="-1"
           fill="url(#textGradient)"
         >
           Flux
@@ -79,12 +79,12 @@ export function FluxTradeLogo({ className = "w-full h-full" }: { className?: str
         
         {/* Trade - Slightly Lighter Weight */}
         <text
-          x="62"
+          x="72"
           y="0"
           fontFamily="system-ui, -apple-system, sans-serif"
-          fontSize="32"
+          fontSize="38"
           fontWeight="500"
-          letterSpacing="-0.5"
+          letterSpacing="-1"
           fill="currentColor"
           className="fill-foreground"
         >
@@ -94,12 +94,12 @@ export function FluxTradeLogo({ className = "w-full h-full" }: { className?: str
       
       {/* Subtle Underline Accent */}
       <line
-        x1="80"
-        y1="58"
-        x2="125"
-        y2="58"
+        x1="75"
+        y1="54"
+        x2="145"
+        y2="54"
         stroke="url(#fluxGradient)"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
       />
     </svg>
