@@ -110,14 +110,14 @@ export function BalanceOverview() {
             <div className="relative z-10">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <p className="text-sm neon-text-secondary mb-2" data-testid="text-balance-label">
+                  <p className="text-xs neon-text-secondary mb-1" data-testid="text-balance-label">
                     Total Assets
                   </p>
                   <h2 
-                    className="text-4xl font-bold neon-text mb-1" 
+                    className="text-2xl sm:text-3xl font-bold neon-text mb-1" 
                     data-testid="text-total-assets"
                   >
-                    ${totalAssets.toFixed(2)} USDT
+                    ${totalAssets.toFixed(2)}
                   </h2>
                   {avgChange24h !== 0 && (
                     <div className="flex items-center gap-1 mt-2">
@@ -136,27 +136,30 @@ export function BalanceOverview() {
               </div>
 
               {/* Balance Breakdown */}
-              <div className="grid grid-cols-3 gap-3 mt-6">
-                <div className="neon-bg rounded-xl p-3 border neon-border">
-                  <p className="text-xs neon-text-secondary mb-1">Wallet</p>
-                  <p className="font-semibold neon-text text-sm" data-testid="text-wallet-balance">
-                    {formatBitcoin(user.balance)} BTC
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4">
+                <div className="neon-bg rounded-lg p-2 sm:p-3 border neon-border">
+                  <p className="text-[10px] sm:text-xs neon-text-secondary mb-0.5">Wallet</p>
+                  <p className="font-semibold neon-text text-xs sm:text-sm truncate" data-testid="text-wallet-balance">
+                    {formatBitcoin(user.balance)}
                   </p>
+                  <p className="text-[9px] sm:text-[10px] neon-text-secondary">BTC</p>
                 </div>
-                <div className="neon-bg rounded-xl p-3 border neon-border">
-                  <p className="text-xs neon-text-secondary mb-1">Invested</p>
-                  <p className="font-semibold neon-text text-sm" data-testid="text-total-invested">
-                    {formatBitcoin(totalInvestedAmount.toString())} BTC
+                <div className="neon-bg rounded-lg p-2 sm:p-3 border neon-border">
+                  <p className="text-[10px] sm:text-xs neon-text-secondary mb-0.5">Invested</p>
+                  <p className="font-semibold neon-text text-xs sm:text-sm truncate" data-testid="text-total-invested">
+                    {formatBitcoin(totalInvestedAmount.toString())}
                   </p>
+                  <p className="text-[9px] sm:text-[10px] neon-text-secondary">BTC</p>
                 </div>
-                <div className="rounded-xl p-3 border" style={{ 
+                <div className="rounded-lg p-2 sm:p-3 border" style={{ 
                   backgroundColor: 'rgba(0, 255, 128, 0.05)',
                   borderColor: 'rgba(0, 255, 128, 0.2)'
                 }}>
-                  <p className="text-xs neon-text-secondary mb-1">Profit</p>
-                  <p className="font-semibold text-emerald text-sm" data-testid="text-total-profit">
-                    +{formatBitcoin(totalProfit.toString())} BTC
+                  <p className="text-[10px] sm:text-xs neon-text-secondary mb-0.5">Profit</p>
+                  <p className="font-semibold text-emerald text-xs sm:text-sm truncate" data-testid="text-total-profit">
+                    +{formatBitcoin(totalProfit.toString())}
                   </p>
+                  <p className="text-[9px] sm:text-[10px] neon-text-secondary">BTC</p>
                 </div>
               </div>
             </div>

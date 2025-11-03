@@ -5,6 +5,7 @@ import { BalanceOverview } from "@/components/balance-overview";
 import { QuickActionsGrid } from "@/components/quick-actions-grid";
 import { ActiveInvestmentsList } from "@/components/active-investments-list";
 import { RecentActivityList } from "@/components/recent-activity-list";
+import { BottomNavigation } from "@/components/bottom-navigation";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
 
@@ -36,7 +37,7 @@ export default function Home() {
       <NeonHeader />
       
       {/* Main Content */}
-      <main className="relative z-10 pb-24">
+      <main className="relative z-10 pb-32">
         {/* Dashboard Overview - Greeting + Balance */}
         <BalanceOverview />
         
@@ -49,6 +50,9 @@ export default function Home() {
         {/* Recent Activity */}
         <RecentActivityList />
       </main>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }
