@@ -1,0 +1,165 @@
+
+Project: FluxTrade — Homepage Redesign (Dashboard Style)
+
+🧭 Overview
+
+Redesign the FluxTrade Homepage to match the dark-neon theme used in the new Invest Page.
+The homepage should serve as a dashboard landing screen, not a marketing site.
+It should focus on the user’s balance, activity, and quick actions — minimal, data-driven, and optimized for mobile-first layout.
+
+There should be no rotating globe animation, no invitation CTA, and no footer, since this is an in-app page.
+Instead, use a subtle neon gradient or blurred particle background to add depth and motion.
+
+🧱 Page Structure & Components
+
+1️⃣ Header
+
+Layout:
+	•	Left: FluxTrade logo (compact version preferred)
+	•	Right: Profile icon (replaces old “Start” button)
+	•	Tapping it opens the Profile / Settings menu or side modal
+
+Behavior:
+	•	Sticky (remains at top on scroll)
+	•	Background: #0A0A0A (optionally translucent on scroll)
+	•	Profile icon may display a small glowing status dot (if notifications exist)
+
+Style:
+	•	Neon glow accents in green (#00FF80)
+	•	Rounded edges for icons
+	•	Minimal height (≈ 56–64px)
+
+2️⃣ Dashboard Overview Section
+
+(This replaces the old “Hero Globe Animation”)
+
+Purpose:
+Provide the user a quick glance at their financial overview and core actions.
+
+Content:
+	•	Greeting text:
+Example → “Welcome back, Alex 👋”
+	•	Main card:
+Total Assets: $12,430.00 USDT
+Change: “+4.3% today” (optional small text)
+	•	Quick Action Buttons (3 or 4):
+	•	“Invest”
+	•	“Withdraw”
+	•	“History”
+	•	“Deposit” 
+
+Layout:
+	•	Central focus card for balance
+	•	Action buttons placed in a grid below (2×2 or horizontal row)
+
+Style:
+	•	Card background: #1A1A1A
+	•	Text color: white
+	•	Accent color: neon green (#00FF99)
+	•	Rounded corners: 1rem
+	•	Glow effect: 0 0 20px rgba(0,255,128,0.2)
+	•	Background: animated gradient blur or neon particle effect (not globe)
+
+Optional:
+Use Framer Motion for a soft fade-in + counter animation on numbers.
+
+3️⃣ Active Investments Section
+
+Purpose:
+Show user’s currently running investments.
+
+Layout:
+	•	Section title: “Active Investments”
+	•	Card list (scrollable horizontally or vertical grid)
+
+Each Card:
+	•	Plan name (e.g., “7-Day Plan”)
+	•	Invested amount (500 USDT)
+	•	Profit earned (+12.5 USDT)
+	•	Status badge (Active / Completed)
+	•	Small progress bar or circular indicator
+
+Style:
+	•	Card background: #1A1A1A
+	•	Rounded edges
+	•	Glowing green border or accent strip
+	•	Text: white / gray
+	•	Light hover animation or touch press scale-up
+
+4️⃣ Recent Activity Section
+
+Purpose:
+Display latest transactions or actions (investments, withdrawals, profits, etc.)
+
+Layout:
+	•	Title: “Recent Activity”
+	•	Vertical list with the following per item:
+	•	Timestamp (e.g., “Today, 10:23 AM”)
+	•	Description (e.g., “Invested 300 USDT in 7D Plan”)
+	•	Status icon (✅ or ⏳)
+
+Optional:
+	•	Use motion reveal for new items appearing
+	•	Include thin dividers between items for clarity
+
+Style:
+	•	Background: none (transparent)
+	•	Text: white / gray
+	•	Accent: green icons for positive events, red/orange for pending
+
+🧠 Design Language
+
+Element	Value
+Background	#0A0A0A
+Card Background	#1A1A1A
+Accent Green	#00FF80
+Gradient	linear-gradient(90deg, #00FF99, #00CC66)
+Text Primary	#FFFFFF
+Text Secondary	#BFBFBF
+Font	“Poppins” or “Inter”, weights 500–700
+Corners	Rounded (1rem)
+Shadows / Glow	0 0 20px rgba(0,255,128,0.2)
+Animation	Smooth hover scale, glow pulse (Framer Motion)
+
+⚙️ Technical Implementation Notes
+	•	Framework: React + Tailwind CSS
+	•	Animation Library: Framer Motion
+	•	Background Effect: CSS gradient animation or small canvas-based particle system (no globe)
+	•	Responsive Design: Mobile-first grid layout, fluid scaling
+	•	No Footer or Invite CTA
+
+🧩 Suggested Component Breakdown
+	•	<Header /> → Logo + Profile icon
+	•	<DashboardOverview /> → Greeting + balance card + quick actions
+	•	<ActiveInvestments /> → Scrollable card list
+	•	<RecentActivity /> → Activity feed
+
+Each section should have soft entrance animations and consistent padding.
+
+🎨 Visual Moodboard (for AI Context)
+	•	Theme: Futuristic, minimal dashboard
+	•	Mood: Confident, premium, tech-forward
+	•	Colors: Deep blacks with electric green highlights
+	•	Texture: Soft glow, clean contrast
+	•	Animation: Gentle, non-distracting, feels “alive”
+
+🧱 Example Layout Flow (Mobile-first)
+
+Header: [Logo]                                [👤 Profile]
+───────────────────────────────────────────────
+Greeting:  "Welcome back, Alex 👋"
+───────────────────────────────────────────────
+[ Total Balance Card ]
+| Total Assets: $12,430.00 USDT               |
+| +4.3% today                                 |
+───────────────────────────────────────────────
+[ Invest ]   [ Withdraw ]   [ History ]   [ Support ]
+───────────────────────────────────────────────
+Active Investments
+[ 7-Day Plan | $500 | +12.5 USDT | Active ]
+[ 14-Day Plan | $1000 | +35.2 USDT | Completed ]
+───────────────────────────────────────────────
+Recent Activity
+[ Today, 10:23 AM | Invested 300 USDT in 7D Plan ]
+[ Yesterday, 8:40 PM | Profit Payout Received ]
+───────────────────────────────────────────────
