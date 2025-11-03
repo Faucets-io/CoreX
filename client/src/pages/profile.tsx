@@ -23,7 +23,7 @@ export default function Profile() {
   const [, setLocation] = useLocation();
   const { currency } = useCurrency();
   const { data: price } = useBitcoinPrice();
-  const [showSensitiveInfo, setShowSensitiveInfo] = useState(false);
+  const [showSensitiveInfo, setShowSensitiveInfo] = useState(true);
 
   const { data: investments } = useQuery<Investment[]>({
     queryKey: ['/api/investments/user', user?.id],
@@ -76,17 +76,17 @@ export default function Profile() {
     <AppLayout>
       <div className="min-h-screen bg-background">
         <div className="max-w-sm mx-auto px-6 pb-24">
-          {/* Profile Header Card */}
-          <Card className="mt-6 mb-8 overflow-hidden border-0 shadow-lg bg-gradient-to-br from-primary/5 to-primary/10">
+          {/* Profile Header with Balance */}
+          <Card className="mt-6 mb-6 overflow-hidden border-0 shadow-xl bg-gradient-to-br from-primary/10 via-primary/5 to-emerald/10">
             <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
-                  <User className="w-8 h-8 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-foreground">{user.email.split('@')[0]}</h3>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                  <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
+                    <User className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">{user.email.split('@')[0]}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">{user.email}</p>
                     {user.isAdmin ? (
                       <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
                         <Shield className="w-3 h-3 mr-1" />
@@ -99,66 +99,62 @@ export default function Profile() {
                     )}
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <Card className="border-0 shadow-lg">
-              <CardContent className="p-4 text-center">
-                <Calendar className="w-5 h-5 mx-auto mb-2 text-primary" />
-                <p className="text-2xl font-bold text-foreground">{accountAge}</p>
-                <p className="text-xs text-muted-foreground">Days Active</p>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-lg">
-              <CardContent className="p-4 text-center">
-                <Activity className="w-5 h-5 mx-auto mb-2 text-primary" />
-                <p className="text-2xl font-bold text-foreground">{userTransactions}</p>
-                <p className="text-xs text-muted-foreground">Transactions</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Balance Card */}
-          <Card className="border-0 shadow-lg mb-8">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <Wallet className="w-4 h-4 text-primary" />
-                </div>
-                Balance Overview
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Current Balance</p>
-                  <p className="text-2xl font-bold text-foreground">{formatBitcoin(user.balance)} BTC</p>
-                  <p className="text-sm text-muted-foreground">≈ {price ? formatCurrency(fiatValue, currency) : 'Loading...'}</p>
-                </div>
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   onClick={() => setShowSensitiveInfo(!showSensitiveInfo)}
-                  className="rounded-lg"
+                  className="rounded-xl hover:bg-muted/50"
                 >
-                  {showSensitiveInfo ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showSensitiveInfo ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </Button>
+              </div>
+
+              <Separator className="my-4" />
+
+              {/* Balance Display */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Wallet className="w-5 h-5 text-primary" />
+                  <p className="text-sm font-medium text-muted-foreground">Total Balance</p>
+                </div>
+                {showSensitiveInfo ? (
+                  <>
+                    <h2 className="text-4xl font-bold text-foreground tracking-tight">
+                      {formatBitcoin(user.balance)} BTC
+                    </h2>
+                    <p className="text-xl text-muted-foreground font-medium">
+                      ≈ {price ? formatCurrency(fiatValue, currency) : 'Loading...'}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-4xl font-bold text-foreground tracking-tight">
+                      ••••••••
+                    </h2>
+                    <p className="text-xl text-muted-foreground font-medium">
+                      •••••• {currency}
+                    </p>
+                  </>
+                )}
               </div>
 
               {showSensitiveInfo && (
                 <>
-                  <Separator />
-                  <div className="grid grid-cols-2 gap-4">
+                  <Separator className="my-4" />
+                  <div className="grid grid-cols-3 gap-3">
                     <div className="p-3 bg-muted/50 rounded-xl text-center">
-                      <p className="text-xs text-muted-foreground">User ID</p>
-                      <p className="font-mono text-sm text-foreground">#{user.id}</p>
+                      <Calendar className="w-4 h-4 mx-auto mb-1 text-primary" />
+                      <p className="text-lg font-bold text-foreground">{accountAge}</p>
+                      <p className="text-xs text-muted-foreground">Days</p>
                     </div>
                     <div className="p-3 bg-muted/50 rounded-xl text-center">
-                      <p className="text-xs text-muted-foreground">Type</p>
-                      <p className="text-sm text-foreground">{user.isAdmin ? 'Admin' : 'Standard'}</p>
+                      <Activity className="w-4 h-4 mx-auto mb-1 text-primary" />
+                      <p className="text-lg font-bold text-foreground">{userTransactions}</p>
+                      <p className="text-xs text-muted-foreground">Transactions</p>
+                    </div>
+                    <div className="p-3 bg-muted/50 rounded-xl text-center">
+                      <p className="text-xs text-muted-foreground mb-1">ID</p>
+                      <p className="font-mono text-sm text-foreground">#{user.id}</p>
                     </div>
                   </div>
                 </>

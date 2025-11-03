@@ -53,34 +53,38 @@ export default function Settings() {
       <div className="min-h-screen bg-background">
         <div className="max-w-sm mx-auto px-6 pb-24">
           {/* Profile Summary Card */}
-          <Card className="mt-6 mb-8 overflow-hidden border-0 shadow-lg bg-gradient-to-br from-primary/5 to-primary/10">
+          <Card className="mt-6 mb-6 overflow-hidden border-0 shadow-xl bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10">
             <CardContent className="p-6">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 mb-4">
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
                   <User className="w-8 h-8 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-foreground">{user.email.split('@')[0]}</h3>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    {user.isAdmin ? (
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
-                        <Crown className="w-3 h-3 mr-1" />
-                        Admin
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                        Member
-                      </Badge>
-                    )}
-                  </div>
+                  <h3 className="text-xl font-bold text-foreground">{user.email.split('@')[0]}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">{user.email}</p>
+                  {user.isAdmin ? (
+                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                      <Crown className="w-3 h-3 mr-1" />
+                      Admin
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                      Member
+                    </Badge>
+                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
 
+          {/* Settings Title */}
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-foreground mb-1">Settings</h2>
+            <p className="text-sm text-muted-foreground">Manage your account preferences</p>
+          </div>
+
           {/* Navigation Menu */}
-          <div className="space-y-3 mb-8">
+          <div className="space-y-3 mb-6">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -88,23 +92,23 @@ export default function Settings() {
               return (
                 <Card
                   key={item.id}
-                  className={`cursor-pointer transition-all duration-300 border-0 shadow-sm hover:shadow-md ${
+                  className={`cursor-pointer transition-all duration-200 border-0 shadow-sm hover:shadow-md ${
                     isActive
-                      ? 'bg-gradient-to-r from-primary/10 to-primary/5'
-                      : 'bg-card hover:bg-primary/5'
+                      ? 'bg-gradient-to-r from-primary/15 to-primary/10 border-primary/20'
+                      : 'bg-card hover:bg-muted/30'
                   }`}
                   onClick={() => setActiveTab(item.id)}
                 >
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        isActive ? 'bg-primary/20' : 'bg-muted/50'
+                    <div className="flex items-center gap-3">
+                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
+                        isActive ? 'bg-primary/25' : 'bg-muted/50'
                       }`}>
                         <Icon className={`w-5 h-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-medium text-foreground">{item.label}</h4>
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                        <h4 className="font-semibold text-foreground">{item.label}</h4>
+                        <p className="text-xs text-muted-foreground">{item.description}</p>
                       </div>
                       <ChevronRight className={`w-5 h-5 transition-transform ${
                         isActive ? 'text-primary rotate-90' : 'text-muted-foreground'

@@ -32,9 +32,10 @@ export default function Investment() {
 
   const { data: investments } = useQuery<Investment[]>({
     queryKey: ['/api/investments/user', user.id],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 5000, // Refresh every 5 seconds
     refetchOnMount: true,
     refetchOnWindowFocus: true,
+    refetchIntervalInBackground: true,
   });
 
   const { data: plans } = useQuery<InvestmentPlan[]>({
@@ -44,9 +45,10 @@ export default function Investment() {
 
   const { data: transactions } = useQuery<any[]>({
     queryKey: ['/api/transactions'],
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 5000, // Refresh every 5 seconds
     refetchOnMount: true,
     refetchOnWindowFocus: true,
+    refetchIntervalInBackground: true,
   });
 
   const getPlanName = (planId: number) => {
