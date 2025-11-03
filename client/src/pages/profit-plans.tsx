@@ -1,8 +1,7 @@
-
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, TrendingUp, Calendar, Percent } from "lucide-react";
+import { ArrowLeft, TrendingUp, Calendar, Percent, Zap, Rocket, Gem, Crown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
@@ -42,28 +41,28 @@ export default function ProfitPlans() {
       days: 1,
       rate: 0.4,
       totalReturn: 0.4,
-      icon: "⚡",
+      icon: Zap,
       gradient: "linear-gradient(135deg, #00FF99, #00CC66)"
     },
     {
       days: 7,
       rate: 0.561868495,
       totalReturn: 3.933079465,
-      icon: "🚀",
+      icon: Rocket,
       gradient: "linear-gradient(135deg, #00CC66, #00FF99)"
     },
     {
       days: 14,
       rate: 0.650351110,
       totalReturn: 9.104915540,
-      icon: "💎",
+      icon: Gem,
       gradient: "linear-gradient(135deg, #00FF99, #00E680)"
     },
     {
       days: 28,
       rate: 0.771213577,
       totalReturn: 21.593980156,
-      icon: "👑",
+      icon: Crown,
       gradient: "linear-gradient(135deg, #00E680, #00FF99)"
     }
   ];
@@ -82,7 +81,7 @@ export default function ProfitPlans() {
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div className="text-2xl font-bold" style={{ 
+          <div className="text-2xl font-bold" style={{
             background: 'linear-gradient(90deg, #00FF99, #00CC66)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -97,7 +96,7 @@ export default function ProfitPlans() {
       <section className="relative h-[300px] overflow-hidden">
         <div ref={vantaRef} className="absolute inset-0" />
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ 
+          <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{
             background: 'linear-gradient(90deg, #00FF99, #00CC66)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -118,7 +117,7 @@ export default function ProfitPlans() {
             <Card
               key={index}
               className="rounded-2xl border-0 overflow-hidden transform hover:scale-[1.05] transition-all duration-300"
-              style={{ 
+              style={{
                 background: plan.gradient,
                 boxShadow: '0 10px 40px rgba(0, 255, 153, 0.3)',
                 animation: `fadeInScale 0.6s ease-out ${index * 0.15}s both`
@@ -126,15 +125,15 @@ export default function ProfitPlans() {
             >
               <CardContent className="p-6">
                 <div className="text-center">
-                  <div className="text-5xl mb-4 animate-bounce" style={{ animationDuration: '2s' }}>
-                    {plan.icon}
+                  <div className="animate-bounce" style={{ animationDuration: '2s' }}>
+                    <plan.icon className="w-16 h-16 mx-auto" style={{ color: '#0A0A0A' }} />
                   </div>
                   <h3 className="text-2xl font-bold mb-2" style={{ color: '#0A0A0A' }}>
                     {plan.days} Day{plan.days > 1 ? 's' : ''} Plan
                   </h3>
-                  
+
                   <div className="space-y-4 mt-6">
-                    <div 
+                    <div
                       className="p-4 rounded-xl"
                       style={{ backgroundColor: 'rgba(10, 10, 10, 0.3)' }}
                     >
@@ -145,14 +144,14 @@ export default function ProfitPlans() {
                         </span>
                       </div>
                       <div className="text-3xl font-bold" style={{ color: '#0A0A0A' }}>
-                        {plan.rate.toFixed(6)}%
+                        {plan.rate.toFixed(2)}%
                       </div>
                       <div className="text-xs mt-1" style={{ color: 'rgba(10, 10, 10, 0.7)' }}>
                         per day
                       </div>
                     </div>
 
-                    <div 
+                    <div
                       className="p-4 rounded-xl"
                       style={{ backgroundColor: 'rgba(10, 10, 10, 0.3)' }}
                     >
@@ -163,14 +162,14 @@ export default function ProfitPlans() {
                         </span>
                       </div>
                       <div className="text-3xl font-bold" style={{ color: '#0A0A0A' }}>
-                        {plan.totalReturn.toFixed(6)}%
+                        ${plan.totalReturn.toFixed(2)}
                       </div>
                       <div className="text-xs mt-1" style={{ color: 'rgba(10, 10, 10, 0.7)' }}>
                         after {plan.days} day{plan.days > 1 ? 's' : ''}
                       </div>
                     </div>
 
-                    <div 
+                    <div
                       className="p-4 rounded-xl"
                       style={{ backgroundColor: 'rgba(10, 10, 10, 0.3)' }}
                     >
@@ -189,7 +188,7 @@ export default function ProfitPlans() {
                   <Button
                     onClick={() => setLocation('/investment')}
                     className="w-full mt-6 py-6 text-lg font-semibold rounded-xl hover:scale-105 transition-transform"
-                    style={{ 
+                    style={{
                       backgroundColor: '#0A0A0A',
                       color: '#00FF99',
                       border: 'none'
@@ -206,7 +205,7 @@ export default function ProfitPlans() {
         {/* Example Calculation */}
         <Card
           className="rounded-2xl border mt-8 overflow-hidden"
-          style={{ 
+          style={{
             backgroundColor: '#1A1A1A',
             borderColor: '#2A2A2A',
             boxShadow: '0 0 30px rgba(0, 255, 153, 0.2)'

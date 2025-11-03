@@ -355,10 +355,7 @@ export default function Investment() {
                     }}
                     data-testid={`button-duration-${d.days}`}
                   >
-                    <div className="flex flex-col items-center">
-                      <span className="font-semibold">{d.days} Day{d.days > 1 ? 's' : ''}</span>
-                      <span className="text-xs opacity-80">{d.totalReturn.toFixed(1)}% Return</span>
-                    </div>
+                    <span className="font-semibold">{d.days} Day{d.days > 1 ? 's' : ''}</span>
                   </Button>
                 ))}
               </div>
@@ -397,13 +394,13 @@ export default function Investment() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm" style={{ color: '#BFBFBF' }}>Estimated Profit</span>
                     <span className="font-bold text-lg" style={{ color: '#00FF99' }} data-testid="text-total-profit">
-                      +{formatBitcoin(returns.totalProfit.toString())} USDT
+                      +{returns.totalProfit.toFixed(2)} USDT
                     </span>
                   </div>
                   <div className="flex justify-between items-center pt-2" style={{ borderTop: '1px solid #2A2A2A' }}>
                     <span className="text-sm font-semibold" style={{ color: '#BFBFBF' }}>Total Return</span>
                     <span className="font-bold text-xl" style={{ color: '#00FF99' }} data-testid="text-total-return">
-                      {formatBitcoin(returns.totalReturn.toString())} USDT
+                      {returns.totalReturn.toFixed(2)} USDT
                     </span>
                   </div>
                 </div>
