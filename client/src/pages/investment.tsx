@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCw, ChevronDown, ArrowLeft } from "lucide-react";
+import { RefreshCw, ChevronDown, ArrowLeft, BookOpen, TrendingUp, MoreHorizontal } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
@@ -234,7 +234,7 @@ export default function Investment() {
           <div className="flex flex-wrap gap-3 justify-center">
             <Button 
               variant="outline" 
-              className="rounded-full border-2 hover:scale-105 transition-transform"
+              className="rounded-full border-2 hover:scale-105 transition-all duration-300 group"
               style={{ 
                 borderColor: '#00FF99',
                 color: '#00FF99',
@@ -244,11 +244,12 @@ export default function Investment() {
               data-testid="button-how-to-invest"
               onClick={() => setLocation('/how-to-invest')}
             >
+              <BookOpen className="mr-2 w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
               How to Invest
             </Button>
             <Button 
               variant="outline"
-              className="rounded-full border-2 hover:scale-105 transition-transform"
+              className="rounded-full border-2 hover:scale-105 transition-all duration-300 group"
               style={{ 
                 borderColor: '#00FF99',
                 color: '#00FF99',
@@ -258,11 +259,12 @@ export default function Investment() {
               data-testid="button-profit-plans"
               onClick={() => setLocation('/profit-plans')}
             >
+              <TrendingUp className="mr-2 w-4 h-4 group-hover:translate-y-[-2px] transition-transform duration-300" />
               Profit Plans
             </Button>
             <Button 
               variant="outline"
-              className="rounded-full border-2 hover:scale-105 transition-transform"
+              className="rounded-full border-2 hover:scale-105 transition-all duration-300 group"
               style={{ 
                 borderColor: '#00FF99',
                 color: '#00FF99',
@@ -272,7 +274,8 @@ export default function Investment() {
               data-testid="button-more"
               onClick={() => setLocation('/investment-more')}
             >
-              More <ChevronDown className="ml-1 w-4 h-4" />
+              <MoreHorizontal className="mr-2 w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+              More
             </Button>
           </div>
         </div>
@@ -353,8 +356,8 @@ export default function Investment() {
                     data-testid={`button-duration-${d.days}`}
                   >
                     <div className="flex flex-col items-center">
-                      <span>{d.days} Day{d.days > 1 ? 's' : ''}</span>
-                      <span className="text-xs opacity-80">{d.totalReturn}%</span>
+                      <span className="font-semibold">{d.days} Day{d.days > 1 ? 's' : ''}</span>
+                      <span className="text-xs opacity-80">{d.totalReturn.toFixed(1)}% Return</span>
                     </div>
                   </Button>
                 ))}
@@ -388,7 +391,7 @@ export default function Investment() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm" style={{ color: '#BFBFBF' }}>Total Return Rate</span>
                     <span className="font-semibold" style={{ color: '#FFFFFF' }} data-testid="text-total-rate">
-                      {durations.find(d => d.days === selectedDuration)?.totalReturn}%
+                      {durations.find(d => d.days === selectedDuration)?.totalReturn.toFixed(1)}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
