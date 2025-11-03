@@ -141,10 +141,10 @@ export default function Investment() {
   };
 
   const durations = [
-    { days: 1, rate: 0.4 },
-    { days: 7, rate: 0.561868495 },
-    { days: 14, rate: 0.650351110 },
-    { days: 28, rate: 0.771213577 }
+    { days: 1, rate: 0.4, totalReturn: 100.4 },
+    { days: 7, rate: 0.561868495, totalReturn: 104 },
+    { days: 14, rate: 0.650351110, totalReturn: 109.5 },
+    { days: 28, rate: 0.771213577, totalReturn: 124 }
   ];
   
   const activeInvestments = investments?.filter(inv => inv.isActive) || [];
@@ -186,7 +186,7 @@ export default function Investment() {
               onClick={() => setLocation('/')}
               variant="ghost"
               size="sm"
-              className="rounded-full"
+              className="rounded-full hover:bg-white/10"
               style={{ color: '#00FF99' }}
             >
               <ArrowLeft className="w-5 h-5" />
@@ -354,7 +354,7 @@ export default function Investment() {
                   >
                     <div className="flex flex-col items-center">
                       <span>{d.days} Day{d.days > 1 ? 's' : ''}</span>
-                      <span className="text-xs opacity-80">{d.rate.toFixed(6)}%</span>
+                      <span className="text-xs opacity-80">{d.totalReturn}%</span>
                     </div>
                   </Button>
                 ))}
@@ -373,26 +373,26 @@ export default function Investment() {
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm" style={{ color: '#BFBFBF' }}>Daily Return Rate</span>
-                    <span className="font-semibold" style={{ color: '#FFFFFF' }} data-testid="text-daily-rate">
-                      {returns.dailyRate}% per day
+                    <span className="text-sm" style={{ color: '#BFBFBF' }}>Investment Amount</span>
+                    <span className="font-semibold" style={{ color: '#FFFFFF' }}>
+                      {formatBitcoin(amount)} USDT
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm" style={{ color: '#BFBFBF' }}>Daily Profit</span>
-                    <span className="font-semibold" style={{ color: '#00FF99' }} data-testid="text-daily-profit">
-                      +{formatBitcoin(returns.dailyProfit.toString())} USDT
+                    <span className="text-sm" style={{ color: '#BFBFBF' }}>Duration</span>
+                    <span className="font-semibold" style={{ color: '#FFFFFF' }}>
+                      {selectedDuration} day{selectedDuration > 1 ? 's' : ''}
                     </span>
                   </div>
                   <div className="h-px" style={{ backgroundColor: '#2A2A2A' }} />
                   <div className="flex justify-between items-center">
                     <span className="text-sm" style={{ color: '#BFBFBF' }}>Total Return Rate</span>
                     <span className="font-semibold" style={{ color: '#FFFFFF' }} data-testid="text-total-rate">
-                      {returns.totalReturnPercentage}%
+                      {durations.find(d => d.days === selectedDuration)?.totalReturn}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm" style={{ color: '#BFBFBF' }}>Estimated Profit ({selectedDuration} days)</span>
+                    <span className="text-sm" style={{ color: '#BFBFBF' }}>Estimated Profit</span>
                     <span className="font-bold text-lg" style={{ color: '#00FF99' }} data-testid="text-total-profit">
                       +{formatBitcoin(returns.totalProfit.toString())} USDT
                     </span>
