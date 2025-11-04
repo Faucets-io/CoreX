@@ -17,7 +17,7 @@ import * as bip39 from "bip39";
 import { BIP32Factory } from "bip32";
 import crypto from "crypto";
 import { createHash } from "crypto";
-import { keccak_256 } from "@noble/hashes/sha3";
+import { keccak_256 } from "@noble/hashes/sha3.js";
 import bs58 from "bs58";
 import { notificationTemplates, getRandomNotification, sendTemplateNotification } from "./notification-templates";
 

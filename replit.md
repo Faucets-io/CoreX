@@ -108,6 +108,16 @@ Preferred communication style: Simple, everyday language.
 - ecpair: Key pair generation
 - bip32: HD wallet derivation
 - bip39: Mnemonic seed generation
+- @noble/hashes: Keccak-256 hashing for Ethereum address generation
+- bs58: Base58 encoding for various cryptocurrency addresses
+
+**Multi-Chain Wallet Generation:**
+- BIP44 derivation paths for multiple cryptocurrencies
+- Verified address generation for: BTC (m/44'/0'/0'/0/0), ETH/BNB/USDT/TRUMP (m/44'/60'/0'/0/0), DOGE (m/44'/3'/0'/0/0)
+- Ethereum addresses use proper Keccak-256 hashing on uncompressed secp256k1 public keys
+- Dogecoin addresses use correct network parameters (pubKeyHash: 0x1e)
+- Simplified implementations for SOL, XRP, and ADA (deterministic but may not match all external wallets)
+- All addresses generated from single BIP39 mnemonic seed phrase
 
 **UI Component Libraries:**
 - Radix UI primitives (accordion, dialog, dropdown, etc.)
