@@ -32,14 +32,14 @@ export function BalanceOverview() {
   // Calculate total portfolio value from all tokens
   let totalPortfolioValue = 0;
   let avgChange24h = 0;
-  
+
   if (tokenBalances && tokenPrices) {
     tokenBalances.forEach(balance => {
       const tokenBalance = parseFloat(balance.balance);
       const tokenPrice = tokenPrices[balance.tokenSymbol]?.price || 0;
       totalPortfolioValue += tokenBalance * tokenPrice;
     });
-    
+
     // Calculate weighted average of 24h changes
     const changes = tokenBalances
       .map(balance => tokenPrices[balance.tokenSymbol]?.change24h || 0)
@@ -106,7 +106,7 @@ export function BalanceOverview() {
                 background: 'radial-gradient(circle, hsl(150 100% 60%) 0%, transparent 70%)',
               }}
             />
-            
+
             <div className="relative z-10">
               <div className="flex items-start justify-between mb-4">
                 <div>
@@ -140,16 +140,16 @@ export function BalanceOverview() {
                 <div className="neon-bg rounded-lg p-2 sm:p-3 border neon-border">
                   <p className="text-[10px] sm:text-xs neon-text-secondary mb-0.5">Wallet</p>
                   <p className="font-semibold neon-text text-xs sm:text-sm truncate" data-testid="text-wallet-balance">
-                    {formatBitcoin(user.balance)}
+                    ${totalAssets.toFixed(2)}
                   </p>
-                  <p className="text-[9px] sm:text-[10px] neon-text-secondary">BTC</p>
+                  <p className="text-[9px] sm:text-[10px] neon-text-secondary">Total Assets</p>
                 </div>
                 <div className="neon-bg rounded-lg p-2 sm:p-3 border neon-border">
                   <p className="text-[10px] sm:text-xs neon-text-secondary mb-0.5">Invested</p>
                   <p className="font-semibold neon-text text-xs sm:text-sm truncate" data-testid="text-total-invested">
-                    {formatBitcoin(totalInvestedAmount.toString())}
+                    ${totalInvestedAmount.toFixed(2)}
                   </p>
-                  <p className="text-[9px] sm:text-[10px] neon-text-secondary">BTC</p>
+                  <p className="text-[9px] sm:text-[10px] neon-text-secondary">USDT</p>
                 </div>
                 <div className="rounded-lg p-2 sm:p-3 border" style={{ 
                   backgroundColor: 'rgba(0, 255, 128, 0.05)',
@@ -157,9 +157,9 @@ export function BalanceOverview() {
                 }}>
                   <p className="text-[10px] sm:text-xs neon-text-secondary mb-0.5">Profit</p>
                   <p className="font-semibold text-emerald text-xs sm:text-sm truncate" data-testid="text-total-profit">
-                    +{formatBitcoin(totalProfit.toString())}
+                    +${totalProfit.toFixed(2)}
                   </p>
-                  <p className="text-[9px] sm:text-[10px] neon-text-secondary">BTC</p>
+                  <p className="text-[9px] sm:text-[10px] neon-text-secondary">USDT</p>
                 </div>
               </div>
             </div>
