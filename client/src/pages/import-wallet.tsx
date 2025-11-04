@@ -73,7 +73,7 @@ export default function ImportWallet() {
         description: "Your wallet has been imported and balance updated.",
       });
       await refreshUser();
-      setLocation('/');
+      setLocation('/home');
     },
     onError: (error: any) => {
       toast({

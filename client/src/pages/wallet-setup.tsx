@@ -27,7 +27,7 @@ export default function WalletSetup() {
         duration: 10000,
       });
       await refreshUser();
-      setLocation('/');
+      setLocation('/home');
     },
     onError: (error: any) => {
       toast({
@@ -45,7 +45,7 @@ export default function WalletSetup() {
     }
 
     if (user.hasWallet) {
-      setLocation('/');
+      setLocation('/home');
     }
   }, [user, setLocation]);
 

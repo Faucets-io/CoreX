@@ -217,7 +217,7 @@ export default function Deposit() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setLocation('/')}
+            onClick={() => setLocation('/home')}
             className="border-[#00FF80]/30 hover:bg-[#00FF80]/10"
           >
             <ArrowLeft className="w-5 h-5 text-[#00FF80]" />

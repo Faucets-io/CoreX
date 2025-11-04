@@ -108,7 +108,7 @@ export default function Notifications() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setLocation('/')}
+              onClick={() => setLocation('/home')}
               className="mb-4 rounded-xl hover:bg-[#1A1A1A] border border-[#2A2A2A]"
             >
               <ArrowLeft className="w-5 h-5 text-[#00FF80]" />

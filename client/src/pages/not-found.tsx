@@ -46,7 +46,7 @@ export default function NotFound() {
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
-              onClick={() => setLocation('/')}
+              onClick={() => setLocation('/home')}
               className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] hover:opacity-90 text-black font-bold rounded-xl px-8 py-6 shadow-lg shadow-[#00FF80]/20 transition-all"
               data-testid="button-home"
             >

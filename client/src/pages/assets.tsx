@@ -321,7 +321,7 @@ export default function Assets() {
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent className="bg-[#1A1A1A] border-[#00FF80]/30">
-                          {['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'TRUMP'].map(token => (
+                          {['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'MATIC', 'AVAX', 'ARB', 'OP', 'TRUMP'].map(token => (
                             <SelectItem key={token} value={token}>
                               <div className="flex items-center gap-2">
                                 <TokenIcon symbol={token} size="sm" />

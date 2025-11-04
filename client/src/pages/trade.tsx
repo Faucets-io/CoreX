@@ -310,7 +310,7 @@ export default function Trade() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <Button
-              onClick={() => setLocation('/')}
+              onClick={() => setLocation('/home')}
               variant="ghost"
               size="sm"
               className="rounded-full hover:bg-white/10"

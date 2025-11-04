@@ -243,7 +243,7 @@ export default function Withdraw() {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => setLocation('/')}
+              onClick={() => setLocation('/home')}
               className="border-red-500/30 hover:bg-red-500/10"
             >
               <ArrowLeft className="w-5 h-5 text-red-500" />

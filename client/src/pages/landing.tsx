@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useLocation } from "wouter";
-import { TrendingUp, Shield, Users, Zap, Star, ArrowRight, CheckCircle2, BarChart3, Wallet, Lock, Globe, Calendar, Percent, Rocket, Gem, Crown, Trophy, Award, Diamond } from "lucide-react";
+import { TrendingUp, Shield, Users, Zap, Star, ArrowRight, CheckCircle2, BarChart3, Wallet, Lock, Globe, Calendar, Percent, Rocket, Gem, Crown, Trophy, Award, Diamond, Send } from "lucide-react";
 import { motion } from "framer-motion";
 import { NeonBackdrop } from "@/components/neon-backdrop";
 import FluxTradeLogo from "@/components/fluxtrade-logo";
@@ -813,8 +813,20 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="relative z-10 py-8 border-t" style={{ borderColor: 'rgba(0, 255, 153, 0.2)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
-          <p>© 2024 FluxTrade. All rights reserved. Trusted by millions worldwide.</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center gap-4">
+            <a
+              href="https://t.me/FluxTradeInsightsDaily"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-6 py-3 rounded-full text-white hover:bg-[#00FF80]/10 transition-all border border-[#00FF80]/30 hover:border-[#00FF80] group"
+              style={{ color: '#00FF80' }}
+            >
+              <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <span className="font-semibold">Join our Telegram Channel</span>
+            </a>
+            <p className="text-gray-400 text-center">© 2024 FluxTrade. All rights reserved. Trusted by millions worldwide.</p>
+          </div>
         </div>
       </footer>
 
