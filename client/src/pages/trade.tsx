@@ -237,7 +237,12 @@ export default function Trade() {
 
   const { data: allTrades, refetch: refetchTrades } = useQuery<TradeOrder[]>({
     queryKey: ['/api/trades/all', selectedToken.symbol],
-    queryFn: () => fetch(`/api/trades/all?token=${selectedToken.symbol}`).then(res => res.json()),
+    queryFn: async () => {
+      const response = await fetch(`/api/trades/all?token=${selectedToken.symbol}`);
+      const data = await response.json();
+      console.log(`Fetched ${data?.length || 0} trades for ${selectedToken.symbol}`);
+      return data;
+    },
     refetchInterval: 500,
   });
 
