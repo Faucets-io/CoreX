@@ -1,8 +1,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useLocation } from "wouter";
-import { TrendingUp, Shield, Users, Zap, Star, ArrowRight, CheckCircle2, BarChart3, Wallet, Lock, Globe } from "lucide-react";
+import { TrendingUp, Shield, Users, Zap, Star, ArrowRight, CheckCircle2, BarChart3, Wallet, Lock, Globe, Calendar, Percent, Rocket, Gem, Crown, Trophy, Award, Diamond } from "lucide-react";
 import { motion } from "framer-motion";
 import { NeonBackdrop } from "@/components/neon-backdrop";
 import {
@@ -13,45 +14,71 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
   const plugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }));
   const testimonialPlugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
 
-  const investmentPlans = [
+  const [calculatorAmount, setCalculatorAmount] = useState<string>("1000");
+
+  const plans = [
     {
-      name: "Starter Plan",
-      minAmount: "$100",
-      roi: "5%",
-      duration: "7 days",
-      color: "from-blue-500 to-cyan-500",
-      features: ["Daily returns", "Low risk", "Perfect for beginners"]
+      days: 1,
+      rate: 40,
+      totalReturn: 40,
+      icon: Zap,
+      gradient: "linear-gradient(135deg, #00FF99, #00CC66)"
     },
     {
-      name: "Growth Plan",
-      minAmount: "$500",
-      roi: "12%",
-      duration: "30 days",
-      color: "from-purple-500 to-pink-500",
-      features: ["Higher returns", "Medium risk", "Balanced portfolio"]
+      days: 7,
+      rate: 11.428571,
+      totalReturn: 80,
+      icon: Rocket,
+      gradient: "linear-gradient(135deg, #00CC66, #00FF99)"
     },
     {
-      name: "Premium Plan",
-      minAmount: "$2,000",
-      roi: "25%",
-      duration: "90 days",
-      color: "from-emerald-500 to-teal-500",
-      features: ["Maximum returns", "Managed risk", "Priority support"]
+      days: 14,
+      rate: 11.428571,
+      totalReturn: 160,
+      icon: Gem,
+      gradient: "linear-gradient(135deg, #00FF99, #00E680)"
     },
     {
-      name: "Elite Plan",
-      minAmount: "$10,000",
-      roi: "40%",
-      duration: "180 days",
-      color: "from-orange-500 to-red-500",
-      features: ["Premium returns", "Expert management", "VIP benefits"]
+      days: 28,
+      rate: 12.142857,
+      totalReturn: 340,
+      icon: Crown,
+      gradient: "linear-gradient(135deg, #00E680, #00FF99)"
+    },
+    {
+      days: 60,
+      rate: 11.333333,
+      totalReturn: 680,
+      icon: Star,
+      gradient: "linear-gradient(135deg, #00FF99, #00DD88)"
+    },
+    {
+      days: 90,
+      rate: 15.111111,
+      totalReturn: 1360,
+      icon: Trophy,
+      gradient: "linear-gradient(135deg, #00DD88, #00FF99)"
+    },
+    {
+      days: 180,
+      rate: 15.111111,
+      totalReturn: 2720,
+      icon: Award,
+      gradient: "linear-gradient(135deg, #00FF99, #00BB77)"
+    },
+    {
+      days: 360,
+      rate: 15.111111,
+      totalReturn: 5440,
+      icon: Diamond,
+      gradient: "linear-gradient(135deg, #00BB77, #00FF99)"
     }
   ];
 
@@ -242,7 +269,85 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Investment Plans Carousel */}
+      {/* Investment Calculator */}
+      <section className="relative z-10 py-20" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-white">
+              Investment Calculator
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Calculate your potential returns across all investment plans
+            </p>
+          </motion.div>
+
+          <Card
+            className="rounded-2xl border max-w-4xl mx-auto mb-8"
+            style={{
+              backgroundColor: '#1A1A1A',
+              borderColor: '#2A2A2A',
+              boxShadow: '0 0 30px rgba(0, 255, 153, 0.2)'
+            }}
+          >
+            <CardContent className="p-6">
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2" style={{ color: '#00FF99' }}>
+                  Enter Investment Amount ($)
+                </label>
+                <Input
+                  type="number"
+                  value={calculatorAmount}
+                  onChange={(e) => setCalculatorAmount(e.target.value)}
+                  placeholder="1000"
+                  className="text-2xl font-bold text-center py-6"
+                  style={{
+                    backgroundColor: '#0A0A0A',
+                    borderColor: '#00FF99',
+                    color: '#00FF99'
+                  }}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {plans.map((plan, index) => {
+                  const amount = parseFloat(calculatorAmount) || 0;
+                  const profit = amount * (plan.totalReturn / 100);
+                  const total = amount + profit;
+                  
+                  return (
+                    <div 
+                      key={index} 
+                      className="text-center p-4 rounded-xl hover:scale-105 transition-transform" 
+                      style={{ backgroundColor: '#0A0A0A' }}
+                    >
+                      <div className="text-sm mb-2" style={{ color: '#BFBFBF' }}>
+                        {plan.days} Day{plan.days > 1 ? 's' : ''}
+                      </div>
+                      <div className="text-2xl font-bold" style={{ color: '#00FF99' }}>
+                        ${total.toFixed(2)}
+                      </div>
+                      <div className="text-xs mt-1" style={{ color: '#BFBFBF' }}>
+                        +${profit.toFixed(2)}
+                      </div>
+                      <div className="text-xs mt-2" style={{ color: '#00FF99' }}>
+                        {plan.totalReturn}% ROI
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Investment Plans */}
       <section className="relative z-10 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -253,47 +358,103 @@ export default function Landing() {
             className="text-center mb-12"
           >
             <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-white">
-              Investment Plans
+              Investment Plans & Returns
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Choose the perfect plan that matches your investment goals
+              Choose the plan that fits your investment goals
             </p>
           </motion.div>
 
           <Carousel
             plugins={[plugin.current]}
-            className="w-full max-w-5xl mx-auto"
+            className="w-full max-w-6xl mx-auto"
             onMouseEnter={plugin.current.stop}
             onMouseLeave={plugin.current.reset}
           >
             <CarouselContent>
-              {investmentPlans.map((plan, index) => (
-                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+              {plans.map((plan, index) => (
+                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/4">
                   <div className="p-2">
-                    <Card className={`bg-gradient-to-br ${plan.color} border-0 overflow-hidden hover:scale-105 transition-transform duration-300`}>
-                      <CardContent className="p-6 text-white">
-                        <div className="text-center space-y-4">
-                          <h3 className="text-2xl font-bold">{plan.name}</h3>
-                          <div className="space-y-2">
-                            <div className="text-4xl font-bold">{plan.roi}</div>
-                            <div className="text-sm opacity-90">ROI in {plan.duration}</div>
+                    <Card
+                      className="rounded-2xl border-0 overflow-hidden transform hover:scale-[1.05] transition-all duration-300"
+                      style={{
+                        background: plan.gradient,
+                        boxShadow: '0 10px 40px rgba(0, 255, 153, 0.3)',
+                        animation: `fadeInScale 0.6s ease-out ${index * 0.15}s both`
+                      }}
+                    >
+                      <CardContent className="p-6">
+                        <div className="text-center">
+                          <div className="animate-bounce" style={{ animationDuration: '2s' }}>
+                            <plan.icon className="w-16 h-16 mx-auto" style={{ color: '#0A0A0A' }} />
                           </div>
-                          <div className="text-lg font-semibold">
-                            Min. Investment: {plan.minAmount}
-                          </div>
-                          <div className="space-y-2 pt-4">
-                            {plan.features.map((feature, i) => (
-                              <div key={i} className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4" />
-                                <span className="text-sm">{feature}</span>
+                          <h3 className="text-2xl font-bold mb-2" style={{ color: '#0A0A0A' }}>
+                            {plan.days} Day{plan.days > 1 ? 's' : ''} Plan
+                          </h3>
+
+                          <div className="space-y-4 mt-6">
+                            <div
+                              className="p-4 rounded-xl"
+                              style={{ backgroundColor: 'rgba(10, 10, 10, 0.3)' }}
+                            >
+                              <div className="flex items-center justify-center gap-2 mb-1">
+                                <Percent className="w-5 h-5" style={{ color: '#0A0A0A' }} />
+                                <span className="text-sm font-medium" style={{ color: '#0A0A0A' }}>
+                                  Daily Return
+                                </span>
                               </div>
-                            ))}
+                              <div className="text-3xl font-bold" style={{ color: '#0A0A0A' }}>
+                                {plan.rate.toFixed(2)}%
+                              </div>
+                              <div className="text-xs mt-1" style={{ color: 'rgba(10, 10, 10, 0.7)' }}>
+                                per day
+                              </div>
+                            </div>
+
+                            <div
+                              className="p-4 rounded-xl"
+                              style={{ backgroundColor: 'rgba(10, 10, 10, 0.3)' }}
+                            >
+                              <div className="flex items-center justify-center gap-2 mb-1">
+                                <TrendingUp className="w-5 h-5" style={{ color: '#0A0A0A' }} />
+                                <span className="text-sm font-medium" style={{ color: '#0A0A0A' }}>
+                                  Total Return
+                                </span>
+                              </div>
+                              <div className="text-3xl font-bold" style={{ color: '#0A0A0A' }}>
+                                ${plan.totalReturn.toFixed(2)}
+                              </div>
+                              <div className="text-xs mt-1" style={{ color: 'rgba(10, 10, 10, 0.7)' }}>
+                                after {plan.days} day{plan.days > 1 ? 's' : ''}
+                              </div>
+                            </div>
+
+                            <div
+                              className="p-4 rounded-xl"
+                              style={{ backgroundColor: 'rgba(10, 10, 10, 0.3)' }}
+                            >
+                              <div className="flex items-center justify-center gap-2 mb-1">
+                                <Calendar className="w-5 h-5" style={{ color: '#0A0A0A' }} />
+                                <span className="text-sm font-medium" style={{ color: '#0A0A0A' }}>
+                                  Duration
+                                </span>
+                              </div>
+                              <div className="text-2xl font-bold" style={{ color: '#0A0A0A' }}>
+                                {plan.days} Day{plan.days > 1 ? 's' : ''}
+                              </div>
+                            </div>
                           </div>
+
                           <Button
                             onClick={() => setLocation('/register')}
-                            className="w-full mt-4 bg-white text-black hover:bg-gray-100"
+                            className="w-full mt-6 py-6 text-lg font-semibold rounded-xl hover:scale-105 transition-transform"
+                            style={{
+                              backgroundColor: '#0A0A0A',
+                              color: '#00FF99',
+                              border: 'none'
+                            }}
                           >
-                            Get Started
+                            Choose Plan
                           </Button>
                         </div>
                       </CardContent>
@@ -463,6 +624,19 @@ export default function Landing() {
           <p>© 2024 FluxTrade. All rights reserved. Trusted by millions worldwide.</p>
         </div>
       </footer>
+
+      <style>{`
+        @keyframes fadeInScale {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 }
