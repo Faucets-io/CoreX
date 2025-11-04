@@ -1,0 +1,41 @@
+==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+==> Running build command 'npm install; npm run build'...
+up to date, audited 539 packages in 1s
+72 packages are looking for funding
+  run `npm fund` for details
+10 vulnerabilities (3 low, 7 moderate)
+To address issues that do not require attention, run:
+  npm audit fix
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+Run `npm audit` for details.
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+vite v5.4.14 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 13 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 2117 modules transformed.
+x Build failed in 3.47s
+error during build:
+client/src/pages/notifications.tsx (15:7): "default" is not exported by "client/src/components/app-layout.tsx", imported by "client/src/pages/notifications.tsx".
+file: /opt/render/project/src/client/src/pages/notifications.tsx:15:7
+13: import { BottomNavigation } from "@/components/bottom-navigation";
+14: import FluxLogoHeader from "@/components/flux-logo-header"; // Added import
+15: import AppLayout from "@/components/app-layout"; // Assuming this is the layout component
+           ^
+16: import { motion } from 'framer-motion'; // Assuming framer-motion is used for animations
+    at getRollupError (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/parseAst.js:396:41)
+    at error (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/parseAst.js:392:42)
+    at Module.error (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:15588:16)
+    at Module.traceVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:16037:29)
+    at ModuleScope.findVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:13820:39)
+    at FunctionScope.findVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:5283:38)
+    at FunctionBodyScope.findVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:5283:38)
+    at TrackingScope.findVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:5283:38)
+    at BlockScope.findVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:5283:38)
+    at Identifier.bind (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:5066:40)
+==> Build failed 😞
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+Need
