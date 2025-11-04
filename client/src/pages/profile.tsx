@@ -14,7 +14,7 @@ import { useCurrency } from "@/hooks/use-currency";
 import { formatBitcoin, formatCurrency } from "@/lib/utils";
 import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
 import { useQuery } from "@tanstack/react-query";
-import type { Investment, Transaction } from "@shared/schema";
+import type { Investment, Transaction, InvestmentPlan } from "@shared/schema";
 import FluxLogoHeader from "@/components/flux-logo-header";
 
 
@@ -26,22 +26,36 @@ export default function Profile() {
   const { data: price } = useBitcoinPrice();
   const [showSensitiveInfo, setShowSensitiveInfo] = useState(true);
 
+  const { data: tokenBalances } = useQuery<any[]>({
+    queryKey: [`/api/token-balances/${user?.id}`],
+    refetchInterval: 5000,
+    enabled: !!user?.id,
+  });
+
   const { data: investments } = useQuery<Investment[]>({
     queryKey: ['/api/investments/user', user?.id],
-    enabled: !!user?.id,
     refetchInterval: 30000,
+    enabled: !!user?.id,
     initialData: [],
+  });
+
+  const { data: plans } = useQuery<InvestmentPlan[]>({
+    queryKey: ['/api/investment-plans'],
+    enabled: !!user,
   });
 
   const { data: transactions } = useQuery<Transaction[]>({
     queryKey: ['/api/transactions'],
+    refetchInterval: 30000,
     enabled: !!user,
   });
 
-  const { data: tokenBalances } = useQuery({
-    queryKey: ['/api/token-balances'],
+  const { data: tokenPrices } = useQuery<Record<string, { price: number; change24h: number }>>({
+    queryKey: ['/api/token-prices'],
+    refetchInterval: 30000,
     enabled: !!user,
   });
+
 
   useEffect(() => {
     if (!user) {
@@ -69,9 +83,18 @@ export default function Profile() {
     });
   };
 
-  const fiatValue = parseFloat(user.balance) * (currency === 'USD' ? (price?.usd.price || 0) : (price?.gbp.price || 0));
+  // Calculate total portfolio balance from BTC balance, token balances, and investments
+  const btcBalance = parseFloat(user.balance) || 0;
+  const tokenBalanceValue = (tokenBalances || []).reduce((sum, token) => {
+    const tokenPriceData = tokenPrices?.[token.symbol];
+    return sum + (parseFloat(token.balance) * (tokenPriceData?.price || 0));
+  }, 0);
   const totalInvested = investments?.reduce((sum, inv) => sum + parseFloat(inv.amount), 0) || 0;
   const totalProfit = investments?.reduce((sum, inv) => sum + parseFloat(inv.currentProfit), 0) || 0;
+
+  const totalPortfolioBalance = btcBalance + tokenBalanceValue + totalInvested + totalProfit; // Include investments and profits in total balance
+  const fiatValue = totalPortfolioBalance * (currency === 'USD' ? (price?.usd.price || 0) : (price?.gbp.price || 0));
+
   const activeInvestments = investments?.filter(inv => inv.isActive).length || 0;
   const completedInvestments = investments?.filter(inv => !inv.isActive).length || 0;
   const userTransactions = transactions?.filter(tx => tx.userId === user.id).length || 0;
@@ -79,65 +102,65 @@ export default function Profile() {
   const accountAge = Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24));
 
   // Calculate trading statistics
-  const totalTransactionVolume = transactions?.reduce((sum, tx) => 
+  const totalTransactionVolume = transactions?.reduce((sum, tx) =>
     tx.status === 'confirmed' ? sum + parseFloat(tx.amount) : sum, 0
   ) || 0;
 
   const depositsCount = transactions?.filter(tx => tx.type === 'deposit' && tx.status === 'confirmed').length || 0;
   const withdrawalsCount = transactions?.filter(tx => tx.type === 'withdrawal' && tx.status === 'confirmed').length || 0;
-  
-  const totalDeposits = transactions?.reduce((sum, tx) => 
+
+  const totalDeposits = transactions?.reduce((sum, tx) =>
     tx.type === 'deposit' && tx.status === 'confirmed' ? sum + parseFloat(tx.amount) : sum, 0
   ) || 0;
-  
+
   const avgInvestmentSize = activeInvestments > 0 ? totalInvested / activeInvestments : 0;
-  const winRate = completedInvestments > 0 ? ((completedInvestments / (activeInvestments + completedInvestments)) * 100) : 0;
+  const winRate = (activeInvestments + completedInvestments) > 0 ? ((completedInvestments / (activeInvestments + completedInvestments)) * 100) : 0;
 
   // Achievement calculations
   const achievements = [
-    { 
-      id: 'first_deposit', 
-      name: 'First Steps', 
+    {
+      id: 'first_deposit',
+      name: 'First Steps',
       description: 'Made your first deposit',
       earned: depositsCount > 0,
       icon: '🎯',
       color: 'emerald'
     },
-    { 
-      id: 'high_roller', 
-      name: 'High Roller', 
+    {
+      id: 'high_roller',
+      name: 'High Roller',
       description: 'Total deposits over $10,000',
       earned: totalDeposits * (price?.usd.price || 0) > 10000,
       icon: '💎',
       color: 'blue'
     },
-    { 
-      id: 'profit_master', 
-      name: 'Profit Master', 
+    {
+      id: 'profit_master',
+      name: 'Profit Master',
       description: 'Earned over $1,000 in profits',
       earned: totalProfit * (price?.usd.price || 0) > 1000,
       icon: '🏆',
       color: 'yellow'
     },
-    { 
-      id: 'diversified', 
-      name: 'Diversified Trader', 
+    {
+      id: 'diversified',
+      name: 'Diversified Trader',
       description: 'Hold 5+ different tokens',
       earned: tokenBalances ? tokenBalances.filter(tb => parseFloat(tb.balance) > 0).length >= 5 : false,
       icon: '🌟',
       color: 'purple'
     },
-    { 
-      id: 'veteran', 
-      name: 'Veteran Trader', 
+    {
+      id: 'veteran',
+      name: 'Veteran Trader',
       description: 'Account active for 30+ days',
       earned: accountAge >= 30,
       icon: '⚡',
       color: 'orange'
     },
-    { 
-      id: 'active_investor', 
-      name: 'Active Investor', 
+    {
+      id: 'active_investor',
+      name: 'Active Investor',
       description: '3+ active investments',
       earned: activeInvestments >= 3,
       icon: '🚀',
@@ -159,7 +182,7 @@ export default function Profile() {
         <div className="relative z-10 pb-24">
           <div className="max-w-sm mx-auto px-6 pt-6">
             <FluxLogoHeader />
-            
+
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00FF80] to-[#00CCFF] bg-clip-text text-transparent mb-2">
@@ -170,7 +193,7 @@ export default function Profile() {
 
             {/* Profile Card with Balance */}
             <div
-              className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-6 mb-6 border-2 border-[#2A2A2A]"
+              className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-6 mb-6 border-2 border-[#2A2A2A] flex flex-col justify-between"
               style={{
                 boxShadow: "0 0 40px rgba(0, 255, 128, 0.15), inset 0 0 20px rgba(0, 255, 128, 0.05)",
               }}
@@ -218,10 +241,10 @@ export default function Profile() {
                 {showSensitiveInfo ? (
                   <>
                     <h2 className="text-4xl font-bold text-foreground tracking-tight">
-                      {formatBitcoin(user.balance)} BTC
+                      {formatCurrency(fiatValue, currency)}
                     </h2>
                     <p className="text-xl text-muted-foreground font-medium">
-                      ≈ {price ? formatCurrency(fiatValue, currency) : 'Loading...'}
+                      ≈ {formatBitcoin(totalPortfolioBalance)} BTC
                     </p>
                   </>
                 ) : (
@@ -277,15 +300,15 @@ export default function Profile() {
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="p-3 rounded-xl bg-[#0A0A0A]/50 border border-[#2A2A2A]">
                   <p className="text-xs text-gray-400 mb-1">Total Volume</p>
-                  <p className="text-sm font-bold text-white">{formatBitcoin(totalTransactionVolume.toString())} BTC</p>
+                  <p className="text-sm font-bold text-white truncate">{formatBitcoin(totalTransactionVolume.toString())} BTC</p>
                   <p className="text-xs text-emerald mt-1">
                     ≈ {price ? formatCurrency(totalTransactionVolume * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
                   </p>
                 </div>
-                
+
                 <div className="p-3 rounded-xl bg-[#0A0A0A]/50 border border-[#2A2A2A]">
                   <p className="text-xs text-gray-400 mb-1">Avg Investment</p>
-                  <p className="text-sm font-bold text-white">{formatBitcoin(avgInvestmentSize.toString())} BTC</p>
+                  <p className="text-sm font-bold text-white truncate">{formatBitcoin(avgInvestmentSize.toString())} BTC</p>
                   <p className="text-xs text-blue-400 mt-1">Per plan</p>
                 </div>
               </div>
@@ -330,8 +353,8 @@ export default function Profile() {
                   <div
                     key={achievement.id}
                     className={`p-3 rounded-xl border transition-all ${
-                      achievement.earned 
-                        ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/30' 
+                      achievement.earned
+                        ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/30'
                         : 'bg-[#0A0A0A]/30 border-[#2A2A2A] opacity-50'
                     }`}
                   >
@@ -360,15 +383,15 @@ export default function Profile() {
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
                   <p className="text-xs text-gray-400 mb-1">Total Invested</p>
-                  <p className="text-lg font-bold text-white">{formatBitcoin(totalInvested.toString())} BTC</p>
+                  <p className="text-lg font-bold text-white truncate">{formatBitcoin(totalInvested.toString())} BTC</p>
                   <p className="text-xs text-emerald mt-1">
                     ≈ {price ? formatCurrency(totalInvested * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
                   </p>
                 </div>
-                
+
                 <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
                   <p className="text-xs text-gray-400 mb-1">Total Profit</p>
-                  <p className="text-lg font-bold text-white">{formatBitcoin(totalProfit.toString())} BTC</p>
+                  <p className="text-lg font-bold text-white truncate">{formatBitcoin(totalProfit.toString())} BTC</p>
                   <p className="text-xs text-blue-400 mt-1">
                     ≈ {price ? formatCurrency(totalProfit * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
                   </p>

@@ -145,6 +145,19 @@ export default function Investment() {
       return;
     }
 
+    // Check if user has sufficient USDT balance
+    const investmentAmount = parseFloat(amount);
+    const availableUSDT = parseFloat(usdtBalance);
+    
+    if (investmentAmount > availableUSDT) {
+      toast({
+        title: "Insufficient USDT Balance",
+        description: `You need ${investmentAmount.toFixed(2)} USDT but only have ${availableUSDT.toFixed(2)} USDT available. Please deposit more USDT to continue.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     createInvestmentMutation.mutate({
       amount,
       duration: selectedDuration,
