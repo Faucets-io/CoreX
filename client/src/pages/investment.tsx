@@ -161,13 +161,13 @@ export default function Investment() {
 
   const durations = [
     { days: 1, rate: 40, totalReturn: 40 },
-    { days: 7, rate: 7.142857, totalReturn: 50 },
-    { days: 14, rate: 4.285714, totalReturn: 60 },
-    { days: 28, rate: 2.5, totalReturn: 70 },
-    { days: 60, rate: 1.333333, totalReturn: 80 },
-    { days: 90, rate: 1, totalReturn: 90 },
-    { days: 180, rate: 0.555556, totalReturn: 100 },
-    { days: 360, rate: 0.388889, totalReturn: 140 }
+    { days: 7, rate: 11.428571, totalReturn: 80 },
+    { days: 14, rate: 11.428571, totalReturn: 160 },
+    { days: 28, rate: 12.142857, totalReturn: 340 },
+    { days: 60, rate: 11.333333, totalReturn: 680 },
+    { days: 90, rate: 15.111111, totalReturn: 1360 },
+    { days: 180, rate: 15.111111, totalReturn: 2720 },
+    { days: 360, rate: 15.111111, totalReturn: 5440 }
   ];
   
   const activeInvestments = investments?.filter(inv => inv.isActive) || [];

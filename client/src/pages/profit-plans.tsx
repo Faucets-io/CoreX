@@ -46,50 +46,50 @@ export default function ProfitPlans() {
     },
     {
       days: 7,
-      rate: 7.142857,
-      totalReturn: 50,
+      rate: 11.428571,
+      totalReturn: 80,
       icon: Rocket,
       gradient: "linear-gradient(135deg, #00CC66, #00FF99)"
     },
     {
       days: 14,
-      rate: 4.285714,
-      totalReturn: 60,
+      rate: 11.428571,
+      totalReturn: 160,
       icon: Gem,
       gradient: "linear-gradient(135deg, #00FF99, #00E680)"
     },
     {
       days: 28,
-      rate: 2.5,
-      totalReturn: 70,
+      rate: 12.142857,
+      totalReturn: 340,
       icon: Crown,
       gradient: "linear-gradient(135deg, #00E680, #00FF99)"
     },
     {
       days: 60,
-      rate: 1.333333,
-      totalReturn: 80,
+      rate: 11.333333,
+      totalReturn: 680,
       icon: Star,
       gradient: "linear-gradient(135deg, #00FF99, #00DD88)"
     },
     {
       days: 90,
-      rate: 1,
-      totalReturn: 90,
+      rate: 15.111111,
+      totalReturn: 1360,
       icon: Trophy,
       gradient: "linear-gradient(135deg, #00DD88, #00FF99)"
     },
     {
       days: 180,
-      rate: 0.555556,
-      totalReturn: 100,
+      rate: 15.111111,
+      totalReturn: 2720,
       icon: Award,
       gradient: "linear-gradient(135deg, #00FF99, #00BB77)"
     },
     {
       days: 360,
-      rate: 0.388889,
-      totalReturn: 140,
+      rate: 15.111111,
+      totalReturn: 5440,
       icon: Diamond,
       gradient: "linear-gradient(135deg, #00BB77, #00FF99)"
     }
