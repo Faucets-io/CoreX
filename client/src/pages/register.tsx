@@ -64,9 +64,9 @@ export default function Register() {
 
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "Error",
-        description: "Passwords do not match",
         variant: "destructive",
+        title: "⚠️ Passwords Don't Match",
+        description: "Please ensure both password fields are identical",
       });
       return;
     }
@@ -86,23 +86,23 @@ export default function Register() {
 
       if (response.ok) {
         toast({
-          title: "Account created!",
+          title: "✓ Account Created!",
           description: "Registration successful",
         });
         setLocation("/");
       } else {
         const error = await response.text();
         toast({
-          title: "Registration failed",
-          description: error,
           variant: "destructive",
+          title: "⚠️ Registration Failed",
+          description: error,
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "An error occurred during registration",
         variant: "destructive",
+        title: "⚠️ Registration Error",
+        description: "An error occurred during registration",
       });
     } finally {
       setIsLoading(false);

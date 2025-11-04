@@ -84,8 +84,8 @@ export default function Deposit() {
     },
     onSuccess: () => {
       toast({
-        title: "Deposit Submitted",
-        description: "Your deposit has been submitted and is pending confirmation.",
+        title: "✓ Deposit Submitted",
+        description: "Your deposit request has been submitted for processing",
       });
       setAmount("");
       setTransactionHash("");
@@ -105,8 +105,8 @@ export default function Deposit() {
       await navigator.clipboard.writeText(text);
       setCopied(type);
       toast({
-        title: "Address Copied",
-        description: `${type} address copied to clipboard`,
+        title: "✓ Address Copied",
+        description: "Deposit address copied to clipboard",
       });
       setTimeout(() => setCopied(null), 2000);
     } catch (error) {

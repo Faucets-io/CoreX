@@ -68,7 +68,7 @@ export default function Login() {
       await login(formData.email, formData.password);
       
       toast({
-        title: "Welcome back!",
+        title: "✓ Welcome back!",
         description: "Login successful",
       });
       
@@ -76,9 +76,9 @@ export default function Login() {
       setLocation("/");
     } catch (error: any) {
       toast({
-        title: "Login failed",
-        description: error.message || "Invalid credentials",
         variant: "destructive",
+        title: "⚠️ Login Failed",
+        description: error.message || "Invalid credentials",
       });
     } finally {
       setIsLoading(false);

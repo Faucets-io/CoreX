@@ -16,6 +16,16 @@ import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
 import { useQuery } from "@tanstack/react-query";
 import type { Investment, Transaction, InvestmentPlan } from "@shared/schema";
 import FluxLogoHeader from "@/components/flux-logo-header";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 
 export default function Profile() {
@@ -25,6 +35,7 @@ export default function Profile() {
   const { currency } = useCurrency();
   const { data: price } = useBitcoinPrice();
   const [showSensitiveInfo, setShowSensitiveInfo] = useState(true);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const { data: tokenBalances } = useQuery<any[]>({
     queryKey: [`/api/token-balances/${user?.id}`],
@@ -70,7 +81,7 @@ export default function Profile() {
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast({
-      title: "Copied",
+      title: "✓ Copied",
       description: `${label} copied to clipboard`,
     });
   };
@@ -78,7 +89,7 @@ export default function Profile() {
   const handleLogout = () => {
     logout();
     toast({
-      title: "Signed Out",
+      title: "✓ Signed Out",
       description: "You have been signed out successfully",
     });
   };
@@ -491,7 +502,7 @@ export default function Profile() {
               </Button>
 
               <Button
-                onClick={handleLogout}
+                onClick={() => setShowLogoutConfirm(true)}
                 className="w-full h-14 rounded-xl bg-gradient-to-r from-red-500/20 to-red-600/20 hover:from-red-500/30 hover:to-red-600/30 text-red-400 border-2 border-red-500/30 font-bold transition-all duration-300"
                 style={{ boxShadow: '0 0 30px rgba(239, 68, 68, 0.2)' }}
               >
@@ -503,6 +514,35 @@ export default function Profile() {
         </div>
 
         <BottomNavigation />
+
+        {/* Logout Confirmation Dialog */}
+        <AlertDialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+          <AlertDialogContent className="bg-[#1A1A1A]/95 backdrop-blur-xl border-2 border-red-500/30"
+            style={{ boxShadow: '0 0 40px rgba(239, 68, 68, 0.3)' }}
+          >
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-2xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent flex items-center gap-2">
+                <LogOut className="w-6 h-6 text-red-400" />
+                Sign Out?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-300 text-base">
+                Are you sure you want to sign out of your FluxTrade account? You'll need to log in again to access your portfolio.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-3">
+              <AlertDialogCancel className="bg-[#2A2A2A] border-[#3A3A3A] hover:bg-[#3A3A3A] text-white">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleLogout}
+                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0"
+                style={{ boxShadow: '0 0 20px rgba(239, 68, 68, 0.4)' }}
+              >
+                Sign Out
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AppLayout>
   );

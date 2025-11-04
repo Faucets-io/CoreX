@@ -110,7 +110,7 @@ export default function Assets() {
     },
     onSuccess: (data) => {
       toast({
-        title: "Swap Successful!",
+        title: "✓ Swap Successful!",
         description: data.message,
       });
       queryClient.invalidateQueries({ queryKey: [`/api/token-balances/${user?.id}`] });
@@ -119,9 +119,9 @@ export default function Assets() {
     },
     onError: (error: any) => {
       toast({
-        title: "Swap Failed",
-        description: error.message || "Failed to execute swap",
         variant: "destructive",
+        title: "⚠️ Swap Failed",
+        description: error.message || "Failed to execute swap",
       });
     },
   });
@@ -133,7 +133,7 @@ export default function Assets() {
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast({
-      title: "Copied!",
+      title: "✓ Copied!",
       description: `${label} copied to clipboard`,
     });
   };

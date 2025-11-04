@@ -20,7 +20,7 @@ export default function Settings() {
   const handleLogout = () => {
     logout();
     toast({
-      title: "Signed Out",
+      title: "✓ Signed Out",
       description: "You have been signed out successfully",
     });
   };

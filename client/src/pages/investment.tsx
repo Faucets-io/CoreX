@@ -103,7 +103,7 @@ export default function Investment() {
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       setAmount("");
       toast({
-        title: "Investment Submitted",
+        title: "✓ Investment Submitted",
         description: "Your investment has been submitted and is pending confirmation.",
       });
     },

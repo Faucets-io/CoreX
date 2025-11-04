@@ -14,6 +14,8 @@ import { motion } from "framer-motion";
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
 import FluxLogoHeader from "@/components/flux-logo-header";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
 
 const cryptoLogos = [
   { name: "BTC", color: "#F7931A", delay: 0 },
@@ -25,7 +27,7 @@ const cryptoLogos = [
 ];
 
 export default function Withdraw() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -35,6 +37,7 @@ export default function Withdraw() {
   const [amountType, setAmountType] = useState<"usd" | "btc">("usd");
   const [vantaEffect, setVantaEffect] = useState<any>(null);
   const vantaRef = useRef<HTMLDivElement>(null);
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!vantaEffect && vantaRef.current) {
@@ -77,8 +80,8 @@ export default function Withdraw() {
     },
     onSuccess: () => {
       toast({
-        title: "Withdrawal Requested",
-        description: "Your withdrawal request has been submitted for admin approval.",
+        title: "✓ Withdrawal Submitted",
+        description: "Your withdrawal request has been submitted for processing",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       setAddress("");
@@ -86,7 +89,7 @@ export default function Withdraw() {
     },
     onError: (error: any) => {
       toast({
-        title: "Withdrawal Failed",
+        title: "⚠️ Withdrawal Failed",
         description: error.message || "Failed to process withdrawal",
         variant: "destructive",
       });
@@ -96,7 +99,7 @@ export default function Withdraw() {
   const handleWithdraw = () => {
     if (!address || !amount) {
       toast({
-        title: "Missing Information",
+        title: "⚠️ Missing Information",
         description: "Please enter both address and amount",
         variant: "destructive",
       });
@@ -108,7 +111,7 @@ export default function Withdraw() {
 
     if (amountNum <= 0) {
       toast({
-        title: "Invalid Amount",
+        title: "⚠️ Invalid Amount",
         description: "Amount must be greater than 0",
         variant: "destructive",
       });
@@ -118,7 +121,7 @@ export default function Withdraw() {
     // Check minimum withdrawal amount ($1000)
     if (amountNum < 1000) {
       toast({
-        title: "Below Minimum",
+        title: "⚠️ Below Minimum",
         description: "Minimum withdrawal amount is $1000 USD",
         variant: "destructive",
       });
@@ -127,9 +130,9 @@ export default function Withdraw() {
 
     if (amountNum > userBalanceUsd) {
       toast({
-        title: "Insufficient Balance",
-        description: "You don't have enough balance for this withdrawal",
         variant: "destructive",
+        title: "⚠️ Insufficient Balance",
+        description: "You don't have enough funds to complete this withdrawal",
       });
       return;
     }
@@ -143,6 +146,11 @@ export default function Withdraw() {
       setAmount(maxUsd.toString());
       setAmountType("usd");
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    setLocation("/");
   };
 
   if (!user) {
@@ -230,19 +238,46 @@ export default function Withdraw() {
         <FluxLogoHeader />
 
         {/* Header */}
-        <header className="flex items-center gap-3 mb-6">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setLocation('/')}
-            className="border-red-500/30 hover:bg-red-500/10"
-          >
-            <ArrowLeft className="w-5 h-5 text-red-500" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-red-500">Withdraw Bitcoin</h1>
-            <p className="text-red-500/60 mt-1">Send BTC to external address</p>
+        <header className="flex items-center gap-3 mb-6 justify-between">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setLocation('/')}
+              className="border-red-500/30 hover:bg-red-500/10"
+            >
+              <ArrowLeft className="w-5 h-5 text-red-500" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-red-500">Withdraw Bitcoin</h1>
+              <p className="text-red-500/60 mt-1">Send BTC to external address</p>
+            </div>
           </div>
+          <Dialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="border-red-500/30 hover:bg-red-500/10 hover:text-red-500"
+                onClick={() => setIsLogoutDialogOpen(true)}
+              >
+                Logout
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] border-red-500/20 bg-[#1A1A1A]/90 backdrop-blur">
+              <DialogHeader>
+                <DialogTitle className="text-red-500">Confirm Logout</DialogTitle>
+                <DialogDescription className="text-red-500/70">
+                  Are you sure you want to log out? Any unsaved changes will be lost.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="mt-4">
+                <DialogClose asChild>
+                  <Button variant="outline" className="border-red-500/30 hover:bg-red-500/10">Cancel</Button>
+                </DialogClose>
+                <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-500/90">Logout</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </header>
 
         <div className="space-y-6">
