@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowUpRight, ArrowDownLeft, Activity, TrendingUp, ArrowLeft, RefreshCw, BarChart3 } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Activity, TrendingUp, ArrowLeft, RefreshCw, BarChart3, Lock, ArrowRight } from 'lucide-react';
 import { formatBitcoin } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +17,8 @@ import type { TokenBalance } from '@shared/schema';
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
 import FluxLogoHeader from "@/components/flux-logo-header";
+import AppLayout from "@/components/layouts/app-layout";
+import { motion } from "framer-motion";
 
 interface TradeOrder {
   id: number;
@@ -86,7 +88,7 @@ function TokenBalanceDisplay({ userId, selectedToken, currentPrice }: { userId: 
 }
 
 export default function Trade() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -193,9 +195,44 @@ export default function Trade() {
     };
   }, [selectedToken]);
 
+  if (isLoading) {
+    return <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center"><p className="text-white">Loading...</p></div>;
+  }
+
   if (!user) {
-    setLocation('/login');
-    return null;
+    return (
+      <AppLayout>
+        <div className="min-h-screen bg-[#0A0A0A] relative overflow-hidden flex items-center justify-center p-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 max-w-md w-full">
+            <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-8 border-2 border-[#00FF80]/30 text-center"
+              style={{ boxShadow: "0 0 40px rgba(0, 255, 128, 0.2)" }}>
+              <FluxLogoHeader />
+              <div className="mb-6 mt-8">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00FF80] to-[#00CC66] flex items-center justify-center mx-auto mb-4"
+                  style={{ boxShadow: "0 0 30px rgba(0, 255, 128, 0.5)" }}>
+                  <Lock className="w-10 h-10 text-black" />
+                </div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00FF80] to-[#00CCFF] bg-clip-text text-transparent mb-3">
+                  Access Restricted
+                </h1>
+                <p className="text-lg text-gray-300 mb-2">Please log in to access trading</p>
+              </div>
+              <div className="space-y-3">
+                <Button onClick={() => setLocation('/login')}
+                  className="w-full h-12 rounded-xl bg-gradient-to-r from-[#00FF80] to-[#00CC66] hover:opacity-90 text-black font-bold"
+                  style={{ boxShadow: '0 0 20px rgba(0, 255, 128, 0.4)' }}>
+                  Sign In <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+                <Button onClick={() => setLocation('/register')} variant="outline"
+                  className="w-full h-12 rounded-xl border-[#00FF80]/30 text-[#00FF80] hover:bg-[#00FF80]/10">
+                  Create Account
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </AppLayout>
+    );
   }
 
   const { data: allTrades, refetch: refetchTrades } = useQuery<TradeOrder[]>({

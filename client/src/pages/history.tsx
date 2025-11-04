@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { useCurrency } from "@/hooks/use-currency";
-import { Clock, TrendingUp, TrendingDown, ArrowUpRight, ArrowLeft, DollarSign, ArrowDownRight } from "lucide-react";
+import { Clock, TrendingUp, TrendingDown, ArrowUpRight, ArrowLeft, DollarSign, ArrowDownRight, Lock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
@@ -14,6 +14,7 @@ import type { Investment, Transaction, Notification } from "@shared/schema";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/app-layout";
 import FluxLogoHeader from "@/components/flux-logo-header";
+import { motion } from "framer-motion";
 
 export default function History() {
   const { user } = useAuth();
@@ -39,9 +40,44 @@ export default function History() {
     enabled: !!user?.id,
   });
 
+  if (isLoading) {
+    return <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center"><p className="text-white">Loading...</p></div>;
+  }
+
   if (!user) {
-    setLocation('/login');
-    return null;
+    return (
+      <AppLayout>
+        <div className="min-h-screen bg-[#0A0A0A] relative overflow-hidden flex items-center justify-center p-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 max-w-md w-full">
+            <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-8 border-2 border-[#00FF80]/30 text-center"
+              style={{ boxShadow: "0 0 40px rgba(0, 255, 128, 0.2)" }}>
+              <FluxLogoHeader />
+              <div className="mb-6 mt-8">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00FF80] to-[#00CC66] flex items-center justify-center mx-auto mb-4"
+                  style={{ boxShadow: "0 0 30px rgba(0, 255, 128, 0.5)" }}>
+                  <Lock className="w-10 h-10 text-black" />
+                </div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00FF80] to-[#00CCFF] bg-clip-text text-transparent mb-3">
+                  Access Restricted
+                </h1>
+                <p className="text-lg text-gray-300 mb-2">Please log in to view history</p>
+              </div>
+              <div className="space-y-3">
+                <Button onClick={() => setLocation('/login')}
+                  className="w-full h-12 rounded-xl bg-gradient-to-r from-[#00FF80] to-[#00CC66] hover:opacity-90 text-black font-bold"
+                  style={{ boxShadow: '0 0 20px rgba(0, 255, 128, 0.4)' }}>
+                  Sign In <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+                <Button onClick={() => setLocation('/register')} variant="outline"
+                  className="w-full h-12 rounded-xl border-[#00FF80]/30 text-[#00FF80] hover:bg-[#00FF80]/10">
+                  Create Account
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </AppLayout>
+    );
   }
 
   const sortedInvestments = investments?.sort((a, b) => 

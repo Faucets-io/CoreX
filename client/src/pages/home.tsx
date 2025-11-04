@@ -12,7 +12,7 @@ import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Investment, Transaction, TokenBalance } from "@shared/schema";
-import { TrendingUp, TrendingDown, Activity, DollarSign, PieChart, BarChart3, Zap, Target } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity, DollarSign, PieChart, BarChart3, Zap, Target, Lock, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
 import { useCurrency } from "@/hooks/use-currency";
@@ -55,20 +55,9 @@ export default function Home() {
   });
 
   useEffect(() => {
-    // Wait for auth to finish loading before redirecting
     if (isLoading) return;
-
-    if (!user) {
-      // Only redirect to landing if we've confirmed there's no user after loading completes
-      const timer = setTimeout(() => {
-        if (!user && !isLoading) {
-          setLocation('/');
-        }
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-
-    if (!user.hasWallet) {
+    
+    if (user && !user.hasWallet) {
       setLocation('/wallet-setup');
     }
   }, [user, isLoading, setLocation]);
@@ -78,7 +67,53 @@ export default function Home() {
   }
 
   if (!user) {
-    return null; // Will redirect in useEffect
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] relative overflow-hidden flex items-center justify-center p-6">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0" style={{ opacity: 0.6 }}>
+            <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-20 blur-3xl"
+              style={{ background: 'radial-gradient(circle, hsl(150 100% 60%) 0%, hsl(150 100% 40%) 50%, transparent 70%)' }} />
+            <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full opacity-15 blur-3xl"
+              style={{ background: 'radial-gradient(circle, hsl(150 100% 50%) 0%, hsl(150 100% 35%) 50%, transparent 70%)' }} />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-10 blur-3xl animate-pulse-slow"
+              style={{ background: 'radial-gradient(circle, hsl(150 100% 55%) 0%, transparent 70%)' }} />
+          </div>
+        </div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+          className="relative z-10 max-w-md w-full">
+          <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-8 border-2 border-[#00FF80]/30 text-center"
+            style={{ boxShadow: "0 0 40px rgba(0, 255, 128, 0.2), inset 0 0 20px rgba(0, 255, 128, 0.05)" }}>
+            <FluxLogoHeader />
+            <div className="mb-6 mt-8">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00FF80] to-[#00CC66] flex items-center justify-center mx-auto mb-4"
+                style={{ boxShadow: "0 0 30px rgba(0, 255, 128, 0.5)" }}>
+                <Lock className="w-10 h-10 text-black" />
+              </div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00FF80] to-[#00CCFF] bg-clip-text text-transparent mb-3">
+                Access Restricted
+              </h1>
+              <p className="text-lg text-gray-300 mb-2">Please log in to access your dashboard</p>
+              <p className="text-sm text-gray-400">Your wallet and investments are protected</p>
+            </div>
+            <div className="space-y-3">
+              <Button onClick={() => setLocation('/login')}
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-[#00FF80] to-[#00CC66] hover:opacity-90 text-black font-bold transition-all group"
+                style={{ boxShadow: '0 0 20px rgba(0, 255, 128, 0.4)' }}>
+                Sign In
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <Button onClick={() => setLocation('/register')} variant="outline"
+                className="w-full h-12 rounded-xl border-[#00FF80]/30 text-[#00FF80] hover:bg-[#00FF80]/10 font-semibold">
+                Create Account
+              </Button>
+              <Button onClick={() => setLocation('/')} variant="ghost" className="w-full text-gray-400 hover:text-white">
+                Back to Home
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
   }
 
   // Calculate portfolio analytics
