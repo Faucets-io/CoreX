@@ -169,13 +169,12 @@ export default function Landing() {
   ];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A', overflow: 'hidden' }}>
+    <div className="min-h-screen relative" style={{ backgroundColor: '#0A0A0A', overflow: 'hidden' }}>
       <NeonBackdrop />
       
-      {/* Hero Section with Advanced Globe Animation */}
-      <section className="relative z-10 min-h-screen flex items-center overflow-hidden">
-        {/* Advanced Globe Animation Background */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      {/* Full Page Globe Animation Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center">
           <motion.div
             className="relative w-[600px] h-[600px]"
             animate={{
@@ -264,7 +263,10 @@ export default function Landing() {
             </svg>
           </motion.div>
         </div>
-
+      </div>
+      
+      {/* Hero Section */}
+      <section className="relative z-10 min-h-screen flex items-center overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
           <div className="text-center space-y-8">
             <motion.div
@@ -402,14 +404,16 @@ export default function Landing() {
           >
             <CardContent className="p-8">
               <div className="mb-8">
-                <label className="block text-sm font-medium mb-3" style={{ color: '#00FF99' }}>
-                  Enter Investment Amount (USDT)
-                </label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-medium" style={{ color: '#00FF99' }}>
+                    Enter Investment Amount (USDT)
+                  </label>
+                </div>
                 <Input
                   type="number"
                   value={calculatorAmount}
                   onChange={(e) => setCalculatorAmount(e.target.value)}
-                  placeholder="1000"
+                  placeholder="0.00"
                   className="text-3xl font-bold text-center py-8 rounded-xl"
                   style={{
                     backgroundColor: '#0A0A0A',

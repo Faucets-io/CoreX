@@ -74,7 +74,7 @@ export default function Login() {
       
       // Check if user has wallet setup
       if (userData.hasWallet) {
-        setLocation("/");
+        setLocation("/home");
       } else {
         setLocation("/wallet-setup");
       }
