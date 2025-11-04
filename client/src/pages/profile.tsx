@@ -85,15 +85,27 @@ export default function Profile() {
 
   // Calculate total portfolio balance from BTC balance, token balances, and investments
   const btcBalance = parseFloat(user.balance) || 0;
-  const tokenBalanceValue = (tokenBalances || []).reduce((sum, token) => {
-    const tokenPriceData = tokenPrices?.[token.symbol];
-    return sum + (parseFloat(token.balance) * (tokenPriceData?.price || 0));
-  }, 0);
+  
+  // Calculate token balance value in USD
+  let tokenBalanceValueUSD = 0;
+  if (tokenBalances && tokenPrices) {
+    tokenBalances.forEach(balance => {
+      const tokenBalance = parseFloat(balance.balance);
+      const tokenPrice = tokenPrices[balance.tokenSymbol]?.price || 0;
+      tokenBalanceValueUSD += tokenBalance * tokenPrice;
+    });
+  }
+  
   const totalInvested = investments?.reduce((sum, inv) => sum + parseFloat(inv.amount), 0) || 0;
   const totalProfit = investments?.reduce((sum, inv) => sum + parseFloat(inv.currentProfit), 0) || 0;
 
-  const totalPortfolioBalance = btcBalance + tokenBalanceValue + totalInvested + totalProfit; // Include investments and profits in total balance
-  const fiatValue = totalPortfolioBalance * (currency === 'USD' ? (price?.usd.price || 0) : (price?.gbp.price || 0));
+  // Convert everything to BTC for total
+  const btcPrice = price ? (currency === 'USD' ? price.usd.price : price.gbp.price) : 0;
+  const tokenBalanceInBTC = btcPrice > 0 ? tokenBalanceValueUSD / btcPrice : 0;
+  const totalPortfolioBalanceBTC = btcBalance + tokenBalanceInBTC + totalInvested + totalProfit;
+  
+  // Calculate fiat value
+  const fiatValue = totalPortfolioBalanceBTC * btcPrice;
 
   const activeInvestments = investments?.filter(inv => inv.isActive).length || 0;
   const completedInvestments = investments?.filter(inv => !inv.isActive).length || 0;
@@ -236,7 +248,7 @@ export default function Profile() {
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Wallet className="w-5 h-5 text-primary" />
-                  <p className="text-sm font-medium text-muted-foreground">Total Balance</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total Assets</p>
                 </div>
                 {showSensitiveInfo ? (
                   <>
@@ -244,7 +256,7 @@ export default function Profile() {
                       {formatCurrency(fiatValue, currency)}
                     </h2>
                     <p className="text-xl text-muted-foreground font-medium">
-                      ≈ {formatBitcoin(totalPortfolioBalance)} BTC
+                      ≈ {formatBitcoin(totalPortfolioBalanceBTC)} BTC
                     </p>
                   </>
                 ) : (
@@ -381,19 +393,19 @@ export default function Profile() {
               </h3>
 
               <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
                   <p className="text-xs text-gray-400 mb-1">Total Invested</p>
-                  <p className="text-lg font-bold text-white truncate">{formatBitcoin(totalInvested.toString())} BTC</p>
-                  <p className="text-xs text-emerald mt-1">
-                    ≈ {price ? formatCurrency(totalInvested * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
+                  <p className="text-base font-bold text-white truncate">{formatBitcoin(totalInvested.toString())}</p>
+                  <p className="text-[10px] text-emerald mt-0.5">
+                    ≈ {price ? formatCurrency(totalInvested * btcPrice, currency) : '...'}
                   </p>
                 </div>
 
-                <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
                   <p className="text-xs text-gray-400 mb-1">Total Profit</p>
-                  <p className="text-lg font-bold text-white truncate">{formatBitcoin(totalProfit.toString())} BTC</p>
-                  <p className="text-xs text-blue-400 mt-1">
-                    ≈ {price ? formatCurrency(totalProfit * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
+                  <p className="text-base font-bold text-white truncate">{formatBitcoin(totalProfit.toString())}</p>
+                  <p className="text-[10px] text-blue-400 mt-0.5">
+                    ≈ {price ? formatCurrency(totalProfit * btcPrice, currency) : '...'}
                   </p>
                 </div>
               </div>
