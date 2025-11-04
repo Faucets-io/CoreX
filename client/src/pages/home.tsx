@@ -89,11 +89,20 @@ export default function Home() {
     return txDate >= thirtyDaysAgo;
   }).length || 0;
 
+  // Calculate deposits and withdrawals in USD
   const totalDeposits = transactions?.filter(tx => tx.type === 'deposit' && tx.status === 'confirmed')
-    .reduce((sum, tx) => sum + parseFloat(tx.amount), 0) || 0;
+    .reduce((sum, tx) => {
+      const amountInBtc = parseFloat(tx.amount);
+      const amountInUsd = price ? amountInBtc * price.usd.price : 0;
+      return sum + amountInUsd;
+    }, 0) || 0;
 
   const totalWithdrawals = transactions?.filter(tx => tx.type === 'withdrawal' && tx.status === 'confirmed')
-    .reduce((sum, tx) => sum + parseFloat(tx.amount), 0) || 0;
+    .reduce((sum, tx) => {
+      const amountInBtc = parseFloat(tx.amount);
+      const amountInUsd = price ? amountInBtc * price.usd.price : 0;
+      return sum + amountInUsd;
+    }, 0) || 0;
 
   const profitMargin = totalInvested > 0 ? ((totalProfit / totalInvested) * 100) : 0;
   const roiPercentage = totalInvested > 0 ? ((totalProfit / totalInvested) * 100) : 0;
@@ -236,10 +245,8 @@ export default function Home() {
                       <p className="text-sm neon-text-secondary">Total Deposits</p>
                       <TrendingUp className="w-4 h-4 text-emerald" />
                     </div>
-                    <p className="text-xl font-bold neon-text">{formatBitcoin(totalDeposits.toString())} BTC</p>
-                    <p className="text-xs text-emerald mt-1">
-                      ≈ {price ? formatCurrency(totalDeposits * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
-                    </p>
+                    <p className="text-xl font-bold neon-text">${totalDeposits.toFixed(2)}</p>
+                    <p className="text-xs text-emerald mt-1">USD</p>
                   </div>
 
                   <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
@@ -247,10 +254,8 @@ export default function Home() {
                       <p className="text-sm neon-text-secondary">Total Withdrawals</p>
                       <TrendingDown className="w-4 h-4 text-blue-500" />
                     </div>
-                    <p className="text-xl font-bold neon-text">{formatBitcoin(totalWithdrawals.toString())} BTC</p>
-                    <p className="text-xs text-blue-500 mt-1">
-                      ≈ {price ? formatCurrency(totalWithdrawals * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
-                    </p>
+                    <p className="text-xl font-bold neon-text">${totalWithdrawals.toFixed(2)}</p>
+                    <p className="text-xs text-blue-500 mt-1">USD</p>
                   </div>
 
                   <div className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20">
