@@ -59,7 +59,7 @@ export default function Home() {
     if (isLoading) return;
 
     if (!user) {
-      setLocation('/login');
+      setLocation('/');
       return;
     }
 

@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import { CurrencyProvider } from "@/hooks/use-currency";
 import { ThemeProvider } from "@/hooks/use-theme";
+import Landing from "@/pages/landing"; // Import the new Landing component
 import Home from "@/pages/home";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
@@ -32,7 +33,8 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={Landing} /> {/* Set Landing as the default route */}
+      <Route path="/home" component={Home} /> {/* Renamed Home route */}
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/admin" component={Management} />
