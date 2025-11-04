@@ -15,7 +15,7 @@ import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
 import FluxLogoHeader from "@/components/flux-logo-header";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import AppLayout from "@/components/app-layout";
+import { AppLayout } from "@/components/app-layout";
 
 
 const cryptoLogos = [
@@ -28,7 +28,7 @@ const cryptoLogos = [
 ];
 
 export default function Withdraw() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();

@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
 import FluxLogoHeader from "@/components/flux-logo-header";
-import AppLayout from "@/components/app-layout";
+import { AppLayout } from "@/components/app-layout";
 
 const cryptoLogos = [
   { name: "BTC", color: "#F7931A", delay: 0 },

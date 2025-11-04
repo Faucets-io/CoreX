@@ -11,9 +11,9 @@ import { formatDate } from '@/lib/utils';
 import type { Notification } from '@shared/schema';
 import { cn } from '@/lib/utils';
 import { BottomNavigation } from "@/components/bottom-navigation";
-import FluxLogoHeader from "@/components/flux-logo-header"; // Added import
-import AppLayout from "@/components/app-layout"; // Assuming this is the layout component
-import { motion } from 'framer-motion'; // Assuming framer-motion is used for animations
+import FluxLogoHeader from "@/components/flux-logo-header";
+import { AppLayout } from "@/components/app-layout";
+import { motion } from 'framer-motion';
 
 export default function Notifications() {
   const { user, isLoading } = useAuth(); // Assuming useAuth returns an isLoading state

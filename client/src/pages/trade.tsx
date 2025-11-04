@@ -17,7 +17,7 @@ import type { TokenBalance } from '@shared/schema';
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
 import FluxLogoHeader from "@/components/flux-logo-header";
-import AppLayout from "@/components/app-layout";
+import { AppLayout } from "@/components/app-layout";
 import { motion } from "framer-motion";
 
 interface TradeOrder {
