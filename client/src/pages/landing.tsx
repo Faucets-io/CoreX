@@ -6,6 +6,7 @@ import { useLocation } from "wouter";
 import { TrendingUp, Shield, Users, Zap, Star, ArrowRight, CheckCircle2, BarChart3, Wallet, Lock, Globe, Calendar, Percent, Rocket, Gem, Crown, Trophy, Award, Diamond } from "lucide-react";
 import { motion } from "framer-motion";
 import { NeonBackdrop } from "@/components/neon-backdrop";
+import FluxTradeLogo from "@/components/fluxtrade-logo";
 import {
   Carousel,
   CarouselContent,
@@ -14,7 +15,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
@@ -22,6 +23,18 @@ export default function Landing() {
   const testimonialPlugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
 
   const [calculatorAmount, setCalculatorAmount] = useState<string>("1000");
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: (e.clientY / window.innerHeight) * 2 - 1
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   const plans = [
     {
@@ -159,25 +172,117 @@ export default function Landing() {
     <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A', overflow: 'hidden' }}>
       <NeonBackdrop />
       
-      {/* Hero Section */}
-      <section className="relative z-10 min-h-screen flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      {/* Hero Section with Advanced Globe Animation */}
+      <section className="relative z-10 min-h-screen flex items-center overflow-hidden">
+        {/* Advanced Globe Animation Background */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <motion.div
+            className="relative w-[600px] h-[600px]"
+            animate={{
+              rotateY: mousePosition.x * 10,
+              rotateX: -mousePosition.y * 10,
+            }}
+            transition={{ type: "spring", stiffness: 50, damping: 20 }}
+          >
+            {/* Outer rotating ring */}
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 opacity-20"
+              style={{ borderColor: '#00FF99' }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            />
+            
+            {/* Middle rotating ring */}
+            <motion.div
+              className="absolute inset-8 rounded-full border-2 opacity-30"
+              style={{ borderColor: '#00CCFF' }}
+              animate={{ rotate: -360 }}
+              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+            />
+            
+            {/* Inner pulsing core */}
+            <motion.div
+              className="absolute inset-20 rounded-full"
+              style={{
+                background: 'radial-gradient(circle, rgba(0, 255, 153, 0.3) 0%, rgba(0, 204, 102, 0.1) 50%, transparent 70%)',
+                filter: 'blur(40px)'
+              }}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.5, 0.3]
+              }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            />
+
+            {/* Orbiting particles */}
+            {[...Array(12)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-2 h-2 rounded-full"
+                style={{
+                  background: 'linear-gradient(90deg, #00FF99, #00CCFF)',
+                  boxShadow: '0 0 10px rgba(0, 255, 153, 0.8)',
+                  top: '50%',
+                  left: '50%',
+                  transformOrigin: '0 0'
+                }}
+                animate={{
+                  rotate: 360,
+                  x: Math.cos((i / 12) * Math.PI * 2) * 250,
+                  y: Math.sin((i / 12) * Math.PI * 2) * 250,
+                }}
+                transition={{
+                  rotate: { duration: 10 + i, repeat: Infinity, ease: "linear" },
+                  x: { duration: 10 + i, repeat: Infinity, ease: "linear" },
+                  y: { duration: 10 + i, repeat: Infinity, ease: "linear" }
+                }}
+              />
+            ))}
+
+            {/* Network grid lines */}
+            <svg className="absolute inset-0 w-full h-full opacity-20">
+              <defs>
+                <linearGradient id="gridGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#00FF99" />
+                  <stop offset="100%" stopColor="#00CCFF" />
+                </linearGradient>
+              </defs>
+              {[...Array(8)].map((_, i) => (
+                <motion.circle
+                  key={i}
+                  cx="300"
+                  cy="300"
+                  r={50 + i * 40}
+                  fill="none"
+                  stroke="url(#gridGradient)"
+                  strokeWidth="1"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 0.3 }}
+                  transition={{ duration: 2, delay: i * 0.2, repeat: Infinity, repeatType: "reverse" }}
+                />
+              ))}
+            </svg>
+          </motion.div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
           <div className="text-center space-y-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="flex flex-col items-center"
             >
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
-                <span style={{ 
-                  background: 'linear-gradient(90deg, #00FF99, #00CC66)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}>
-                  FluxTrade
-                </span>
-              </h1>
+              {/* FluxTrade Logo */}
+              <motion.div
+                className="mb-8"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
+                <FluxTradeLogo className="h-20 sm:h-24 lg:h-28" animated={true} />
+              </motion.div>
+
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
                 Your Trusted Partner in
                 <br />
