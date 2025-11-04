@@ -7,15 +7,49 @@ import { QuickActionsGrid } from "@/components/quick-actions-grid";
 import { ActiveInvestmentsList } from "@/components/active-investments-list";
 import { RecentActivityList } from "@/components/recent-activity-list";
 import { BottomNavigation } from "@/components/bottom-navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { Investment, Transaction, TokenBalance } from "@shared/schema";
+import { TrendingUp, TrendingDown, Activity, DollarSign, PieChart, BarChart3, Zap, Target } from "lucide-react";
+import { motion } from "framer-motion";
+import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
+import { useCurrency } from "@/hooks/use-currency";
+import { formatCurrency, formatBitcoin } from "@/lib/utils";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
+  const { currency } = useCurrency();
+  const { data: price } = useBitcoinPrice();
   
   // Connect to WebSocket for real-time investment updates
   useInvestmentWebSocket(user?.id);
+
+  const { data: investments } = useQuery<Investment[]>({
+    queryKey: ['/api/investments/user', user?.id],
+    enabled: !!user?.id,
+    refetchInterval: 5000,
+  });
+
+  const { data: transactions } = useQuery<Transaction[]>({
+    queryKey: ['/api/transactions'],
+    enabled: !!user,
+    refetchInterval: 5000,
+  });
+
+  const { data: tokenBalances } = useQuery<TokenBalance[]>({
+    queryKey: [`/api/token-balances/${user?.id}`],
+    enabled: !!user?.id,
+    refetchInterval: 5000,
+  });
+
+  const { data: tokenPrices } = useQuery<Record<string, { price: number; change24h: number }>>({
+    queryKey: ['/api/token-prices'],
+    refetchInterval: 30000,
+    enabled: !!user,
+  });
 
   useEffect(() => {
     // Wait for auth to finish loading before redirecting
@@ -39,6 +73,34 @@ export default function Home() {
     return null; // Will redirect in useEffect
   }
 
+  // Calculate portfolio analytics
+  const totalInvested = investments?.reduce((sum, inv) => sum + parseFloat(inv.amount), 0) || 0;
+  const totalProfit = investments?.reduce((sum, inv) => sum + parseFloat(inv.currentProfit), 0) || 0;
+  const activeInvestments = investments?.filter(inv => inv.isActive).length || 0;
+  const completedInvestments = investments?.filter(inv => !inv.isActive).length || 0;
+  
+  const last30DaysTransactions = transactions?.filter(tx => {
+    const txDate = new Date(tx.createdAt);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return txDate >= thirtyDaysAgo;
+  }).length || 0;
+
+  const totalDeposits = transactions?.filter(tx => tx.type === 'deposit' && tx.status === 'confirmed')
+    .reduce((sum, tx) => sum + parseFloat(tx.amount), 0) || 0;
+  
+  const totalWithdrawals = transactions?.filter(tx => tx.type === 'withdrawal' && tx.status === 'confirmed')
+    .reduce((sum, tx) => sum + parseFloat(tx.amount), 0) || 0;
+
+  const profitMargin = totalInvested > 0 ? ((totalProfit / totalInvested) * 100) : 0;
+  const roiPercentage = totalInvested > 0 ? ((totalProfit / totalInvested) * 100) : 0;
+
+  // Calculate portfolio diversity
+  let portfolioTokens = 0;
+  if (tokenBalances) {
+    portfolioTokens = tokenBalances.filter(tb => parseFloat(tb.balance) > 0).length;
+  }
+
   return (
     <div className="min-h-screen neon-bg">
       {/* Animated Neon Background */}
@@ -52,6 +114,169 @@ export default function Home() {
         {/* Dashboard Overview - Greeting + Balance */}
         <BalanceOverview />
         
+        {/* Portfolio Analytics Section */}
+        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mt-8">
+          <motion.h2
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-xl font-semibold neon-text mb-4"
+          >
+            Portfolio Analytics
+          </motion.h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              <Card className="neon-card border neon-border rounded-xl hover:scale-105 transition-all"
+                style={{ boxShadow: '0 0 15px rgba(0, 255, 128, 0.1)' }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald/10 flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4 text-emerald" />
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold neon-text">{roiPercentage.toFixed(2)}%</p>
+                  <p className="text-xs neon-text-secondary">Total ROI</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.15 }}
+            >
+              <Card className="neon-card border neon-border rounded-xl hover:scale-105 transition-all"
+                style={{ boxShadow: '0 0 15px rgba(59, 130, 246, 0.1)' }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                      <Activity className="w-4 h-4 text-blue-500" />
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold neon-text">{activeInvestments}</p>
+                  <p className="text-xs neon-text-secondary">Active Plans</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+            >
+              <Card className="neon-card border neon-border rounded-xl hover:scale-105 transition-all"
+                style={{ boxShadow: '0 0 15px rgba(168, 85, 247, 0.1)' }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                      <BarChart3 className="w-4 h-4 text-purple-500" />
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold neon-text">{last30DaysTransactions}</p>
+                  <p className="text-xs neon-text-secondary">30D Transactions</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.25 }}
+            >
+              <Card className="neon-card border neon-border rounded-xl hover:scale-105 transition-all"
+                style={{ boxShadow: '0 0 15px rgba(251, 146, 60, 0.1)' }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                      <PieChart className="w-4 h-4 text-orange-500" />
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold neon-text">{portfolioTokens}</p>
+                  <p className="text-xs neon-text-secondary">Token Types</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Performance Overview */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
+            <Card className="neon-card border neon-border rounded-xl mb-6"
+              style={{ boxShadow: '0 0 20px rgba(0, 255, 128, 0.1)' }}
+            >
+              <CardHeader>
+                <CardTitle className="text-lg neon-text flex items-center gap-2">
+                  <Target className="w-5 h-5 text-emerald" />
+                  Performance Overview
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-xl bg-emerald/5 border border-emerald/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm neon-text-secondary">Total Deposits</p>
+                      <TrendingUp className="w-4 h-4 text-emerald" />
+                    </div>
+                    <p className="text-xl font-bold neon-text">{formatBitcoin(totalDeposits.toString())} BTC</p>
+                    <p className="text-xs text-emerald mt-1">
+                      ≈ {price ? formatCurrency(totalDeposits * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm neon-text-secondary">Total Withdrawals</p>
+                      <TrendingDown className="w-4 h-4 text-blue-500" />
+                    </div>
+                    <p className="text-xl font-bold neon-text">{formatBitcoin(totalWithdrawals.toString())} BTC</p>
+                    <p className="text-xs text-blue-500 mt-1">
+                      ≈ {price ? formatCurrency(totalWithdrawals * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm neon-text-secondary">Profit Margin</p>
+                      <Zap className="w-4 h-4 text-purple-500" />
+                    </div>
+                    <p className="text-xl font-bold neon-text">{profitMargin.toFixed(2)}%</p>
+                    <p className="text-xs text-purple-500 mt-1">
+                      +{formatBitcoin(totalProfit.toString())} BTC
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-gradient-to-r from-emerald/10 to-blue-500/10 border border-emerald/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm neon-text-secondary mb-1">Investment Success Rate</p>
+                      <p className="text-2xl font-bold neon-text">
+                        {completedInvestments > 0 ? ((completedInvestments / (activeInvestments + completedInvestments)) * 100).toFixed(1) : 0}%
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs neon-text-secondary">Completed Plans</p>
+                      <p className="text-lg font-bold text-emerald">{completedInvestments}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
         {/* Quick Actions Grid */}
         <QuickActionsGrid />
         

@@ -72,6 +72,71 @@ export default function Profile() {
 
   const accountAge = Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24));
 
+  // Calculate trading statistics
+  const totalTransactionVolume = transactions?.reduce((sum, tx) => 
+    tx.status === 'confirmed' ? sum + parseFloat(tx.amount) : sum, 0
+  ) || 0;
+
+  const depositsCount = transactions?.filter(tx => tx.type === 'deposit' && tx.status === 'confirmed').length || 0;
+  const withdrawalsCount = transactions?.filter(tx => tx.type === 'withdrawal' && tx.status === 'confirmed').length || 0;
+  
+  const avgInvestmentSize = activeInvestments > 0 ? totalInvested / activeInvestments : 0;
+  const winRate = completedInvestments > 0 ? ((completedInvestments / (activeInvestments + completedInvestments)) * 100) : 0;
+
+  // Achievement calculations
+  const achievements = [
+    { 
+      id: 'first_deposit', 
+      name: 'First Steps', 
+      description: 'Made your first deposit',
+      earned: depositsCount > 0,
+      icon: '🎯',
+      color: 'emerald'
+    },
+    { 
+      id: 'high_roller', 
+      name: 'High Roller', 
+      description: 'Total deposits over $10,000',
+      earned: totalDeposits * (price?.usd.price || 0) > 10000,
+      icon: '💎',
+      color: 'blue'
+    },
+    { 
+      id: 'profit_master', 
+      name: 'Profit Master', 
+      description: 'Earned over $1,000 in profits',
+      earned: totalProfit * (price?.usd.price || 0) > 1000,
+      icon: '🏆',
+      color: 'yellow'
+    },
+    { 
+      id: 'diversified', 
+      name: 'Diversified Trader', 
+      description: 'Hold 5+ different tokens',
+      earned: tokenBalances ? tokenBalances.filter(tb => parseFloat(tb.balance) > 0).length >= 5 : false,
+      icon: '🌟',
+      color: 'purple'
+    },
+    { 
+      id: 'veteran', 
+      name: 'Veteran Trader', 
+      description: 'Account active for 30+ days',
+      earned: accountAge >= 30,
+      icon: '⚡',
+      color: 'orange'
+    },
+    { 
+      id: 'active_investor', 
+      name: 'Active Investor', 
+      description: '3+ active investments',
+      earned: activeInvestments >= 3,
+      icon: '🚀',
+      color: 'cyan'
+    }
+  ];
+
+  const earnedAchievements = achievements.filter(a => a.earned).length;
+
   return (
     <AppLayout>
       <div className="min-h-screen neon-bg">
@@ -182,6 +247,134 @@ export default function Profile() {
               )}
             </div>
 
+
+            {/* Trading Statistics */}
+            <div
+              className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-6 mb-6 border-2 border-[#2A2A2A]"
+              style={{
+                boxShadow: "0 0 30px rgba(0, 255, 128, 0.15)",
+              }}
+            >
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#00FF80]/20 flex items-center justify-center border border-[#00FF80]/30">
+                  <BarChart3 className="w-4 h-4 text-[#00FF80]" />
+                </div>
+                Trading Statistics
+              </h3>
+
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="p-3 rounded-xl bg-[#0A0A0A]/50 border border-[#2A2A2A]">
+                  <p className="text-xs text-gray-400 mb-1">Total Volume</p>
+                  <p className="text-sm font-bold text-white">{formatBitcoin(totalTransactionVolume.toString())} BTC</p>
+                  <p className="text-xs text-emerald mt-1">
+                    ≈ {price ? formatCurrency(totalTransactionVolume * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
+                  </p>
+                </div>
+                
+                <div className="p-3 rounded-xl bg-[#0A0A0A]/50 border border-[#2A2A2A]">
+                  <p className="text-xs text-gray-400 mb-1">Avg Investment</p>
+                  <p className="text-sm font-bold text-white">{formatBitcoin(avgInvestmentSize.toString())} BTC</p>
+                  <p className="text-xs text-blue-400 mt-1">Per plan</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div className="p-3 rounded-xl bg-emerald/5 border border-emerald/20 text-center">
+                  <p className="text-lg font-bold text-emerald">{depositsCount}</p>
+                  <p className="text-xs text-gray-400">Deposits</p>
+                </div>
+                <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 text-center">
+                  <p className="text-lg font-bold text-blue-400">{withdrawalsCount}</p>
+                  <p className="text-xs text-gray-400">Withdrawals</p>
+                </div>
+                <div className="p-3 rounded-xl bg-purple-500/5 border border-purple-500/20 text-center">
+                  <p className="text-lg font-bold text-purple-400">{winRate.toFixed(0)}%</p>
+                  <p className="text-xs text-gray-400">Win Rate</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Achievements */}
+            <div
+              className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-6 mb-6 border-2 border-[#2A2A2A]"
+              style={{
+                boxShadow: "0 0 30px rgba(251, 191, 36, 0.1)",
+              }}
+            >
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-yellow-500/20 flex items-center justify-center border border-yellow-500/30">
+                    <Award className="w-4 h-4 text-yellow-500" />
+                  </div>
+                  Achievements
+                </div>
+                <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                  {earnedAchievements}/{achievements.length}
+                </Badge>
+              </h3>
+
+              <div className="grid grid-cols-2 gap-3">
+                {achievements.map((achievement) => (
+                  <div
+                    key={achievement.id}
+                    className={`p-3 rounded-xl border transition-all ${
+                      achievement.earned 
+                        ? 'bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/30' 
+                        : 'bg-[#0A0A0A]/30 border-[#2A2A2A] opacity-50'
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">{achievement.icon}</div>
+                    <p className="text-xs font-bold text-white mb-1">{achievement.name}</p>
+                    <p className="text-[10px] text-gray-400">{achievement.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Referral Program */}
+            <div
+              className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-6 mb-6 border-2 border-[#2A2A2A]"
+              style={{
+                boxShadow: "0 0 30px rgba(139, 92, 246, 0.1)",
+              }}
+            >
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
+                  <Users className="w-4 h-4 text-purple-500" />
+                </div>
+                Referral Program
+              </h3>
+
+              <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 mb-4">
+                <p className="text-sm text-white font-medium mb-2">Earn 10% Commission</p>
+                <p className="text-xs text-gray-400 mb-3">Invite friends and earn 10% of their trading fees forever!</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 p-2 rounded-lg bg-[#0A0A0A]/50 border border-[#2A2A2A]">
+                    <p className="text-xs text-gray-400 truncate font-mono">
+                      fluxtrade.com/ref/{user.id}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => copyToClipboard(`fluxtrade.com/ref/${user.id}`, 'Referral link')}
+                    className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30"
+                  >
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-[#0A0A0A]/50 border border-[#2A2A2A] text-center">
+                  <p className="text-2xl font-bold text-purple-400">0</p>
+                  <p className="text-xs text-gray-400">Referrals</p>
+                </div>
+                <div className="p-3 rounded-xl bg-[#0A0A0A]/50 border border-[#2A2A2A] text-center">
+                  <p className="text-2xl font-bold text-emerald">$0</p>
+                  <p className="text-xs text-gray-400">Earned</p>
+                </div>
+              </div>
+            </div>
 
             {/* Account Details */}
             <div
