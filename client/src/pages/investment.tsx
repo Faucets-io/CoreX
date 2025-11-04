@@ -36,6 +36,12 @@ export default function Investment() {
     refetchInterval: 5000,
   });
 
+  // Fetch USDT balance from token balances
+  const { data: tokenBalances } = useQuery<any[]>({
+    queryKey: [`/api/token-balances/${user.id}`],
+    refetchInterval: 5000,
+  });
+
   const { data: investments, refetch: refetchInvestments } = useQuery<Investment[]>({
     queryKey: ['/api/investments/user', user.id],
     refetchInterval: 5000,
@@ -110,9 +116,12 @@ export default function Investment() {
     },
   });
 
+  // Get USDT balance
+  const usdtBalance = tokenBalances?.find(b => b.tokenSymbol === 'USDT')?.balance || '0';
+
   const handleMaxClick = () => {
-    if (userData?.balance) {
-      setAmount(userData.balance);
+    if (usdtBalance) {
+      setAmount(usdtBalance);
     }
   };
 
@@ -121,6 +130,16 @@ export default function Investment() {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid investment amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check minimum investment amount ($500)
+    if (parseFloat(amount) < 500) {
+      toast({
+        title: "Below Minimum",
+        description: "Minimum investment amount is $500 USDT",
         variant: "destructive",
       });
       return;
@@ -141,10 +160,14 @@ export default function Investment() {
   };
 
   const durations = [
-    { days: 1, rate: 0.4, totalReturn: 100.4 },
-    { days: 7, rate: 0.561868495, totalReturn: 104 },
-    { days: 14, rate: 0.650351110, totalReturn: 109.5 },
-    { days: 28, rate: 0.771213577, totalReturn: 124 }
+    { days: 1, rate: 40, totalReturn: 40 },
+    { days: 7, rate: 7.142857, totalReturn: 50 },
+    { days: 14, rate: 4.285714, totalReturn: 60 },
+    { days: 28, rate: 2.5, totalReturn: 70 },
+    { days: 60, rate: 1.333333, totalReturn: 80 },
+    { days: 90, rate: 1, totalReturn: 90 },
+    { days: 180, rate: 0.555556, totalReturn: 100 },
+    { days: 360, rate: 0.388889, totalReturn: 140 }
   ];
   
   const activeInvestments = investments?.filter(inv => inv.isActive) || [];
@@ -301,7 +324,7 @@ export default function Investment() {
               <div className="flex justify-between items-center mb-2">
                 <Label className="text-sm" style={{ color: '#BFBFBF' }}>Amount</Label>
                 <span className="text-sm" style={{ color: '#BFBFBF' }}>
-                  Balance: {formatBitcoin(userData?.balance || "0")} USDT
+                  Balance: {parseFloat(usdtBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
                 </span>
               </div>
               <div className="flex gap-2">
@@ -337,7 +360,7 @@ export default function Investment() {
             {/* Duration Selector */}
             <div className="mb-6">
               <Label className="text-sm mb-3 block" style={{ color: '#BFBFBF' }}>Duration</Label>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {durations.map((d) => (
                   <Button
                     key={d.days}

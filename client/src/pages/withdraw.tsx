@@ -115,6 +115,16 @@ export default function Withdraw() {
       return;
     }
 
+    // Check minimum withdrawal amount ($1000)
+    if (amountNum < 1000) {
+      toast({
+        title: "Below Minimum",
+        description: "Minimum withdrawal amount is $1000 USD",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (amountNum > userBalanceUsd) {
       toast({
         title: "Insufficient Balance",
@@ -380,7 +390,7 @@ export default function Withdraw() {
                   <ul className="text-sm text-red-500/60 space-y-1.5">
                     <li>• Processing time: 1-24 hours</li>
                     <li>• Network fees are deducted from your amount</li>
-                    <li>• Minimum withdrawal: $10 USD</li>
+                    <li>• Minimum withdrawal: $1000 USD</li>
                     <li>• Double-check the Bitcoin address</li>
                     <li>• Transactions cannot be reversed</li>
                   </ul>

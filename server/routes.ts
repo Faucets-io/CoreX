@@ -496,12 +496,12 @@ async function processAutomaticUpdates(): Promise<void> {
         const newProfit = currentProfit + profitIncrease;
         await storage.updateInvestmentProfit(investment.id, newProfit.toFixed(8));
 
-        // Update user's balance with the profit
-        const user = await storage.getUser(investment.userId);
-        if (user) {
-          const currentBalance = parseFloat(user.balance);
+        // Update user's USDT balance with the profit
+        const usdtBalance = await storage.getUserTokenBalance(investment.userId, 'USDT');
+        if (usdtBalance) {
+          const currentBalance = parseFloat(usdtBalance.balance);
           const newBalance = currentBalance + profitIncrease;
-          await storage.updateUserBalance(investment.userId, newBalance.toFixed(8));
+          await storage.updateTokenBalance(investment.userId, 'USDT', newBalance.toFixed(2));
 
           // Create detailed investment notification
           const transactionId = crypto.randomBytes(32).toString('hex');
@@ -517,21 +517,21 @@ async function processAutomaticUpdates(): Promise<void> {
           await storage.createNotification({
             userId: investment.userId,
             title: "Investment Profit Generated",
-            message: `💰 +${profitIncrease.toFixed(8)} BTC earned from ${randomSource}
+            message: `💰 +${profitIncrease.toFixed(2)} USDT earned from ${randomSource}
 
 Investment ID: #${investment.id}
 Plan: ${plan.name}
-Principal: ${investmentAmount.toFixed(8)} BTC
-Total Profit: ${newProfit.toFixed(8)} BTC
+Principal: ${investmentAmount.toFixed(2)} USDT
+Total Profit: ${newProfit.toFixed(2)} USDT
 Rate: ${(dailyRate * 100).toFixed(2)}% daily
 
 Transaction ID: ${transactionId.substring(0, 16)}...
-Your balance: ${newBalance.toFixed(8)} BTC`,
+Your balance: ${newBalance.toFixed(2)} USDT`,
             type: 'success',
             isRead: false,
           });
 
-          console.log(`Investment #${investment.id} earned +${profitIncrease.toFixed(8)} BTC for user ${investment.userId}`);
+          console.log(`Investment #${investment.id} earned +${profitIncrease.toFixed(2)} USDT for user ${investment.userId}`);
         }
       }
     }
@@ -918,6 +918,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!userId) {
         return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      // Check minimum investment amount ($500 USDT)
+      if (parseFloat(amount) < 500) {
+        return res.status(400).json({ error: 'Minimum investment amount is $500 USDT' });
       }
 
       // Verify plan exists
@@ -1316,6 +1321,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (withdrawAmount <= 0) {
         return res.status(400).json({ error: "Amount must be greater than 0" });
+      }
+
+      // Check minimum withdrawal amount ($1000 in BTC equivalent)
+      if (withdrawAmount < 1000) {
+        return res.status(400).json({ message: "Minimum withdrawal amount is $1000 USD" });
       }
 
       if (withdrawAmount > userBalance) {
