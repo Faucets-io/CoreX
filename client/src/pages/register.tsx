@@ -74,9 +74,10 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/register", {
+      const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           username: formData.fullName,
           email: formData.email,
@@ -85,17 +86,24 @@ export default function Register() {
       });
 
       if (response.ok) {
+        const userData = await response.json();
+        
+        // Store user data in localStorage
+        localStorage.setItem('fluxtrade_user', JSON.stringify(userData));
+        
         toast({
           title: "✓ Account Created!",
           description: "Registration successful",
         });
-        setLocation("/");
+        
+        // Redirect to wallet setup
+        setLocation("/wallet-setup");
       } else {
-        const error = await response.text();
+        const errorData = await response.json();
         toast({
           variant: "destructive",
           title: "⚠️ Registration Failed",
-          description: error,
+          description: errorData.message || "Unable to create account",
         });
       }
     } catch (error) {

@@ -1372,7 +1372,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "User already exists" });
       }
 
-      // Hash password (in production, use bcrypt)
+      // Hash password consistently
       const hashedPassword = crypto.createHash('sha256').update(userData.password).digest('hex');
 
       const user = await storage.createUser({
@@ -1380,10 +1380,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         password: hashedPassword,
       });
 
-      // Don't return password in response
-      const { password, ...userResponse } = user;
-      res.json(userResponse);
+      // Set up session for the new user
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error('Session regenerate error:', err);
+          return res.status(500).json({ message: "Failed to create session" });
+        }
+
+        req.session.userId = user.id;
+
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error('Session save error:', saveErr);
+            return res.status(500).json({ message: "Failed to create session" });
+          }
+
+          // Don't return password in response
+          const { password, ...userResponse } = user;
+          res.json(userResponse);
+        });
+      });
     } catch (error) {
+      console.error('Registration error:', error);
       res.status(400).json({ message: error instanceof Error ? error.message : "Registration failed" });
     }
   });
