@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from "@/hooks/use-auth";
@@ -12,6 +11,7 @@ import { formatDate } from '@/lib/utils';
 import type { Notification } from '@shared/schema';
 import { cn } from '@/lib/utils';
 import { BottomNavigation } from "@/components/bottom-navigation";
+import FluxLogoHeader from "@/components/flux-logo-header"; // Added import
 
 export default function Notifications() {
   const { user } = useAuth();
@@ -101,6 +101,8 @@ export default function Notifications() {
 
       <div className="relative z-10 pb-24">
         <div className="max-w-sm mx-auto px-6 pt-6">
+          <FluxLogoHeader />
+
           {/* Header */}
           <div className="mb-8">
             <Button
@@ -142,8 +144,8 @@ export default function Notifications() {
                 onClick={() => setFilter('all')}
                 className={cn(
                   "py-3 px-4 rounded-xl font-semibold text-sm transition-all",
-                  filter === 'all' 
-                    ? "bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black" 
+                  filter === 'all'
+                    ? "bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
                     : "text-gray-400 hover:text-white"
                 )}
               >
@@ -153,8 +155,8 @@ export default function Notifications() {
                 onClick={() => setFilter('unread')}
                 className={cn(
                   "py-3 px-4 rounded-xl font-semibold text-sm transition-all",
-                  filter === 'unread' 
-                    ? "bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black" 
+                  filter === 'unread'
+                    ? "bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
                     : "text-gray-400 hover:text-white"
                 )}
               >
@@ -164,8 +166,8 @@ export default function Notifications() {
                 onClick={() => setFilter('read')}
                 className={cn(
                   "py-3 px-4 rounded-xl font-semibold text-sm transition-all",
-                  filter === 'read' 
-                    ? "bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black" 
+                  filter === 'read'
+                    ? "bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
                     : "text-gray-400 hover:text-white"
                 )}
               >
@@ -197,8 +199,8 @@ export default function Notifications() {
                   key={notification.id}
                   className={cn(
                     "bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl border-2 transition-all duration-300",
-                    !notification.isRead 
-                      ? "border-[#00FF80] shadow-lg shadow-[#00FF80]/20" 
+                    !notification.isRead
+                      ? "border-[#00FF80] shadow-lg shadow-[#00FF80]/20"
                       : "border-[#2A2A2A]"
                   )}
                 >

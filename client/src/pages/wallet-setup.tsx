@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import FluxLogoHeader from "@/components/flux-logo-header";
 
 export default function WalletSetup() {
   const { user, refreshUser } = useAuth();
@@ -31,7 +31,7 @@ export default function WalletSetup() {
     },
     onError: (error: any) => {
       toast({
-        title: "Wallet Creation Failed", 
+        title: "Wallet Creation Failed",
         description: error.message || "Failed to create wallet",
         variant: "destructive",
       });
@@ -43,7 +43,7 @@ export default function WalletSetup() {
       setLocation('/login');
       return;
     }
-    
+
     if (user.hasWallet) {
       setLocation('/');
     }
@@ -68,6 +68,8 @@ export default function WalletSetup() {
 
       <div className="relative z-10 pb-24">
         <div className="max-w-sm mx-auto px-6 pt-6">
+          <FluxLogoHeader />
+
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-6">
@@ -105,11 +107,11 @@ export default function WalletSetup() {
                 </div>
                 <h3 className="text-xl font-bold text-white">Create New Wallet</h3>
               </div>
-              
+
               <p className="text-sm text-gray-400 mb-4 leading-relaxed">
                 Generate a new Bitcoin wallet with a fresh address and secure private key. Perfect for new users.
               </p>
-              
+
               <div className="space-y-2 mb-6">
                 <div className="flex items-center gap-2 text-xs text-gray-400">
                   <Zap className="w-4 h-4 text-[#00FF80]" />
@@ -129,7 +131,7 @@ export default function WalletSetup() {
                 </div>
               </div>
 
-              <Button 
+              <Button
                 onClick={() => createWalletMutation.mutate()}
                 disabled={createWalletMutation.isPending}
                 className="w-full bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black font-bold hover:opacity-90 rounded-xl py-6 text-base"
@@ -158,11 +160,11 @@ export default function WalletSetup() {
                 </div>
                 <h3 className="text-xl font-bold text-white">Import Existing Wallet</h3>
               </div>
-              
+
               <p className="text-sm text-gray-400 mb-4 leading-relaxed">
                 Already have a Bitcoin wallet? Import it using your private key or seed phrase to access your existing funds.
               </p>
-              
+
               <div className="space-y-2 mb-6">
                 <div className="flex items-center gap-2 text-xs text-gray-400">
                   <Key className="w-4 h-4 text-[#00CCFF]" />
@@ -182,7 +184,7 @@ export default function WalletSetup() {
                 </div>
               </div>
 
-              <Button 
+              <Button
                 onClick={() => setLocation('/import-wallet')}
                 className="w-full bg-[#2A2A2A] text-[#00CCFF] border-2 border-[#00CCFF]/30 hover:bg-[#3A3A3A] hover:border-[#00CCFF] font-bold rounded-xl py-6 text-base transition-all"
               >

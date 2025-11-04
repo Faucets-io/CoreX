@@ -8,6 +8,7 @@ import { useLocation } from "wouter";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import FluxLogoHeader from "@/components/flux-logo-header";
 
 export default function Settings() {
   const { user, logout } = useAuth();
@@ -58,6 +59,7 @@ export default function Settings() {
         <div className="relative z-10 pb-24">
           <div className="max-w-sm mx-auto px-6 pt-6">
             {/* Header */}
+            <FluxLogoHeader />
             <div className="mb-8">
               <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00FF80] to-[#00CCFF] bg-clip-text text-transparent mb-2">
                 Settings

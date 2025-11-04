@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { AppLayout } from "@/components/app-layout";
-import { Copy, User, ArrowLeft, TrendingUp, Activity, Calendar, Mail, Award, Wallet, Eye, EyeOff, LogOut, Shield, ExternalLink } from "lucide-react";
+import { Copy, User, ArrowLeft, TrendingUp, Activity, Calendar, Mail, Award, Wallet, Eye, EyeOff, LogOut, Shield, BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ import { formatBitcoin, formatCurrency } from "@/lib/utils";
 import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
 import { useQuery } from "@tanstack/react-query";
 import type { Investment, Transaction } from "@shared/schema";
+import FluxLogoHeader from "@/components/flux-logo-header";
 
 
 export default function Profile() {
@@ -34,6 +35,11 @@ export default function Profile() {
 
   const { data: transactions } = useQuery<Transaction[]>({
     queryKey: ['/api/transactions'],
+    enabled: !!user,
+  });
+
+  const { data: tokenBalances } = useQuery({
+    queryKey: ['/api/token-balances'],
     enabled: !!user,
   });
 
@@ -79,6 +85,10 @@ export default function Profile() {
 
   const depositsCount = transactions?.filter(tx => tx.type === 'deposit' && tx.status === 'confirmed').length || 0;
   const withdrawalsCount = transactions?.filter(tx => tx.type === 'withdrawal' && tx.status === 'confirmed').length || 0;
+  
+  const totalDeposits = transactions?.reduce((sum, tx) => 
+    tx.type === 'deposit' && tx.status === 'confirmed' ? sum + parseFloat(tx.amount) : sum, 0
+  ) || 0;
   
   const avgInvestmentSize = activeInvestments > 0 ? totalInvested / activeInvestments : 0;
   const winRate = completedInvestments > 0 ? ((completedInvestments / (activeInvestments + completedInvestments)) * 100) : 0;
@@ -148,6 +158,8 @@ export default function Profile() {
 
         <div className="relative z-10 pb-24">
           <div className="max-w-sm mx-auto px-6 pt-6">
+            <FluxLogoHeader />
+            
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00FF80] to-[#00CCFF] bg-clip-text text-transparent mb-2">
@@ -331,47 +343,46 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Referral Program */}
+            {/* Investment Performance */}
             <div
               className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-6 mb-6 border-2 border-[#2A2A2A]"
               style={{
-                boxShadow: "0 0 30px rgba(139, 92, 246, 0.1)",
+                boxShadow: "0 0 30px rgba(0, 255, 128, 0.15)",
               }}
             >
               <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
-                  <Users className="w-4 h-4 text-purple-500" />
+                <div className="w-8 h-8 rounded-lg bg-[#00FF80]/20 flex items-center justify-center border border-[#00FF80]/30">
+                  <TrendingUp className="w-4 h-4 text-[#00FF80]" />
                 </div>
-                Referral Program
+                Investment Performance
               </h3>
 
-              <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 mb-4">
-                <p className="text-sm text-white font-medium mb-2">Earn 10% Commission</p>
-                <p className="text-xs text-gray-400 mb-3">Invite friends and earn 10% of their trading fees forever!</p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 p-2 rounded-lg bg-[#0A0A0A]/50 border border-[#2A2A2A]">
-                    <p className="text-xs text-gray-400 truncate font-mono">
-                      fluxtrade.com/ref/{user.id}
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => copyToClipboard(`fluxtrade.com/ref/${user.id}`, 'Referral link')}
-                    className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30"
-                  >
-                    <Copy className="w-3 h-3" />
-                  </Button>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20">
+                  <p className="text-xs text-gray-400 mb-1">Total Invested</p>
+                  <p className="text-lg font-bold text-white">{formatBitcoin(totalInvested.toString())} BTC</p>
+                  <p className="text-xs text-emerald mt-1">
+                    ≈ {price ? formatCurrency(totalInvested * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
+                  </p>
+                </div>
+                
+                <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                  <p className="text-xs text-gray-400 mb-1">Total Profit</p>
+                  <p className="text-lg font-bold text-white">{formatBitcoin(totalProfit.toString())} BTC</p>
+                  <p className="text-xs text-blue-400 mt-1">
+                    ≈ {price ? formatCurrency(totalProfit * (currency === 'USD' ? price.usd.price : price.gbp.price), currency) : '...'}
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 rounded-xl bg-[#0A0A0A]/50 border border-[#2A2A2A] text-center">
-                  <p className="text-2xl font-bold text-purple-400">0</p>
-                  <p className="text-xs text-gray-400">Referrals</p>
+                  <p className="text-2xl font-bold text-[#00FF80]">{activeInvestments}</p>
+                  <p className="text-xs text-gray-400">Active Plans</p>
                 </div>
                 <div className="p-3 rounded-xl bg-[#0A0A0A]/50 border border-[#2A2A2A] text-center">
-                  <p className="text-2xl font-bold text-emerald">$0</p>
-                  <p className="text-xs text-gray-400">Earned</p>
+                  <p className="text-2xl font-bold text-blue-400">{completedInvestments}</p>
+                  <p className="text-xs text-gray-400">Completed</p>
                 </div>
               </div>
             </div>

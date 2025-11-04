@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { motion } from "framer-motion";
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
+import FluxLogoHeader from "@/components/flux-logo-header";
 
 const cryptoLogos = [
   { name: "BTC", color: "#F7931A", delay: 0 },
@@ -117,7 +117,7 @@ export default function ImportWallet() {
       {/* Globe Animation Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div ref={vantaRef} className="absolute inset-0" style={{ opacity: 0.6 }} />
-        
+
         {/* Orbiting crypto logos */}
         <div className="absolute inset-0 flex items-center justify-center">
           {cryptoLogos.map((crypto, index) => {
@@ -184,6 +184,8 @@ export default function ImportWallet() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
+        <FluxLogoHeader />
+
         {/* Header */}
         <header className="flex items-center gap-3 mb-6">
           <Button
@@ -209,7 +211,7 @@ export default function ImportWallet() {
               Seed Phrase
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="private-key" className="space-y-4 mt-6">
             <Card className="border-[#00FF80]/20 bg-[#1A1A1A]/50 backdrop-blur">
               <CardHeader>
@@ -232,7 +234,7 @@ export default function ImportWallet() {
                     className="mt-1.5 font-mono bg-[#0A0A0A]/50 border-[#00FF80]/20 text-[#00FF80]"
                   />
                 </div>
-                
+
                 <Button 
                   onClick={handleImportPrivateKey}
                   disabled={importWalletMutation.isPending || !privateKey.trim()}
@@ -275,7 +277,7 @@ export default function ImportWallet() {
                     rows={4}
                   />
                 </div>
-                
+
                 <Button 
                   onClick={handleImportSeedPhrase}
                   disabled={importWalletMutation.isPending || !seedPhrase.trim()}

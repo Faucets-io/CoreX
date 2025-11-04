@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +13,7 @@ import { formatBitcoin, formatCurrency, calculateInvestmentProgress, formatDate 
 import type { Investment, Transaction, Notification } from "@shared/schema";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/app-layout";
+import FluxLogoHeader from "@/components/flux-logo-header";
 
 export default function History() {
   const { user } = useAuth();
@@ -61,6 +61,7 @@ export default function History() {
           <div className="max-w-sm mx-auto px-6 pt-6">
             {/* Header */}
             <div className="mb-8">
+              <FluxLogoHeader />
               <Button
                 variant="ghost"
                 size="icon"

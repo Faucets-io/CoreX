@@ -17,13 +17,16 @@ import { motion } from "framer-motion";
 import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
 import { useCurrency } from "@/hooks/use-currency";
 import { formatCurrency, formatBitcoin } from "@/lib/utils";
+import { AppLayout } from "@/components/app-layout";
+import SecurityFeatures from "@/components/security-features";
+import FluxLogoHeader from "@/components/flux-logo-header";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { currency } = useCurrency();
   const { data: price } = useBitcoinPrice();
-  
+
   // Connect to WebSocket for real-time investment updates
   useInvestmentWebSocket(user?.id);
 
@@ -54,7 +57,7 @@ export default function Home() {
   useEffect(() => {
     // Wait for auth to finish loading before redirecting
     if (isLoading) return;
-    
+
     if (!user) {
       setLocation('/login');
       return;
@@ -78,7 +81,7 @@ export default function Home() {
   const totalProfit = investments?.reduce((sum, inv) => sum + parseFloat(inv.currentProfit), 0) || 0;
   const activeInvestments = investments?.filter(inv => inv.isActive).length || 0;
   const completedInvestments = investments?.filter(inv => !inv.isActive).length || 0;
-  
+
   const last30DaysTransactions = transactions?.filter(tx => {
     const txDate = new Date(tx.createdAt);
     const thirtyDaysAgo = new Date();
@@ -88,7 +91,7 @@ export default function Home() {
 
   const totalDeposits = transactions?.filter(tx => tx.type === 'deposit' && tx.status === 'confirmed')
     .reduce((sum, tx) => sum + parseFloat(tx.amount), 0) || 0;
-  
+
   const totalWithdrawals = transactions?.filter(tx => tx.type === 'withdrawal' && tx.status === 'confirmed')
     .reduce((sum, tx) => sum + parseFloat(tx.amount), 0) || 0;
 
@@ -105,15 +108,19 @@ export default function Home() {
     <div className="min-h-screen neon-bg">
       {/* Animated Neon Background */}
       <NeonBackdrop />
-      
+
       {/* Header */}
-      <NeonHeader />
-      
-      {/* Main Content */}
       <main className="relative z-10 pb-32">
         {/* Dashboard Overview - Greeting + Balance */}
+        <div className="relative z-10 pb-24">
+          <div className="max-w-sm mx-auto px-6 pt-6">
+            <FluxLogoHeader />
+            <NeonHeader />
+          </div>
+        </div>
+
         <BalanceOverview />
-        
+
         {/* Portfolio Analytics Section */}
         <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mt-8">
           <motion.h2
@@ -279,12 +286,19 @@ export default function Home() {
 
         {/* Quick Actions Grid */}
         <QuickActionsGrid />
-        
+
         {/* Active Investments */}
         <ActiveInvestmentsList />
-        
+
         {/* Recent Activity */}
         <RecentActivityList />
+
+        {/* Referral Program (Removed) */}
+        {/* Removed referral program section as per user request */}
+
+        {/* Security Features (Added if applicable) */}
+        {/* <SecurityFeatures /> */}
+
       </main>
 
       {/* Bottom Navigation */}

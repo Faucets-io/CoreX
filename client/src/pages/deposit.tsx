@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ import type { TokenAddress } from "@shared/schema";
 import { motion } from "framer-motion";
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
+import FluxLogoHeader from "@/components/flux-logo-header";
 
 const cryptoLogos = [
   { name: "BTC", color: "#F7931A", delay: 0 },
@@ -139,7 +139,7 @@ export default function Deposit() {
       {/* Globe Animation Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div ref={vantaRef} className="absolute inset-0" style={{ opacity: 0.6 }} />
-        
+
         {/* Bouncing crypto logos */}
         <div className="absolute inset-0 flex items-center justify-center">
           {cryptoLogos.map((crypto, index) => {
@@ -208,6 +208,8 @@ export default function Deposit() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
+        <FluxLogoHeader />
+
         {/* Header */}
         <header className="flex items-center gap-3 mb-6">
           <Button

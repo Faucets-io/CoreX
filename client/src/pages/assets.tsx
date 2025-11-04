@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/app-layout";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,6 +11,15 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { apiRequest } from '@/lib/queryClient';
+
+// Placeholder for the logo component as described in thinking
+const FluxLogoHeader = () => (
+  <div className="flex items-center gap-2 p-4">
+    {/* Replace with actual logo and icon */}
+    <span className="text-lg font-bold text-white">FluxTrade</span>
+    <span className="text-lg text-blue-400">🚀</span>
+  </div>
+);
 
 const TOKEN_LOGO_URLS: Record<string, string> = {
   BTC: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
@@ -27,11 +35,11 @@ const TOKEN_LOGO_URLS: Record<string, string> = {
 
 function TokenIcon({ symbol, size = 'md' }: { symbol: string; size?: 'sm' | 'md' | 'lg' }) {
   const [imageError, setImageError] = useState(false);
-  
+
   useEffect(() => {
     setImageError(false);
   }, [symbol]);
-  
+
   const sizeClasses = {
     sm: 'w-6 h-6',
     md: 'w-10 h-10',
@@ -39,7 +47,7 @@ function TokenIcon({ symbol, size = 'md' }: { symbol: string; size?: 'sm' | 'md'
   };
 
   const logoUrl = TOKEN_LOGO_URLS[symbol];
-  
+
   if (!logoUrl || imageError) {
     return (
       <div className={`${sizeClasses[size]} rounded-full bg-[#00FF80]/10 flex items-center justify-center`}>
@@ -47,7 +55,7 @@ function TokenIcon({ symbol, size = 'md' }: { symbol: string; size?: 'sm' | 'md'
       </div>
     );
   }
-  
+
   return (
     <img 
       src={logoUrl} 
@@ -89,6 +97,12 @@ export default function Assets() {
   const { data: tokenPrices } = useQuery<Record<string, { price: number; change24h: number }>>({
     queryKey: ['/api/token-prices'],
     refetchInterval: 30000,
+  });
+
+  // Dummy data for token deposits, as described in thinking
+  const { data: depositHistory, isLoading: depositLoading } = useQuery<Array<{ id: string; amount: string; token: string; date: string; status: string }>>({
+    queryKey: ['/api/deposit-history'],
+    enabled: !!user?.id,
   });
 
   const swapMutation = useMutation({
@@ -150,12 +164,12 @@ export default function Assets() {
 
   const calculateSwapAmount = () => {
     if (!fromAmount || !tokenPrices || parseFloat(fromAmount) <= 0) return 0;
-    
+
     const fromPrice = tokenPrices[fromToken]?.price || 0;
     const toPrice = tokenPrices[toToken]?.price || 0;
-    
+
     if (fromPrice === 0 || toPrice === 0) return 0;
-    
+
     const fromAmountNum = parseFloat(fromAmount);
     const exchangeRate = fromPrice / toPrice;
     return fromAmountNum * exchangeRate;
@@ -192,9 +206,12 @@ export default function Assets() {
             />
           </div>
         </div>
-        
+
         <div className="relative z-10 pb-24">
-          <div className="max-w-sm mx-auto px-6 pt-6">
+          <div className="max-w-xl mx-auto px-6 pt-6">
+            {/* FluxTrade Logo Header */}
+            <FluxLogoHeader />
+
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00FF80] to-[#00CCFF] bg-clip-text text-transparent mb-2">
@@ -366,7 +383,7 @@ export default function Assets() {
             {/* Token Balances */}
             <div className="space-y-4">
               <h2 className="text-2xl font-bold text-white">Token Balances</h2>
-              
+
               {balancesLoading ? (
                 <div className="text-center py-12 text-gray-400">Loading balances...</div>
               ) : !tokenBalances || tokenBalances.length === 0 ? (
@@ -386,7 +403,7 @@ export default function Assets() {
                     const isVisible = showAddresses[balance.tokenSymbol];
                     const tokenPrice = tokenPrices?.[balance.tokenSymbol]?.price || 0;
                     const tokenValue = parseFloat(balance.balance) * tokenPrice;
-                    
+
                     return (
                       <div key={balance.id} className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-4 border-2 border-[#00FF80]/30 transition-all hover:border-[#00FF80]/50"
                         style={{
@@ -447,6 +464,63 @@ export default function Assets() {
                       </div>
                     );
                   })}
+                </div>
+              )}
+            </div>
+
+             {/* Deposit History Section (Enhanced look as requested) */}
+             <div className="space-y-4 mt-8">
+              <h2 className="text-2xl font-bold text-white">Deposit History</h2>
+              {depositLoading ? (
+                <div className="text-center py-12 text-gray-400">Loading deposit history...</div>
+              ) : !depositHistory || depositHistory.length === 0 ? (
+                <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-12 text-center border-2 border-[#00FF80]/30"
+                  style={{
+                    boxShadow: "0 0 40px rgba(0, 255, 128, 0.2), inset 0 0 20px rgba(0, 255, 128, 0.05)",
+                  }}
+                >
+                  <Wallet className="w-12 h-12 mx-auto mb-3 text-[#00FF80]/50" />
+                  <p className="text-gray-400">No recent deposits found</p>
+                </div>
+              ) : (
+                <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-6 border-2 border-[#00FF80]/30"
+                  style={{
+                    boxShadow: "0 0 40px rgba(0, 255, 128, 0.2), inset 0 0 20px rgba(0, 255, 128, 0.05)",
+                  }}
+                >
+                  <table className="w-full text-left text-sm">
+                    <thead className="text-gray-400 uppercase border-b border-[#00FF80]/20">
+                      <tr>
+                        <th scope="col" className="py-3 px-2">Date</th>
+                        <th scope="col" className="py-3 px-2">Token</th>
+                        <th scope="col" className="py-3 px-2">Amount</th>
+                        <th scope="col" className="py-3 px-2">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {depositHistory.map((deposit) => (
+                        <tr key={deposit.id} className="border-b border-[#00FF80]/10 last:border-none hover:bg-[#0A0A0A]/40 transition-all">
+                          <td className="py-4 px-2 font-medium text-white whitespace-nowrap">{new Date(deposit.date).toLocaleDateString()}</td>
+                          <td className="py-4 px-2 flex items-center gap-2">
+                            <TokenIcon symbol={deposit.token} size="sm" />
+                            <span>{deposit.token}</span>
+                          </td>
+                          <td className="py-4 px-2 text-white">
+                            {parseFloat(deposit.amount).toLocaleString(undefined, { minimumFractionDigits: 6, maximumFractionDigits: 6 })}
+                          </td>
+                          <td className="py-4 px-2">
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              deposit.status === 'Completed' ? 'bg-green-500/20 text-green-400' :
+                              deposit.status === 'Pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-red-500/20 text-red-400'
+                            }`}>
+                              {deposit.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
