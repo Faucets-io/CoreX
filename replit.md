@@ -2,7 +2,7 @@
 
 ## Overview
 
-FluxTrade is a comprehensive Bitcoin investment and trading platform that enables users to manage cryptocurrency portfolios, make investments, and execute trades. The application features automated wallet generation, real-time Bitcoin price tracking, investment plans with daily returns, and an administrative dashboard for platform management.
+FluxTrade is a comprehensive multi-cryptocurrency investment and trading platform that enables users to manage portfolios across BTC, ETH, BNB, USDT (BEP-20), TRUMP, MATIC, AVAX, ARB, and OP. The application features automated wallet generation, real-time cryptocurrency price tracking, investment plans with daily returns, persistent trade history, and an administrative dashboard for platform management.
 
 ## User Preferences
 
@@ -33,8 +33,9 @@ Preferred communication style: Simple, everyday language.
 
 **Key Pages:**
 - Home: Wallet overview and portfolio dashboard
-- Trade: Multi-cryptocurrency trading interface with TradingView integration
-- Investment: Investment plan selection and management
+- Trade: Multi-cryptocurrency trading interface with TradingView integration and database-backed trade history
+- Investment: Investment plan selection and management with instant balance updates
+- Deposit: Multi-token deposit interface with network-specific guidance (BEP-20 for USDT)
 - Admin: User management, balance adjustments, and system configuration
 - Wallet Setup: New user wallet creation flow
 
@@ -113,11 +114,12 @@ Preferred communication style: Simple, everyday language.
 
 **Multi-Chain Wallet Generation:**
 - BIP44 derivation paths for multiple cryptocurrencies
-- Verified address generation for: BTC (m/44'/0'/0'/0/0), ETH/BNB/USDT/TRUMP (m/44'/60'/0'/0/0), DOGE (m/44'/3'/0'/0/0)
+- Verified address generation for: BTC (m/44'/0'/0'/0/0), All EVM tokens (m/44'/60'/0'/0/0)
+- EVM tokens include: ETH, BNB, USDT (BEP-20), TRUMP, MATIC, AVAX, ARB, OP
 - Ethereum addresses use proper Keccak-256 hashing on uncompressed secp256k1 public keys
-- Dogecoin addresses use correct network parameters (pubKeyHash: 0x1e)
-- Simplified implementations for SOL, XRP, and ADA (deterministic but may not match all external wallets)
+- All EVM-compatible tokens share the same address derived from the ETH derivation path
 - All addresses generated from single BIP39 mnemonic seed phrase
+- USDT specifically uses BEP-20 (Binance Smart Chain) network
 
 **UI Component Libraries:**
 - Radix UI primitives (accordion, dialog, dropdown, etc.)
