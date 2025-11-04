@@ -50,7 +50,7 @@ const SUPPORTED_TOKENS: Token[] = [
 function TokenBalanceDisplay({ userId, selectedToken, currentPrice }: { userId: number; selectedToken: string; currentPrice: number }) {
   const { data: tokenBalances } = useQuery<TokenBalance[]>({
     queryKey: [`/api/token-balances/${userId}`],
-    refetchInterval: 3000,
+    refetchInterval: 1000,
   });
 
   const tokenBalance = tokenBalances?.find(b => b.tokenSymbol === selectedToken);
@@ -201,7 +201,7 @@ export default function Trade() {
   const { data: allTrades, refetch: refetchTrades } = useQuery<TradeOrder[]>({
     queryKey: ['/api/trades/all', selectedToken.symbol],
     queryFn: () => fetch(`/api/trades/all?token=${selectedToken.symbol}`).then(res => res.json()),
-    refetchInterval: 3000,
+    refetchInterval: 500,
   });
 
   // Fetch user trade history
@@ -209,7 +209,7 @@ export default function Trade() {
     queryKey: ['/api/trades/history', user.id, selectedToken.symbol],
     queryFn: () => fetch(`/api/trades/history/${user.id}?token=${selectedToken.symbol}`).then(res => res.json()),
     enabled: !!user?.id,
-    refetchInterval: 5000,
+    refetchInterval: 1000,
   });
 
   const executeTradeMutation = useMutation({
