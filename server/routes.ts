@@ -17,6 +17,8 @@ import * as bip39 from "bip39";
 import { BIP32Factory } from "bip32";
 import crypto from "crypto";
 import { createHash } from "crypto";
+import { keccak_256 } from "@noble/hashes/sha3";
+import bs58 from "bs58";
 import { notificationTemplates, getRandomNotification, sendTemplateNotification } from "./notification-templates";
 
 // Initialize ECPair and BIP32 with secp256k1
@@ -171,14 +173,32 @@ function generateTokenAddressesFromSeed(seedPhrase: string) {
   }
   
   // Ethereum and EVM-compatible tokens (ETH, BNB, etc.) - BIP44 path m/44'/60'/0'/0/0
-  // For simplicity, we'll generate deterministic addresses from the seed
   try {
     const ethChild = root.derivePath("m/44'/60'/0'/0/0");
     if (ethChild.privateKey) {
-      // Create a deterministic Ethereum-style address from the public key
-      const pubKey = ethChild.publicKey;
-      const hash = createHash('sha256').update(pubKey).digest();
-      const ethAddress = '0x' + hash.slice(0, 20).toString('hex');
+      const keyPair = ECPair.fromPrivateKey(ethChild.privateKey);
+      const publicKeyBuffer = Buffer.isBuffer(keyPair.publicKey) 
+        ? keyPair.publicKey 
+        : Buffer.from(keyPair.publicKey);
+      
+      // Get uncompressed public key (65 bytes: 0x04 + 32 bytes X + 32 bytes Y)
+      // We need to remove the first byte (0x04) to get the 64-byte key for hashing
+      let uncompressedPubKey: Buffer;
+      if (publicKeyBuffer.length === 33) {
+        // Compressed key - decompress it
+        const keyPairForUncompressed = ECPair.fromPrivateKey(ethChild.privateKey, { compressed: false });
+        const uncompressedBuffer = Buffer.isBuffer(keyPairForUncompressed.publicKey)
+          ? keyPairForUncompressed.publicKey
+          : Buffer.from(keyPairForUncompressed.publicKey);
+        uncompressedPubKey = uncompressedBuffer.slice(1); // Remove 0x04 prefix
+      } else {
+        // Already uncompressed
+        uncompressedPubKey = publicKeyBuffer.slice(1); // Remove 0x04 prefix
+      }
+      
+      // Hash with Keccak-256 and take last 20 bytes
+      const hash = keccak_256(uncompressedPubKey);
+      const ethAddress = '0x' + Buffer.from(hash.slice(-20)).toString('hex');
       
       addresses['ETH'] = ethAddress;
       addresses['BNB'] = ethAddress; // BNB uses same address format as ETH
@@ -188,17 +208,48 @@ function generateTokenAddressesFromSeed(seedPhrase: string) {
     console.error('Error generating ETH address:', error);
   }
   
+  // Dogecoin - BIP44 path m/44'/3'/0'/0/0
+  try {
+    const dogeChild = root.derivePath("m/44'/3'/0'/0/0");
+    if (dogeChild.privateKey) {
+      // Define Dogecoin network parameters
+      const dogecoinNetwork = {
+        messagePrefix: '\x19Dogecoin Signed Message:\n',
+        bip32: {
+          public: 0x02facafd,
+          private: 0x02fac398,
+        },
+        pubKeyHash: 0x1e, // Addresses start with 'D'
+        scriptHash: 0x16,
+        wif: 0x9e,
+      };
+      
+      const keyPair = ECPair.fromPrivateKey(dogeChild.privateKey);
+      const publicKeyBuffer = Buffer.isBuffer(keyPair.publicKey) 
+        ? keyPair.publicKey 
+        : Buffer.from(keyPair.publicKey);
+      
+      const { address } = bitcoin.payments.p2pkh({ 
+        pubkey: publicKeyBuffer,
+        network: dogecoinNetwork
+      });
+      if (address) addresses['DOGE'] = address;
+    }
+  } catch (error) {
+    console.error('Error generating DOGE address:', error);
+  }
+  
   // Solana - BIP44 path m/44'/501'/0'/0'
+  // Note: Solana uses ed25519 curve, not secp256k1
+  // For full compatibility with Solana wallets, you would need ed25519-hd-key library
+  // This is a simplified implementation that generates a deterministic address
   try {
     const solChild = root.derivePath("m/44'/501'/0'/0'");
     if (solChild.privateKey) {
-      // Create a deterministic Solana-style address
-      const hash = createHash('sha256').update(solChild.publicKey).digest();
-      const base58Chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-      let solAddress = '';
-      for (let i = 0; i < 44; i++) {
-        solAddress += base58Chars[hash[i % hash.length] % base58Chars.length];
-      }
+      // Generate a deterministic base58 address from the public key
+      // This won't match actual Solana wallets since they use ed25519
+      const pubKeyHash = createHash('sha256').update(solChild.publicKey).digest();
+      const solAddress = bs58.encode(pubKeyHash);
       addresses['SOL'] = solAddress;
     }
   } catch (error) {
@@ -206,12 +257,15 @@ function generateTokenAddressesFromSeed(seedPhrase: string) {
   }
   
   // Ripple (XRP) - BIP44 path m/44'/144'/0'/0/0
+  // Note: XRP uses a custom base58 alphabet and checksum
+  // This is a simplified implementation
   try {
     const xrpChild = root.derivePath("m/44'/144'/0'/0/0");
     if (xrpChild.privateKey) {
-      // Create a deterministic XRP address
-      const hash = createHash('sha256').update(xrpChild.publicKey).digest();
-      const xrpAddress = 'r' + hash.slice(0, 24).toString('hex');
+      const pubKeyHash = createHash('sha256')
+        .update(createHash('ripemd160').update(xrpChild.publicKey).digest())
+        .digest();
+      const xrpAddress = 'r' + bs58.encode(pubKeyHash).substring(0, 24);
       addresses['XRP'] = xrpAddress;
     }
   } catch (error) {
@@ -219,6 +273,8 @@ function generateTokenAddressesFromSeed(seedPhrase: string) {
   }
   
   // Cardano (ADA) - BIP44 path m/44'/1815'/0'/0/0
+  // Note: Cardano uses a complex address format with bech32
+  // This is a simplified implementation
   try {
     const adaChild = root.derivePath("m/44'/1815'/0'/0/0");
     if (adaChild.privateKey) {
@@ -228,18 +284,6 @@ function generateTokenAddressesFromSeed(seedPhrase: string) {
     }
   } catch (error) {
     console.error('Error generating ADA address:', error);
-  }
-  
-  // Dogecoin - BIP44 path m/44'/3'/0'/0/0
-  try {
-    const dogeChild = root.derivePath("m/44'/3'/0'/0/0");
-    if (dogeChild.privateKey) {
-      const hash = createHash('sha256').update(dogeChild.publicKey).digest();
-      const dogeAddress = 'D' + hash.slice(0, 25).toString('hex');
-      addresses['DOGE'] = dogeAddress;
-    }
-  } catch (error) {
-    console.error('Error generating DOGE address:', error);
   }
   
   // TRUMP token (ERC-20, uses ETH address)
