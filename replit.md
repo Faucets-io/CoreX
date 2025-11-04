@@ -75,13 +75,17 @@ Preferred communication style: Simple, everyday language.
 
 **Investment System:**
 - Automated daily profit calculations based on configurable return rates
-- Multiple investment tiers with different ROI percentages
+- Eight investment duration tiers: 1, 7, 14, 28, 60, 90, 180, and 360 days
+- Total return percentages: 40%, 50%, 60%, 70%, 80%, 90%, 100%, and 140% respectively
+- Daily rates calculated as totalReturn / duration (e.g., 1-day = 40% daily, 360-day = 0.39% daily)
+- Minimum investment amount: $500 USD
+- Profits credited to USDT balance in token_balances table
 - Time-based investment maturity tracking
-- Profit distribution to user balances
 
 **Transaction Processing:**
 - Two-step transaction verification (pending → confirmed/rejected)
 - Admin approval workflow for deposits and withdrawals
+- Minimum withdrawal amount: $1000 USD (validated on both frontend and backend)
 - Transaction hash validation for blockchain verification
 - Automated balance updates upon confirmation
 

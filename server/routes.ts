@@ -1323,8 +1323,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Amount must be greater than 0" });
       }
 
-      // Check minimum withdrawal amount ($1000 in BTC equivalent)
-      if (withdrawAmount < 1000) {
+      // Check minimum withdrawal amount ($1000 USD)
+      // Amount is in BTC, so we need to convert to USD to check minimum
+      const priceData = await fetchBitcoinPrice();
+      const withdrawAmountUSD = withdrawAmount * (priceData?.usd?.price || 0);
+      
+      if (withdrawAmountUSD < 1000) {
         return res.status(400).json({ message: "Minimum withdrawal amount is $1000 USD" });
       }
 
