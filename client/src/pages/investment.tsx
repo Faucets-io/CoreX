@@ -148,12 +148,12 @@ export default function Investment() {
     // Check if user has sufficient USDT balance
     const investmentAmount = parseFloat(amount);
     const availableUSDT = parseFloat(usdtBalance);
-    
+
     if (investmentAmount > availableUSDT) {
       toast({
-        title: "Insufficient USDT Balance",
-        description: `You need ${investmentAmount.toFixed(2)} USDT but only have ${availableUSDT.toFixed(2)} USDT available. Please deposit more USDT to continue.`,
         variant: "destructive",
+        title: "⚠️ Insufficient USDT Balance",
+        description: `You need ${investmentAmount.toFixed(2)} USDT but only have ${availableUSDT.toFixed(2)} USDT available. Please deposit more USDT to start this investment.`,
       });
       return;
     }
@@ -182,7 +182,7 @@ export default function Investment() {
     { days: 180, rate: 15.111111, totalReturn: 2720 },
     { days: 360, rate: 15.111111, totalReturn: 5440 }
   ];
-  
+
   const activeInvestments = investments?.filter(inv => inv.isActive) || [];
   const completedInvestments = investments?.filter(inv => !inv.isActive) || [];
   const pendingInvestments = transactions?.filter(tx => tx.type === 'investment' && tx.status === 'pending') || [];
@@ -196,11 +196,11 @@ export default function Investment() {
     const investmentAmount = parseFloat(amount) || 0;
     const selectedDurationData = durations.find(d => d.days === selectedDuration);
     const dailyRate = selectedDurationData?.rate || 0;
-    
+
     const dailyProfit = (investmentAmount * dailyRate) / 100;
     const totalReturnPercentage = dailyRate * selectedDuration;
     const totalProfit = (investmentAmount * totalReturnPercentage) / 100;
-    
+
     return {
       dailyRate,
       dailyProfit,
