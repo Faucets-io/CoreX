@@ -46,7 +46,7 @@ export default function ProfilePicPreview() {
         />
       </div>
 
-      <div className="max-w-6xl mx-auto flex flex-col items-center"
+      <div className="max-w-6xl mx-auto flex flex-col items-center">
       
       <div className="mb-8 bg-gradient-to-br from-gray-900 to-black p-8 rounded-lg">
           <div id="profile-pic-svg">
