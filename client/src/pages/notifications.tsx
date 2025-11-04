@@ -7,11 +7,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, CheckCircle, Info, AlertTriangle, AlertCircle, Clock, Filter, Check, ArrowLeft } from 'lucide-react';
+import { Bell, CheckCircle, Info, AlertTriangle, AlertCircle, Clock, Filter, Check, ArrowLeft, Zap } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import type { Notification } from '@shared/schema';
 import { cn } from '@/lib/utils';
-import { AppLayout } from "@/components/app-layout";
+import { BottomNavigation } from "@/components/bottom-navigation";
 
 export default function Notifications() {
   const { user } = useAuth();
@@ -72,19 +72,10 @@ export default function Notifications() {
   const getTypeIcon = (type: string) => {
     const iconClass = "w-5 h-5";
     switch (type) {
-      case 'success': return <CheckCircle className={`${iconClass} text-emerald`} />;
+      case 'success': return <CheckCircle className={`${iconClass} text-[#00FF80]`} />;
       case 'warning': return <AlertTriangle className={`${iconClass} text-yellow-500`} />;
       case 'error': return <AlertCircle className={`${iconClass} text-red-500`} />;
-      default: return <Info className={`${iconClass} text-blue-500`} />;
-    }
-  };
-
-  const getTypeBadgeVariant = (type: string) => {
-    switch (type) {
-      case 'success': return 'default';
-      case 'warning': return 'secondary';
-      case 'error': return 'destructive';
-      default: return 'outline';
+      default: return <Info className={`${iconClass} text-[#00CCFF]`} />;
     }
   };
 
@@ -100,166 +91,193 @@ export default function Notifications() {
   const filteredNotifications = getFilteredNotifications();
 
   return (
-    <AppLayout maxWidth="2xl">
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <header className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-[#0A0A0A] to-black" />
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#00FF80] rounded-full filter blur-[128px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#00CCFF] rounded-full filter blur-[128px] animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
+
+      <div className="relative z-10 pb-24">
+        <div className="max-w-sm mx-auto px-6 pt-6">
+          {/* Header */}
+          <div className="mb-8">
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
               onClick={() => setLocation('/')}
+              className="mb-4 rounded-xl hover:bg-[#1A1A1A] border border-[#2A2A2A]"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5 text-[#00FF80]" />
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Notifications</h1>
-              <p className="text-muted-foreground mt-1">Stay updated with your activities</p>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#00FF80] to-[#00CCFF] flex items-center justify-center">
+                <Bell className="w-6 h-6 text-black" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00FF80] to-[#00CCFF] bg-clip-text text-transparent">
+                  Notifications
+                </h1>
+                <p className="text-sm text-gray-400">Stay updated with your activity</p>
+              </div>
+            </div>
+
+            {unreadCount && unreadCount.count > 0 && (
+              <Button
+                onClick={() => markAllAsReadMutation.mutate()}
+                disabled={markAllAsReadMutation.isPending}
+                className="w-full mt-4 bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black font-semibold hover:opacity-90 rounded-xl"
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Mark All as Read
+              </Button>
+            )}
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl border-2 border-[#2A2A2A] p-1 mb-6">
+            <div className="grid grid-cols-3 gap-1">
+              <button
+                onClick={() => setFilter('all')}
+                className={cn(
+                  "py-3 px-4 rounded-xl font-semibold text-sm transition-all",
+                  filter === 'all' 
+                    ? "bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black" 
+                    : "text-gray-400 hover:text-white"
+                )}
+              >
+                All ({notifications?.length || 0})
+              </button>
+              <button
+                onClick={() => setFilter('unread')}
+                className={cn(
+                  "py-3 px-4 rounded-xl font-semibold text-sm transition-all",
+                  filter === 'unread' 
+                    ? "bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black" 
+                    : "text-gray-400 hover:text-white"
+                )}
+              >
+                Unread ({unreadCount?.count || 0})
+              </button>
+              <button
+                onClick={() => setFilter('read')}
+                className={cn(
+                  "py-3 px-4 rounded-xl font-semibold text-sm transition-all",
+                  filter === 'read' 
+                    ? "bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black" 
+                    : "text-gray-400 hover:text-white"
+                )}
+              >
+                Read ({(notifications?.length || 0) - (unreadCount?.count || 0)})
+              </button>
             </div>
           </div>
 
-          {unreadCount && unreadCount.count > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => markAllAsReadMutation.mutate()}
-              disabled={markAllAsReadMutation.isPending}
-              className="gap-2"
-            >
-              <Check className="w-4 h-4" />
-              Mark All Read
-            </Button>
-          )}
-        </header>
-
-        {/* Filter Tabs */}
-        <Tabs value={filter} onValueChange={(value) => setFilter(value as any)}>
-          <TabsList className="grid w-full grid-cols-3 bg-card border border-border">
-            <TabsTrigger value="all" className="gap-2">
-              <Filter className="w-4 h-4" />
-              All ({notifications?.length || 0})
-            </TabsTrigger>
-            <TabsTrigger value="unread" className="gap-2">
-              <Bell className="w-4 h-4" />
-              Unread ({unreadCount?.count || 0})
-            </TabsTrigger>
-            <TabsTrigger value="read" className="gap-2">
-              <CheckCircle className="w-4 h-4" />
-              Read ({(notifications?.length || 0) - (unreadCount?.count || 0)})
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value={filter} className="mt-6">
-            {isLoading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <Card key={i} className="animate-pulse border-border">
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-muted rounded-full"></div>
-                        <div className="flex-1 space-y-3">
-                          <div className="h-4 bg-muted rounded w-3/4"></div>
-                          <div className="h-3 bg-muted rounded w-1/2"></div>
-                          <div className="h-3 bg-muted rounded w-1/4"></div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : filteredNotifications.length > 0 ? (
-              <div className="space-y-4">
-                {filteredNotifications.map((notification) => (
-                  <Card
-                    key={notification.id}
-                    className={cn(
-                      "transition-all duration-200 hover:shadow-lg border-border",
-                      !notification.isRead ? "ring-2 ring-primary/20 bg-primary/5" : ""
-                    )}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        {/* Icon */}
-                        <div className={cn(
-                          "p-3 rounded-full flex-shrink-0",
-                          notification.type === 'success' && "bg-emerald/10",
-                          notification.type === 'warning' && "bg-yellow-500/10",
-                          notification.type === 'error' && "bg-red-500/10",
-                          notification.type === 'info' && "bg-blue-500/10"
-                        )}>
-                          {getTypeIcon(notification.type)}
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-3 mb-2">
-                            <h3 className="font-semibold text-foreground text-lg leading-tight">
-                              {notification.title}
-                            </h3>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <Badge variant={getTypeBadgeVariant(notification.type)} className="text-xs">
-                                {notification.type}
-                              </Badge>
-                              {!notification.isRead && (
-                                <Badge variant="default" className="text-xs bg-primary">
-                                  New
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-
-                          <p className="text-muted-foreground mb-4 leading-relaxed whitespace-pre-line break-words">
-                            {notification.message}
-                          </p>
-
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Clock className="w-4 h-4" />
-                              {formatDate(new Date(notification.createdAt))}
-                            </div>
-
-                            {!notification.isRead && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => markAsReadMutation.mutate(notification.id)}
-                                disabled={markAsReadMutation.isPending}
-                                className="gap-2"
-                              >
-                                <Check className="w-4 h-4" />
-                                Mark as Read
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card className="border-border">
-                <CardContent className="p-12 text-center">
-                  <div className="w-20 h-20 mx-auto mb-6 bg-muted rounded-full flex items-center justify-center">
-                    <Bell className="w-10 h-10 text-muted-foreground opacity-50" />
+          {/* Notifications List */}
+          {isLoading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl border-2 border-[#2A2A2A] p-6 animate-pulse">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#2A2A2A] rounded-xl"></div>
+                    <div className="flex-1 space-y-3">
+                      <div className="h-4 bg-[#2A2A2A] rounded w-3/4"></div>
+                      <div className="h-3 bg-[#2A2A2A] rounded w-1/2"></div>
+                      <div className="h-3 bg-[#2A2A2A] rounded w-1/4"></div>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    {filter === 'unread' ? 'No unread notifications' :
-                     filter === 'read' ? 'No read notifications' : 'No notifications yet'}
-                  </h3>
-                  <p className="text-muted-foreground max-w-md mx-auto">
-                    {filter === 'unread'
-                      ? "You're all caught up! Check back later for new updates."
-                      : filter === 'read'
-                      ? "You haven't read any notifications yet."
-                      : "We'll notify you when there's something important to share."}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-        </Tabs>
+                </div>
+              ))}
+            </div>
+          ) : filteredNotifications.length > 0 ? (
+            <div className="space-y-4">
+              {filteredNotifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className={cn(
+                    "bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl border-2 transition-all duration-300",
+                    !notification.isRead 
+                      ? "border-[#00FF80] shadow-lg shadow-[#00FF80]/20" 
+                      : "border-[#2A2A2A]"
+                  )}
+                >
+                  <div className="p-6">
+                    <div className="flex items-start gap-4">
+                      {/* Icon */}
+                      <div className={cn(
+                        "p-3 rounded-xl flex-shrink-0",
+                        notification.type === 'success' && "bg-[#00FF80]/10",
+                        notification.type === 'warning' && "bg-yellow-500/10",
+                        notification.type === 'error' && "bg-red-500/10",
+                        notification.type === 'info' && "bg-[#00CCFF]/10"
+                      )}>
+                        {getTypeIcon(notification.type)}
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <h3 className="font-bold text-white text-lg leading-tight">
+                            {notification.title}
+                          </h3>
+                          {!notification.isRead && (
+                            <Badge className="bg-[#00FF80] text-black text-xs font-semibold">
+                              NEW
+                            </Badge>
+                          )}
+                        </div>
+
+                        <p className="text-gray-400 mb-4 leading-relaxed text-sm whitespace-pre-line break-words">
+                          {notification.message}
+                        </p>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <Clock className="w-4 h-4" />
+                            {formatDate(new Date(notification.createdAt))}
+                          </div>
+
+                          {!notification.isRead && (
+                            <Button
+                              size="sm"
+                              onClick={() => markAsReadMutation.mutate(notification.id)}
+                              disabled={markAsReadMutation.isPending}
+                              className="bg-[#2A2A2A] text-[#00FF80] hover:bg-[#3A3A3A] rounded-xl text-xs"
+                            >
+                              <Check className="w-3 h-3 mr-1" />
+                              Mark Read
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl border-2 border-[#2A2A2A] p-12 text-center">
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-[#00FF80]/20 to-[#00CCFF]/20 rounded-2xl flex items-center justify-center">
+                <Bell className="w-10 h-10 text-[#00FF80]" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">
+                {filter === 'unread' ? 'All Caught Up!' :
+                 filter === 'read' ? 'No Read Notifications' : 'No Notifications Yet'}
+              </h3>
+              <p className="text-gray-400 text-sm max-w-md mx-auto">
+                {filter === 'unread'
+                  ? "You're all caught up! Check back later for new updates."
+                  : filter === 'read'
+                  ? "You haven't read any notifications yet."
+                  : "We'll notify you when there's something important to share."}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <BottomNavigation />
       </div>
-    </AppLayout>
+    </div>
   );
 }
