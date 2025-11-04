@@ -1485,15 +1485,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/login", async (req, res) => {
     try {
       const { email, password } = loginSchema.parse(req.body);
+      
+      console.log('Login attempt for email:', email);
 
       const user = await storage.getUserByEmail(email);
       if (!user) {
+        console.log('User not found:', email);
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       // Hash the provided password to compare with stored hash
       const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+      
+      console.log('Password hash match:', user.password === hashedPassword);
+      
       if (user.password !== hashedPassword) {
+        console.log('Invalid password for user:', email);
         return res.status(401).json({ message: "Invalid credentials" });
       }
 

@@ -17,52 +17,72 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user data
-    const storedUser = localStorage.getItem('fluxtrade_user');
-    console.log('AuthProvider initializing, stored user:', storedUser ? 'found' : 'not found');
-    if (storedUser) {
+    // Check if user has an active session by making a test request
+    const checkSession = async () => {
       try {
-        const userData = JSON.parse(storedUser);
-        console.log('Restoring user from localStorage:', userData.email);
-        setUser(userData);
+        const storedUser = localStorage.getItem('fluxtrade_user');
+        console.log('AuthProvider initializing, stored user:', storedUser ? 'found' : 'not found');
+
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+
+          // Verify the session is still valid by fetching user data
+          const response = await fetch(`/api/user/${parsedUser.id}`, {
+            credentials: 'include'
+          });
+
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+          } else {
+            // Session expired, clear stored data
+            localStorage.removeItem('fluxtrade_user');
+          }
+        }
       } catch (error) {
-        console.error('Error parsing stored user data:', error);
+        console.error('Session check failed:', error);
         localStorage.removeItem('fluxtrade_user');
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    checkSession();
   }, []);
 
   const login = async (email: string, password: string) => {
     console.log('Attempting login for:', email);
 
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // Include cookies for session
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
 
-    console.log('Login response status:', response.status);
+      console.log('Login response status:', response.status);
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('Login failed:', error);
-      throw new Error(error.message);
+      if (!response.ok) {
+        const error = await response.json();
+        console.log('Login failed:', error);
+        throw new Error(error.message || 'Invalid email or password');
+      }
+
+      const userData = await response.json();
+      console.log('Login successful, user data received');
+
+      // Store user data in localStorage
+      localStorage.setItem('fluxtrade_user', JSON.stringify(userData));
+
+      // Update state
+      setUser(userData);
+
+      return userData;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
-
-    const userData = await response.json();
-    console.log('Login successful for user:', userData.email);
-
-    // Store in localStorage first
-    localStorage.setItem('fluxtrade_user', JSON.stringify(userData));
-    // Then update state synchronously
-    setUser(userData);
-
-    console.log('User state updated:', userData.email);
-
-    // Force a re-render by updating loading state
-    setIsLoading(false);
   };
 
   const register = async (email: string, password: string) => {
@@ -84,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     if (!user) return;
-    
+
     try {
       const response = await fetch(`/api/user/${user.id}`);
       if (response.ok) {

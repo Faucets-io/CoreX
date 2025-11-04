@@ -65,20 +65,25 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await login(formData.email, formData.password);
+      const userData = await login(formData.email, formData.password);
       
       toast({
         title: "✓ Welcome back!",
         description: "Login successful",
       });
       
-      // Redirect immediately - the login function already updates state synchronously
-      setLocation("/");
+      // Check if user has wallet setup
+      if (userData.hasWallet) {
+        setLocation("/");
+      } else {
+        setLocation("/wallet-setup");
+      }
     } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         variant: "destructive",
         title: "⚠️ Login Failed",
-        description: error.message || "Invalid credentials",
+        description: error.message || "Invalid email or password. Please check your credentials and try again.",
       });
     } finally {
       setIsLoading(false);
