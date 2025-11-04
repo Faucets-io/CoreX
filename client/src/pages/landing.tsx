@@ -393,60 +393,144 @@ export default function Landing() {
           </motion.div>
 
           <Card
-            className="rounded-2xl border max-w-4xl mx-auto mb-8"
+            className="rounded-2xl border max-w-5xl mx-auto"
             style={{
               backgroundColor: '#1A1A1A',
               borderColor: '#2A2A2A',
               boxShadow: '0 0 30px rgba(0, 255, 153, 0.2)'
             }}
           >
-            <CardContent className="p-6">
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2" style={{ color: '#00FF99' }}>
-                  Enter Investment Amount ($)
+            <CardContent className="p-8">
+              <div className="mb-8">
+                <label className="block text-sm font-medium mb-3" style={{ color: '#00FF99' }}>
+                  Enter Investment Amount (USDT)
                 </label>
                 <Input
                   type="number"
                   value={calculatorAmount}
                   onChange={(e) => setCalculatorAmount(e.target.value)}
                   placeholder="1000"
-                  className="text-2xl font-bold text-center py-6"
+                  className="text-3xl font-bold text-center py-8 rounded-xl"
                   style={{
                     backgroundColor: '#0A0A0A',
                     borderColor: '#00FF99',
-                    color: '#00FF99'
+                    color: '#00FF99',
+                    boxShadow: '0 0 20px rgba(0, 255, 153, 0.1)'
                   }}
                 />
               </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {plans.map((plan, index) => {
-                  const amount = parseFloat(calculatorAmount) || 0;
-                  const profit = amount * (plan.totalReturn / 100);
-                  const total = amount + profit;
+
+              {/* Calculator Results */}
+              {calculatorAmount && parseFloat(calculatorAmount) > 0 ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {plans.map((plan, index) => {
+                      const amount = parseFloat(calculatorAmount) || 0;
+                      const dailyProfit = (amount * plan.rate) / 100;
+                      const totalProfit = amount * (plan.totalReturn / 100);
+                      const totalReturn = amount + totalProfit;
+                      
+                      return (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
+                          viewport={{ once: true }}
+                          className="p-5 rounded-xl border-2 hover:scale-105 transition-all duration-300 cursor-pointer"
+                          style={{ 
+                            backgroundColor: '#0A0A0A',
+                            borderColor: '#2A2A2A',
+                            boxShadow: '0 4px 15px rgba(0, 255, 153, 0.1)'
+                          }}
+                          whileHover={{ borderColor: '#00FF99', boxShadow: '0 4px 25px rgba(0, 255, 153, 0.3)' }}
+                        >
+                          <div className="flex items-center justify-center mb-3">
+                            <plan.icon className="w-8 h-8" style={{ color: '#00FF99' }} />
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm font-medium mb-2" style={{ color: '#BFBFBF' }}>
+                              {plan.days} Day{plan.days > 1 ? 's' : ''} Plan
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <div>
+                                <div className="text-xs" style={{ color: '#BFBFBF' }}>Daily Rate</div>
+                                <div className="text-lg font-bold" style={{ color: '#00FF99' }}>
+                                  {plan.rate.toFixed(2)}%
+                                </div>
+                              </div>
+                              
+                              <div className="h-px" style={{ backgroundColor: '#2A2A2A' }} />
+                              
+                              <div>
+                                <div className="text-xs" style={{ color: '#BFBFBF' }}>Daily Profit</div>
+                                <div className="text-base font-semibold" style={{ color: '#00FF99' }}>
+                                  +${dailyProfit.toFixed(2)}
+                                </div>
+                              </div>
+                              
+                              <div className="h-px" style={{ backgroundColor: '#2A2A2A' }} />
+                              
+                              <div>
+                                <div className="text-xs" style={{ color: '#BFBFBF' }}>Total Profit</div>
+                                <div className="text-base font-semibold" style={{ color: '#00FF99' }}>
+                                  +${totalProfit.toFixed(2)}
+                                </div>
+                              </div>
+                              
+                              <div className="h-px" style={{ backgroundColor: '#2A2A2A' }} />
+                              
+                              <div className="pt-1">
+                                <div className="text-xs font-medium" style={{ color: '#BFBFBF' }}>Total Return</div>
+                                <div className="text-xl font-bold" style={{ color: '#00FF99' }}>
+                                  ${totalReturn.toFixed(2)}
+                                </div>
+                                <div className="text-xs mt-1" style={{ color: '#00FF99' }}>
+                                  {plan.totalReturn}% ROI
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
                   
-                  return (
-                    <div 
-                      key={index} 
-                      className="text-center p-4 rounded-xl hover:scale-105 transition-transform" 
-                      style={{ backgroundColor: '#0A0A0A' }}
-                    >
-                      <div className="text-sm mb-2" style={{ color: '#BFBFBF' }}>
-                        {plan.days} Day{plan.days > 1 ? 's' : ''}
-                      </div>
-                      <div className="text-2xl font-bold" style={{ color: '#00FF99' }}>
-                        ${total.toFixed(2)}
-                      </div>
-                      <div className="text-xs mt-1" style={{ color: '#BFBFBF' }}>
-                        +${profit.toFixed(2)}
-                      </div>
-                      <div className="text-xs mt-2" style={{ color: '#00FF99' }}>
-                        {plan.totalReturn}% ROI
-                      </div>
+                  {/* Summary Card */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    viewport={{ once: true }}
+                    className="p-6 rounded-xl border-2"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(0, 255, 153, 0.05), rgba(0, 204, 102, 0.05))',
+                      borderColor: '#00FF99',
+                      boxShadow: '0 0 30px rgba(0, 255, 153, 0.2)'
+                    }}
+                  >
+                    <div className="text-center">
+                      <p className="text-sm mb-2" style={{ color: '#BFBFBF' }}>
+                        Based on your ${parseFloat(calculatorAmount).toLocaleString()} USDT investment
+                      </p>
+                      <p className="text-lg font-semibold" style={{ color: '#00FF99' }}>
+                        Choose from 8 flexible plans with returns ranging from 40% to 5,440%
+                      </p>
                     </div>
-                  );
-                })}
-              </div>
+                  </motion.div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <BarChart3 className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: '#00FF99' }} />
+                  <p className="text-lg" style={{ color: '#BFBFBF' }}>
+                    Enter an amount above to see your potential returns
+                  </p>
+                  <p className="text-sm mt-2" style={{ color: '#666' }}>
+                    Minimum investment: $500 USDT
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -491,7 +575,7 @@ export default function Landing() {
                       <CardContent className="p-6">
                         <div className="text-center">
                           <div className="animate-bounce" style={{ animationDuration: '2s' }}>
-                            <plan.icon className="w-16 h-16 mx-auto" style={{ color: '#0A0A0A' }} />
+                            <plan.icon className="w-16 h-16 mx-auto mb-4" style={{ color: '#0A0A0A' }} />
                           </div>
                           <h3 className="text-2xl font-bold mb-2" style={{ color: '#0A0A0A' }}>
                             {plan.days} Day{plan.days > 1 ? 's' : ''} Plan
@@ -527,7 +611,7 @@ export default function Landing() {
                                 </span>
                               </div>
                               <div className="text-3xl font-bold" style={{ color: '#0A0A0A' }}>
-                                ${plan.totalReturn.toFixed(2)}
+                                {plan.totalReturn.toFixed(2)}%
                               </div>
                               <div className="text-xs mt-1" style={{ color: 'rgba(10, 10, 10, 0.7)' }}>
                                 after {plan.days} day{plan.days > 1 ? 's' : ''}
@@ -559,7 +643,7 @@ export default function Landing() {
                               border: 'none'
                             }}
                           >
-                            Choose Plan
+                            Invest Now
                           </Button>
                         </div>
                       </CardContent>
