@@ -6,13 +6,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Copy, Check, Wallet, Send, AlertCircle } from "lucide-react";
 import { useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBitcoinPrice } from "@/hooks/use-bitcoin-price";
 import { usdToBtc } from "@/lib/utils";
-import { AppLayout } from "@/components/app-layout";
 import type { TokenAddress } from "@shared/schema";
+import { motion } from "framer-motion";
+import GLOBE from "vanta/dist/vanta.globe.min";
+import * as THREE from "three";
+
+const cryptoLogos = [
+  { name: "BTC", color: "#F7931A", delay: 0 },
+  { name: "ETH", color: "#627EEA", delay: 0.5 },
+  { name: "USDT", color: "#26A17B", delay: 1 },
+  { name: "BNB", color: "#F3BA2F", delay: 1.5 },
+  { name: "XRP", color: "#23292F", delay: 2 },
+  { name: "SOL", color: "#14F195", delay: 2.5 },
+];
 
 export default function Deposit() {
   const { user } = useAuth();
@@ -24,6 +35,33 @@ export default function Deposit() {
   const [transactionHash, setTransactionHash] = useState("");
   const [selectedToken, setSelectedToken] = useState<"BTC" | "ETH" | "BNB">("BTC");
   const { data: priceData } = useBitcoinPrice();
+  const [vantaEffect, setVantaEffect] = useState<any>(null);
+  const vantaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!vantaEffect && vantaRef.current) {
+      setVantaEffect(
+        GLOBE({
+          el: vantaRef.current,
+          THREE: THREE,
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 200.00,
+          minWidth: 200.00,
+          scale: 1.00,
+          scaleMobile: 1.00,
+          color: 0x00ff99,
+          color2: 0x00cc66,
+          backgroundColor: 0x0a0a0a,
+          size: 1.2,
+        })
+      );
+    }
+    return () => {
+      if (vantaEffect) vantaEffect.destroy();
+    };
+  }, [vantaEffect]);
 
   const { data: tokenAddresses } = useQuery<TokenAddress[]>({
     queryKey: [`/api/token-addresses/${user?.id}`],
@@ -97,28 +135,100 @@ export default function Deposit() {
   const currentToken = tokens.find(t => t.symbol === selectedToken);
 
   return (
-    <AppLayout maxWidth="2xl">
-      <div className="p-6 space-y-6">
+    <div className="min-h-screen bg-[#0A0A0A] relative overflow-hidden flex items-center justify-center p-4">
+      {/* Globe Animation Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div ref={vantaRef} className="absolute inset-0" style={{ opacity: 0.6 }} />
+        
+        {/* Bouncing crypto logos */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {cryptoLogos.map((crypto, index) => {
+            const angle = (index / cryptoLogos.length) * 360;
+            return (
+              <motion.div
+                key={crypto.name}
+                className="absolute"
+                style={{
+                  left: "50%",
+                  top: "50%",
+                  marginLeft: "-24px",
+                  marginTop: "-24px",
+                }}
+                animate={{
+                  rotate: [angle, angle + 360],
+                }}
+                transition={{
+                  duration: 20,
+                  repeat: Infinity,
+                  ease: "linear",
+                  delay: crypto.delay,
+                }}
+              >
+                <motion.div
+                  className="relative"
+                  style={{
+                    transform: `translateX(180px)`,
+                  }}
+                  animate={{
+                    y: [0, -30, 0],
+                    scale: [1, 1.2, 1],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: crypto.delay,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-xs border-2"
+                    style={{
+                      backgroundColor: `${crypto.color}20`,
+                      borderColor: crypto.color,
+                      boxShadow: `0 0 20px ${crypto.color}50`,
+                      color: crypto.color,
+                    }}
+                  >
+                    {crypto.name}
+                  </div>
+                </motion.div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <motion.div
+        className="relative bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-8 border-2 border-[#00FF80]/30 z-10 w-full max-w-2xl"
+        style={{
+          boxShadow: "0 0 40px rgba(0, 255, 128, 0.2), inset 0 0 20px rgba(0, 255, 128, 0.05)",
+        }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
         {/* Header */}
-        <header className="flex items-center gap-3">
+        <header className="flex items-center gap-3 mb-6">
           <Button
             variant="outline"
             size="icon"
             onClick={() => setLocation('/')}
+            className="border-[#00FF80]/30 hover:bg-[#00FF80]/10"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-[#00FF80]" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Deposit Crypto</h1>
-            <p className="text-muted-foreground mt-1">Add funds to your wallet</p>
+            <h1 className="text-3xl font-bold text-[#00FF80]">Deposit Crypto</h1>
+            <p className="text-[#00FF80]/60 mt-1">Add funds to your wallet</p>
           </div>
         </header>
 
-        <div className="max-w-2xl space-y-6">
+        <div className="space-y-6">
           {/* Token Selection */}
-          <Card className="border-border shadow-lg">
+          <Card className="border-[#00FF80]/20 bg-[#1A1A1A]/50 backdrop-blur">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg text-foreground">Select Token</CardTitle>
+              <CardTitle className="text-lg text-[#00FF80]">Select Token</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-2">
@@ -129,8 +239,8 @@ export default function Deposit() {
                     variant={selectedToken === token.symbol ? "default" : "outline"}
                     className={`h-20 flex flex-col items-center justify-center gap-2 ${
                       selectedToken === token.symbol 
-                        ? `${token.color} hover:${token.color}/90` 
-                        : ""
+                        ? `bg-[#00FF80] hover:bg-[#00FF80]/90 text-[#0A0A0A]` 
+                        : "border-[#00FF80]/20 hover:bg-[#00FF80]/10"
                     }`}
                   >
                     <Wallet className="w-5 h-5" />
@@ -143,11 +253,11 @@ export default function Deposit() {
 
           {/* Deposit Address */}
           {currentToken && currentToken.address && (
-            <Card className="border-border shadow-lg">
+            <Card className="border-[#00FF80]/20 bg-[#1A1A1A]/50 backdrop-blur">
               <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-foreground">
-                  <div className={`w-8 h-8 rounded-lg ${currentToken.color}/20 flex items-center justify-center`}>
-                    <Wallet className={`w-4 h-4 text-white`} />
+                <CardTitle className="flex items-center gap-3 text-[#00FF80]">
+                  <div className="w-8 h-8 rounded-lg bg-[#00FF80]/20 flex items-center justify-center">
+                    <Wallet className="w-4 h-4 text-[#00FF80]" />
                   </div>
                   Your {currentToken.name} Address
                 </CardTitle>
@@ -155,26 +265,26 @@ export default function Deposit() {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-sm text-muted-foreground mb-2">Deposit Address</Label>
+                    <Label className="text-sm text-[#00FF80]/60 mb-2">Deposit Address</Label>
                     <div className="flex items-center gap-2 mt-2">
                       <Input
                         value={currentToken.address}
                         readOnly
-                        className="text-xs font-mono bg-muted/30"
+                        className="text-xs font-mono bg-[#0A0A0A]/50 border-[#00FF80]/20 text-[#00FF80]"
                       />
                       <Button
                         variant="outline"
                         size="icon"
                         onClick={() => copyToClipboard(currentToken.address!, currentToken.symbol)}
-                        className="flex-shrink-0"
+                        className="flex-shrink-0 border-[#00FF80]/30 hover:bg-[#00FF80]/10"
                       >
-                        {copied === currentToken.symbol ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        {copied === currentToken.symbol ? <Check className="w-4 h-4 text-[#00FF80]" /> : <Copy className="w-4 h-4 text-[#00FF80]" />}
                       </Button>
                     </div>
                   </div>
-                  <div className="bg-muted/30 p-4 rounded-lg space-y-2">
-                    <p className="text-xs font-semibold text-foreground">Important:</p>
-                    <ul className="text-xs text-muted-foreground space-y-1">
+                  <div className="bg-[#0A0A0A]/50 p-4 rounded-lg space-y-2 border border-[#00FF80]/10">
+                    <p className="text-xs font-semibold text-[#00FF80]">Important:</p>
+                    <ul className="text-xs text-[#00FF80]/60 space-y-1">
                       <li>• Send only {currentToken.symbol} to this address</li>
                       <li>• Network: {currentToken.symbol === "BTC" ? "Bitcoin" : currentToken.symbol === "ETH" ? "Ethereum (ERC-20)" : "BNB Smart Chain (BEP-20)"}</li>
                       <li>• Minimum deposit: $10 USD</li>
@@ -187,11 +297,11 @@ export default function Deposit() {
           )}
 
           {/* Submit Deposit */}
-          <Card className="border-border shadow-lg">
+          <Card className="border-[#00FF80]/20 bg-[#1A1A1A]/50 backdrop-blur">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-3 text-foreground">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <Send className="w-4 h-4 text-blue-500" />
+              <CardTitle className="flex items-center gap-3 text-[#00FF80]">
+                <div className="w-8 h-8 rounded-lg bg-[#00FF80]/20 flex items-center justify-center">
+                  <Send className="w-4 h-4 text-[#00FF80]" />
                 </div>
                 Submit Deposit
               </CardTitle>
@@ -199,7 +309,7 @@ export default function Deposit() {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="amount" className="text-foreground">Amount (USD)</Label>
+                  <Label htmlFor="amount" className="text-[#00FF80]">Amount (USD)</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -207,31 +317,34 @@ export default function Deposit() {
                     placeholder="100.00"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="mt-1.5"
+                    className="mt-1.5 bg-[#0A0A0A]/50 border-[#00FF80]/20 text-[#00FF80]"
                   />
                   {amount && priceData?.usd?.price && (
-                    <p className="text-xs text-muted-foreground mt-2">
+                    <p className="text-xs text-[#00FF80]/60 mt-2">
                       ≈ {usdToBtc(amount, priceData.usd.price)} BTC
                     </p>
                   )}
                 </div>
                 <div>
-                  <Label htmlFor="txHash" className="text-foreground">Transaction Hash (Optional)</Label>
+                  <Label htmlFor="txHash" className="text-[#00FF80]">Transaction Hash (Optional)</Label>
                   <Input
                     id="txHash"
                     placeholder="Enter your transaction hash"
                     value={transactionHash}
                     onChange={(e) => setTransactionHash(e.target.value)}
-                    className="mt-1.5"
+                    className="mt-1.5 bg-[#0A0A0A]/50 border-[#00FF80]/20 text-[#00FF80]"
                   />
-                  <p className="text-xs text-muted-foreground mt-2">
+                  <p className="text-xs text-[#00FF80]/60 mt-2">
                     Provide transaction hash after sending to speed up confirmation
                   </p>
                 </div>
                 <Button 
                   onClick={() => submitDepositMutation.mutate({ amount, transactionHash })}
                   disabled={!amount || submitDepositMutation.isPending}
-                  className="w-full h-12 rounded-xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-lg transition-all duration-300 group text-white font-semibold"
+                  className="w-full h-12 rounded-xl bg-[#00FF80] hover:bg-[#00FF80]/90 text-[#0A0A0A] shadow-lg transition-all duration-300 group font-semibold"
+                  style={{
+                    boxShadow: "0 0 20px rgba(0, 255, 128, 0.3)",
+                  }}
                 >
                   {submitDepositMutation.isPending ? "Submitting..." : (
                     <>
@@ -245,13 +358,13 @@ export default function Deposit() {
           </Card>
 
           {/* Instructions */}
-          <Card className="border-border shadow-lg">
+          <Card className="border-[#00FF80]/20 bg-[#1A1A1A]/50 backdrop-blur">
             <CardContent className="p-6">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-[#00FF80]/60 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-foreground mb-2">How to Deposit</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1.5">
+                  <h4 className="font-medium text-[#00FF80] mb-2">How to Deposit</h4>
+                  <ul className="text-sm text-[#00FF80]/60 space-y-1.5">
                     <li>1. Select your token (BTC, ETH, or BNB)</li>
                     <li>2. Copy your deposit address</li>
                     <li>3. Send crypto from your external wallet</li>
@@ -263,7 +376,7 @@ export default function Deposit() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </AppLayout>
+      </motion.div>
+    </div>
   );
 }
