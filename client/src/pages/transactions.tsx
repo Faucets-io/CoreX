@@ -9,7 +9,7 @@ import { formatBitcoin, formatDate } from "@/lib/utils";
 import type { Transaction } from "@shared/schema";
 import { Separator } from "@/components/ui/separator";
 import FluxLogoHeader from "@/components/flux-logo-header";
-import AppLayout from "@/components/app-layout";
+import { AppLayout } from "@/components/app-layout";
 import { motion } from "framer-motion";
 
 export default function Transactions() {
