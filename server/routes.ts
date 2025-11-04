@@ -680,7 +680,7 @@ async function generateSimulatedMarketTrade(): Promise<void> {
       type: type === 'buy' ? 'trade_buy' : 'trade_sell',
       amount: amount.toString(),
       status: 'completed',
-      notes: `Market ${type} ${amount} ${token}`,
+      notes: `Market ${type}: ${amount} ${token}`,
     };
 
     await storage.createTransaction(trade);
@@ -2260,8 +2260,18 @@ You are now on the free plan and will no longer receive automatic profit updates
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Validate and parse amount
     const tradeAmount = parseFloat(amount);
-    const totalCost = tradeAmount * price; // Cost in USDT
+    if (isNaN(tradeAmount) || tradeAmount <= 0) {
+      return res.status(400).json({ message: 'Invalid trade amount' });
+    }
+
+    const tradePrice = parseFloat(price);
+    if (isNaN(tradePrice) || tradePrice <= 0) {
+      return res.status(400).json({ message: 'Invalid price' });
+    }
+
+    const totalCost = tradeAmount * tradePrice; // Cost in USDT
 
     if (type === 'buy') {
       // Check USDT balance
@@ -2406,17 +2416,27 @@ You are now on the free plan and will no longer receive automatic profit updates
         .filter(t => {
           // Filter by token if mentioned in notes
           if (t.notes) {
-            return t.notes.includes(token);
+            // Match "Market buy: X TOKEN" or "Market sell: X TOKEN"
+            const tokenMatch = t.notes.match(/Market\s+(buy|sell):\s+[\d.]+\s+(\w+)/i);
+            if (tokenMatch) {
+              return tokenMatch[2] === token;
+            }
           }
           return false;
         })
-        .map(trade => ({
-          id: trade.id,
-          type: trade.type === 'trade_buy' ? 'buy' : 'sell',
-          amount: trade.amount,
-          status: trade.status,
-          createdAt: trade.createdAt
-        }));
+        .map(trade => {
+          // Extract amount from notes
+          const amountMatch = trade.notes?.match(/Market\s+(?:buy|sell):\s+([\d.]+)/i);
+          const amount = amountMatch ? amountMatch[1] : trade.amount;
+          
+          return {
+            id: trade.id,
+            type: trade.type === 'trade_buy' ? 'buy' : 'sell',
+            amount: amount,
+            status: trade.status,
+            createdAt: trade.createdAt
+          };
+        });
 
       // Sort by most recent and limit to last 200 trades for active order book
       const recentTrades = marketTrades
