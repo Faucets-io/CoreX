@@ -16,6 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import type { TokenBalance } from '@shared/schema';
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
+import FluxLogoHeader from "@/components/flux-logo-header";
 
 interface TradeOrder {
   id: number;
@@ -54,7 +55,7 @@ function TokenBalanceDisplay({ userId, selectedToken, currentPrice }: { userId: 
 
   const tokenBalance = tokenBalances?.find(b => b.tokenSymbol === selectedToken);
   const usdtBalance = tokenBalances?.find(b => b.tokenSymbol === 'USDT');
-  
+
   const balance = parseFloat(tokenBalance?.balance || '0');
   const usdtBal = parseFloat(usdtBalance?.balance || '0');
 
@@ -66,7 +67,7 @@ function TokenBalanceDisplay({ userId, selectedToken, currentPrice }: { userId: 
           {formatBitcoin(balance.toString())} {selectedToken}
         </p>
       </div>
-      
+
       <div className="rounded-lg p-3 border" style={{ backgroundColor: '#1A1A1A', borderColor: '#2A2A2A' }}>
         <p className="text-xs mb-1" style={{ color: '#BFBFBF' }}>USD Value</p>
         <p className="text-lg font-bold" style={{ color: '#00FF99' }} data-testid="text-usd-value">
@@ -216,23 +217,23 @@ export default function Trade() {
           token: selectedToken.symbol
         }),
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Trade execution failed');
       }
-      
+
       return response.json();
     },
     onSuccess: (data) => {
       setLocalTradeHistory(prev => [{...data, token: selectedToken.symbol}, ...prev].slice(0, 50));
       queryClient.invalidateQueries({ queryKey: [`/api/token-balances/${user.id}`] });
-      
+
       toast({
         title: "Trade Executed",
         description: `Successfully ${data.type === 'buy' ? 'bought' : 'sold'} ${data.amount} ${selectedToken.symbol}`,
       });
-      
+
       setBuyAmount('');
       setSellAmount('');
     },
@@ -286,7 +287,7 @@ export default function Trade() {
     const amount = parseFloat(trade.amount);
     return sum + (amount * currentPrice);
   }, 0) || 0;
-  
+
   // Ensure 24h volume is always in millions (minimum 2 million)
   const totalVolume = Math.max(calculatedVolume * 720, 2000000); // Multiply by 720 to simulate 24h (200 trades * 720 = full day estimate)
   const buyOrders = allTrades?.filter(t => t.type === 'buy').length || 0;
@@ -308,14 +309,7 @@ export default function Trade() {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="text-2xl font-bold" style={{ 
-              background: 'linear-gradient(90deg, #00FF99, #00CC66)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              FluxTrade
-            </div>
+            <FluxLogoHeader />
           </div>
           <Button 
             onClick={handleRefresh}
@@ -417,7 +411,7 @@ export default function Trade() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div>
                     <div className="flex items-center gap-3">
                       <div>
@@ -553,7 +547,7 @@ export default function Trade() {
                         const amount = parseFloat(trade.amount);
                         const total = amount * currentPrice;
                         const depth = Math.min((amount / 10) * 100, 100);
-                        
+
                         return (
                           <div
                             key={trade.id}
@@ -575,7 +569,7 @@ export default function Trade() {
                                   : 'rgba(0, 255, 153, 0.1)'
                               }}
                             />
-                            
+
                             <div 
                               className="font-mono font-semibold relative z-10"
                               style={{ color: trade.type === 'sell' ? '#EF4444' : '#00FF99' }}

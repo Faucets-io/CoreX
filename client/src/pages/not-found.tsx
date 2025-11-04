@@ -1,7 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Home, TrendingUp, Zap, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
+import FluxLogoHeader from "@/components/flux-logo-header";
 
 export default function NotFound() {
   const [, setLocation] = useLocation();
@@ -26,7 +26,7 @@ export default function NotFound() {
               <Zap className="w-16 h-16 md:w-20 md:h-20 text-[#00FF80]" />
             </div>
           </div>
-          
+
           {/* Glowing effect */}
           <div className="absolute inset-0 blur-3xl opacity-30">
             <div className="w-full h-full bg-gradient-to-r from-[#00FF80] to-[#00CCFF]" />
@@ -39,7 +39,7 @@ export default function NotFound() {
             <TrendingUp className="w-7 h-7 text-[#00FF80]" />
             <h2 className="text-2xl md:text-3xl font-bold text-white">Page Not Found</h2>
           </div>
-          
+
           <p className="text-gray-400 mb-6 text-sm md:text-base leading-relaxed">
             Looks like this trading route doesn't exist. The market moves fast, but this page moved faster. Let's get you back on track.
           </p>
@@ -53,7 +53,7 @@ export default function NotFound() {
               <Home className="w-5 h-5 mr-2" />
               Back to Dashboard
             </Button>
-            
+
             <Button
               onClick={() => window.history.back()}
               className="bg-[#2A2A2A] text-[#00FF80] border-2 border-[#00FF80]/30 hover:bg-[#3A3A3A] hover:border-[#00FF80] font-bold rounded-xl px-8 py-6 transition-all"

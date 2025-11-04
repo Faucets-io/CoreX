@@ -12,14 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { apiRequest } from '@/lib/queryClient';
 
-// Placeholder for the logo component as described in thinking
-const FluxLogoHeader = () => (
-  <div className="flex items-center gap-2 p-4">
-    {/* Replace with actual logo and icon */}
-    <span className="text-lg font-bold text-white">FluxTrade</span>
-    <span className="text-lg text-blue-400">🚀</span>
-  </div>
-);
+import FluxLogoHeader from "@/components/flux-logo-header";
 
 const TOKEN_LOGO_URLS: Record<string, string> = {
   BTC: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
@@ -57,9 +50,9 @@ function TokenIcon({ symbol, size = 'md' }: { symbol: string; size?: 'sm' | 'md'
   }
 
   return (
-    <img 
-      src={logoUrl} 
-      alt={symbol} 
+    <img
+      src={logoUrl}
+      alt={symbol}
       className={`${sizeClasses[size]} rounded-full object-cover`}
       onError={() => setImageError(true)}
     />
@@ -186,19 +179,19 @@ export default function Assets() {
         {/* Animated background similar to login */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute inset-0" style={{ opacity: 0.6 }}>
-            <div 
+            <div
               className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-20 blur-3xl"
               style={{
                 background: 'radial-gradient(circle, hsl(150 100% 60%) 0%, hsl(150 100% 40%) 50%, transparent 70%)',
               }}
             />
-            <div 
+            <div
               className="absolute bottom-0 left-0 w-80 h-80 rounded-full opacity-15 blur-3xl"
               style={{
                 background: 'radial-gradient(circle, hsl(150 100% 50%) 0%, hsl(150 100% 35%) 50%, transparent 70%)',
               }}
             />
-            <div 
+            <div
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-10 blur-3xl animate-pulse-slow"
               style={{
                 background: 'radial-gradient(circle, hsl(150 100% 55%) 0%, transparent 70%)',
@@ -238,8 +231,8 @@ export default function Assets() {
               <Button
                 onClick={() => setShowSwap(!showSwap)}
                 variant={showSwap ? "default" : "outline"}
-                className={showSwap 
-                  ? "w-full bg-gradient-to-r from-[#00FF99] to-[#00CC66] hover:from-[#00FF99]/90 hover:to-[#00CC66]/90 text-black font-semibold" 
+                className={showSwap
+                  ? "w-full bg-gradient-to-r from-[#00FF99] to-[#00CC66] hover:from-[#00FF99]/90 hover:to-[#00CC66]/90 text-black font-semibold"
                   : "w-full border-[#00FF80]/30 text-white hover:bg-[#00FF80]/10"
                 }
                 style={showSwap ? {
@@ -422,7 +415,7 @@ export default function Assets() {
                           </div>
                           <div className="text-right">
                             <p className="font-bold text-white" data-testid={`balance-${balance.tokenSymbol}`}>
-                              {parseFloat(balance.balance).toLocaleString(undefined, { 
+                              {parseFloat(balance.balance).toLocaleString(undefined, {
                                 minimumFractionDigits: balance.tokenSymbol === 'USDT' ? 2 : 6,
                                 maximumFractionDigits: balance.tokenSymbol === 'USDT' ? 2 : 6
                               })}
