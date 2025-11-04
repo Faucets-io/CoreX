@@ -72,12 +72,15 @@ export default function Login() {
         description: "Login successful",
       });
       
-      // Check if user has wallet setup
-      if (userData.hasWallet) {
-        setLocation("/home");
-      } else {
-        setLocation("/wallet-setup");
-      }
+      // Small delay to ensure state is updated before navigation
+      setTimeout(() => {
+        // Check if user has wallet setup
+        if (userData.hasWallet) {
+          setLocation("/home");
+        } else {
+          setLocation("/wallet-setup");
+        }
+      }, 100);
     } catch (error: any) {
       console.error('Login error:', error);
       toast({

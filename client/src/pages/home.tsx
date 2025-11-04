@@ -59,8 +59,13 @@ export default function Home() {
     if (isLoading) return;
 
     if (!user) {
-      setLocation('/');
-      return;
+      // Only redirect to landing if we've confirmed there's no user after loading completes
+      const timer = setTimeout(() => {
+        if (!user && !isLoading) {
+          setLocation('/');
+        }
+      }, 200);
+      return () => clearTimeout(timer);
     }
 
     if (!user.hasWallet) {
