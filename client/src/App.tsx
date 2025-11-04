@@ -29,6 +29,7 @@ import WalletSetup from "@/pages/wallet-setup";
 import Trade from "@/pages/trade"; // Import the new Trade component
 import Assets from "@/pages/assets"; // Import the new Assets page
 import NotFound from "@/pages/not-found";
+import ProfilePicPreview from "@/pages/profile-pic-preview";
 
 function Router() {
   return (
@@ -56,6 +57,7 @@ function Router() {
       <Route path="/wallet-setup" component={WalletSetup} />
       <Route path="/trade" component={Trade} /> {/* Add the new trade route */}
       <Route path="/assets" component={Assets} /> {/* Add the new assets route */}
+      <Route path="/profile-pic-preview" component={ProfilePicPreview} />
       <Route component={NotFound} />
     </Switch>
   );
