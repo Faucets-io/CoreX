@@ -9,7 +9,7 @@ export function AppNavigation() {
   const { user, logout } = useAuth();
 
   const navItems = [
-    { path: "/", icon: Home, label: "Wallet" },
+    { path: "/home", icon: Home, label: "Wallet" },
     { path: "/assets", icon: Wallet, label: "Assets" },
     { path: "/trade", icon: BarChart3, label: "Trade" },
     { path: "/investment", icon: TrendingUp, label: "Invest" },
