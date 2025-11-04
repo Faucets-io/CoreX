@@ -1,20 +1,17 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/app-layout";
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { TokenBalance, TokenAddress } from '@shared/schema';
 import { useLocation } from "wouter";
 import { useEffect } from "react";
-import { Copy, Eye, EyeOff, ArrowDownUp, Wallet, TrendingUp } from 'lucide-react';
+import { Copy, Eye, EyeOff, ArrowDownUp, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { apiRequest } from '@/lib/queryClient';
-import { NeonBackdrop } from "@/components/neon-backdrop";
 
 const TOKEN_LOGO_URLS: Record<string, string> = {
   BTC: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
@@ -171,48 +168,66 @@ export default function Assets() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen neon-bg relative">
-        <NeonBackdrop />
+      <div className="min-h-screen bg-[#0A0A0A] relative overflow-hidden">
+        {/* Animated background similar to login */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0" style={{ opacity: 0.6 }}>
+            <div 
+              className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-20 blur-3xl"
+              style={{
+                background: 'radial-gradient(circle, hsl(150 100% 60%) 0%, hsl(150 100% 40%) 50%, transparent 70%)',
+              }}
+            />
+            <div 
+              className="absolute bottom-0 left-0 w-80 h-80 rounded-full opacity-15 blur-3xl"
+              style={{
+                background: 'radial-gradient(circle, hsl(150 100% 50%) 0%, hsl(150 100% 35%) 50%, transparent 70%)',
+              }}
+            />
+            <div 
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-10 blur-3xl animate-pulse-slow"
+              style={{
+                background: 'radial-gradient(circle, hsl(150 100% 55%) 0%, transparent 70%)',
+              }}
+            />
+          </div>
+        </div>
         
         <div className="relative z-10 pb-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          <div className="max-w-sm mx-auto px-6 pt-6">
             {/* Header */}
-            <header className="mb-8">
-              <h1 className="text-4xl font-bold neon-text mb-2">Assets</h1>
-              <p className="text-sm neon-text-secondary">Manage your cryptocurrency holdings</p>
-            </header>
-
-            {/* Portfolio Overview Card */}
-            <div className="neon-card rounded-2xl p-6 mb-6 border neon-border neon-glow">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-sm neon-text-secondary mb-1">Total Portfolio Value</p>
-                  <h2 className="text-5xl font-bold neon-gradient bg-clip-text" style={{ WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-                    ${totalValueUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </h2>
-                  <p className="text-sm neon-text-secondary mt-2">
-                    Across {tokenBalances?.filter(b => parseFloat(b.balance) > 0).length || 0} tokens
-                  </p>
-                </div>
-                <div className="hidden md:flex gap-2">
-                  <Button
-                    onClick={() => setShowSwap(!showSwap)}
-                    variant={showSwap ? "default" : "outline"}
-                    className={showSwap ? "bg-[#00FF80] text-black hover:bg-[#00CC66] neon-glow" : "border-[#00FF80]/30 neon-text hover:bg-[#00FF80]/10"}
-                  >
-                    <ArrowDownUp className="w-4 h-4 mr-2" />
-                    Swap
-                  </Button>
-                </div>
-              </div>
+            <div className="mb-8">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00FF80] to-[#00CCFF] bg-clip-text text-transparent mb-2">
+                Assets
+              </h1>
+              <p className="text-sm text-gray-400">Manage your cryptocurrency holdings</p>
             </div>
 
-            {/* Quick Swap Toggle for Mobile */}
-            <div className="md:hidden mb-6">
+            {/* Portfolio Overview Card */}
+            <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-6 mb-6 border-2 border-[#00FF80]/30"
+              style={{
+                boxShadow: "0 0 40px rgba(0, 255, 128, 0.2), inset 0 0 20px rgba(0, 255, 128, 0.05)",
+              }}
+            >
+              <div className="mb-4">
+                <p className="text-sm text-gray-400 mb-1">Total Portfolio Value</p>
+                <h2 className="text-5xl font-bold bg-gradient-to-r from-[#00FF80] to-[#00CCFF] bg-clip-text text-transparent">
+                  ${totalValueUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </h2>
+                <p className="text-sm text-gray-400 mt-2">
+                  Across {tokenBalances?.filter(b => parseFloat(b.balance) > 0).length || 0} tokens
+                </p>
+              </div>
               <Button
                 onClick={() => setShowSwap(!showSwap)}
                 variant={showSwap ? "default" : "outline"}
-                className={showSwap ? "w-full bg-[#00FF80] text-black hover:bg-[#00CC66] neon-glow" : "w-full border-[#00FF80]/30 neon-text hover:bg-[#00FF80]/10"}
+                className={showSwap 
+                  ? "w-full bg-gradient-to-r from-[#00FF99] to-[#00CC66] hover:from-[#00FF99]/90 hover:to-[#00CC66]/90 text-black font-semibold" 
+                  : "w-full border-[#00FF80]/30 text-white hover:bg-[#00FF80]/10"
+                }
+                style={showSwap ? {
+                  boxShadow: "0 0 20px rgba(0, 255, 128, 0.5)",
+                } : {}}
               >
                 <ArrowDownUp className="w-4 h-4 mr-2" />
                 {showSwap ? 'Hide Swap' : 'Swap Tokens'}
@@ -221,18 +236,22 @@ export default function Assets() {
 
             {/* Swap Section */}
             {showSwap && (
-              <div className="neon-card rounded-2xl p-6 mb-6 border neon-border">
-                <h3 className="text-xl font-bold neon-text mb-4 flex items-center gap-2">
+              <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-6 mb-6 border-2 border-[#00FF80]/30"
+                style={{
+                  boxShadow: "0 0 40px rgba(0, 255, 128, 0.2), inset 0 0 20px rgba(0, 255, 128, 0.05)",
+                }}
+              >
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <ArrowDownUp className="w-5 h-5 text-[#00FF80]" />
                   Swap Tokens
                 </h3>
                 <div className="space-y-4">
                   {/* From Token */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium neon-text">From</label>
+                    <label className="text-sm font-medium text-white">From</label>
                     <div className="flex gap-2">
                       <Select value={fromToken} onValueChange={setFromToken}>
-                        <SelectTrigger className="w-32 neon-card border-[#00FF80]/30" data-testid="select-from-token">
+                        <SelectTrigger className="w-32 bg-[#0A0A0A]/50 border-[#00FF80]/30 text-white" data-testid="select-from-token">
                           <SelectValue>
                             <div className="flex items-center gap-2">
                               <TokenIcon symbol={fromToken} size="sm" />
@@ -240,7 +259,7 @@ export default function Assets() {
                             </div>
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="neon-card border-[#00FF80]/30">
+                        <SelectContent className="bg-[#1A1A1A] border-[#00FF80]/30">
                           {availableTokens.map(token => (
                             <SelectItem key={token} value={token}>
                               <div className="flex items-center gap-2">
@@ -257,27 +276,29 @@ export default function Assets() {
                         value={fromAmount}
                         onChange={(e) => setFromAmount(e.target.value)}
                         data-testid="input-from-amount"
-                        className="flex-1 neon-card border-[#00FF80]/30"
+                        className="flex-1 bg-[#0A0A0A]/50 border-[#00FF80]/30 text-white"
                       />
                     </div>
-                    <p className="text-xs neon-text-secondary">
+                    <p className="text-xs text-gray-400">
                       Balance: {tokenBalances?.find(b => b.tokenSymbol === fromToken)?.balance || '0'}
                     </p>
                   </div>
 
                   {/* Swap Icon */}
                   <div className="flex justify-center">
-                    <div className="w-10 h-10 rounded-full bg-[#00FF80]/20 flex items-center justify-center neon-glow-sm">
+                    <div className="w-10 h-10 rounded-full bg-[#00FF80]/20 flex items-center justify-center"
+                      style={{ boxShadow: "0 0 15px rgba(0, 255, 128, 0.3)" }}
+                    >
                       <ArrowDownUp className="w-5 h-5 text-[#00FF80]" />
                     </div>
                   </div>
 
                   {/* To Token */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium neon-text">To</label>
+                    <label className="text-sm font-medium text-white">To</label>
                     <div className="flex gap-2">
                       <Select value={toToken} onValueChange={setToToken}>
-                        <SelectTrigger className="w-32 neon-card border-[#00FF80]/30" data-testid="select-to-token">
+                        <SelectTrigger className="w-32 bg-[#0A0A0A]/50 border-[#00FF80]/30 text-white" data-testid="select-to-token">
                           <SelectValue>
                             <div className="flex items-center gap-2">
                               <TokenIcon symbol={toToken} size="sm" />
@@ -285,7 +306,7 @@ export default function Assets() {
                             </div>
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="neon-card border-[#00FF80]/30">
+                        <SelectContent className="bg-[#1A1A1A] border-[#00FF80]/30">
                           {['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'TRUMP'].map(token => (
                             <SelectItem key={token} value={token}>
                               <div className="flex items-center gap-2">
@@ -302,10 +323,10 @@ export default function Assets() {
                         value={estimatedReceive > 0 ? estimatedReceive.toFixed(8) : ''}
                         readOnly
                         data-testid="output-to-amount"
-                        className="flex-1 neon-card border-[#00FF80]/30 bg-[#00FF80]/5"
+                        className="flex-1 bg-[#0A0A0A]/50 border-[#00FF80]/30 bg-[#00FF80]/5 text-white"
                       />
                     </div>
-                    <p className="text-xs neon-text-secondary">
+                    <p className="text-xs text-gray-400">
                       Balance: {tokenBalances?.find(b => b.tokenSymbol === toToken)?.balance || '0'}
                     </p>
                   </div>
@@ -314,13 +335,13 @@ export default function Assets() {
                   {fromAmount && parseFloat(fromAmount) > 0 && tokenPrices && (
                     <div className="bg-[#00FF80]/5 rounded-xl p-4 space-y-2 border border-[#00FF80]/20">
                       <div className="flex justify-between text-xs">
-                        <span className="neon-text-secondary">Rate</span>
-                        <span className="neon-text font-medium">
+                        <span className="text-gray-400">Rate</span>
+                        <span className="text-white font-medium">
                           1 {fromToken} = {exchangeRate.toFixed(6)} {toToken}
                         </span>
                       </div>
                       <div className="flex justify-between text-xs font-semibold pt-2 border-t border-[#00FF80]/20">
-                        <span className="neon-text">You'll receive</span>
+                        <span className="text-white">You'll receive</span>
                         <span className="text-[#00FF80]">{estimatedReceive.toFixed(8)} {toToken}</span>
                       </div>
                     </div>
@@ -330,8 +351,11 @@ export default function Assets() {
                   <Button
                     onClick={() => swapMutation.mutate()}
                     disabled={!fromAmount || parseFloat(fromAmount) <= 0 || fromToken === toToken || swapMutation.isPending}
-                    className="w-full bg-[#00FF80] text-black hover:bg-[#00CC66] neon-glow-lg font-bold"
+                    className="w-full bg-gradient-to-r from-[#00FF99] to-[#00CC66] hover:from-[#00FF99]/90 hover:to-[#00CC66]/90 text-black font-semibold"
                     data-testid="button-swap"
+                    style={{
+                      boxShadow: "0 0 20px rgba(0, 255, 128, 0.5)",
+                    }}
                   >
                     {swapMutation.isPending ? 'Swapping...' : 'Swap Tokens'}
                   </Button>
@@ -341,15 +365,19 @@ export default function Assets() {
 
             {/* Token Balances */}
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold neon-text">Token Balances</h2>
+              <h2 className="text-2xl font-bold text-white">Token Balances</h2>
               
               {balancesLoading ? (
-                <div className="text-center py-12 neon-text-secondary">Loading balances...</div>
+                <div className="text-center py-12 text-gray-400">Loading balances...</div>
               ) : !tokenBalances || tokenBalances.length === 0 ? (
-                <div className="neon-card rounded-2xl p-12 text-center border neon-border">
+                <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-12 text-center border-2 border-[#00FF80]/30"
+                  style={{
+                    boxShadow: "0 0 40px rgba(0, 255, 128, 0.2), inset 0 0 20px rgba(0, 255, 128, 0.05)",
+                  }}
+                >
                   <Wallet className="w-12 h-12 mx-auto mb-3 text-[#00FF80]/50" />
-                  <p className="neon-text-secondary">No token balances found</p>
-                  <p className="text-sm neon-text-secondary mt-2">Create a wallet to get started</p>
+                  <p className="text-gray-400">No token balances found</p>
+                  <p className="text-sm text-gray-500 mt-2">Create a wallet to get started</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -360,19 +388,23 @@ export default function Assets() {
                     const tokenValue = parseFloat(balance.balance) * tokenPrice;
                     
                     return (
-                      <div key={balance.id} className="neon-card rounded-2xl p-4 border neon-border hover:neon-glow transition-all">
+                      <div key={balance.id} className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-2xl p-4 border-2 border-[#00FF80]/30 transition-all hover:border-[#00FF80]/50"
+                        style={{
+                          boxShadow: "0 0 20px rgba(0, 255, 128, 0.15), inset 0 0 15px rgba(0, 255, 128, 0.03)",
+                        }}
+                      >
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
                             <TokenIcon symbol={balance.tokenSymbol} size="md" />
                             <div>
-                              <h4 className="font-semibold neon-text">{balance.tokenSymbol}</h4>
-                              <p className="text-xs neon-text-secondary">
+                              <h4 className="font-semibold text-white">{balance.tokenSymbol}</h4>
+                              <p className="text-xs text-gray-400">
                                 ${tokenValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                               </p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold neon-text" data-testid={`balance-${balance.tokenSymbol}`}>
+                            <p className="font-bold text-white" data-testid={`balance-${balance.tokenSymbol}`}>
                               {parseFloat(balance.balance).toLocaleString(undefined, { 
                                 minimumFractionDigits: balance.tokenSymbol === 'USDT' ? 2 : 6,
                                 maximumFractionDigits: balance.tokenSymbol === 'USDT' ? 2 : 6
@@ -385,7 +417,7 @@ export default function Assets() {
                         {address && (
                           <div className="bg-[#00FF80]/5 rounded-lg p-3 border border-[#00FF80]/20">
                             <div className="flex items-center justify-between mb-1">
-                              <p className="text-xs neon-text-secondary">Address</p>
+                              <p className="text-xs text-gray-400">Address</p>
                               <div className="flex gap-1">
                                 <Button
                                   variant="ghost"
@@ -394,7 +426,7 @@ export default function Assets() {
                                   onClick={() => toggleAddressVisibility(balance.tokenSymbol)}
                                   data-testid={`toggle-address-${balance.tokenSymbol}`}
                                 >
-                                  {isVisible ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                                  {isVisible ? <EyeOff className="w-3 h-3 text-gray-400" /> : <Eye className="w-3 h-3 text-gray-400" />}
                                 </Button>
                                 <Button
                                   variant="ghost"
@@ -403,11 +435,11 @@ export default function Assets() {
                                   onClick={() => copyToClipboard(address.address, `${balance.tokenSymbol} address`)}
                                   data-testid={`copy-address-${balance.tokenSymbol}`}
                                 >
-                                  <Copy className="w-3 h-3" />
+                                  <Copy className="w-3 h-3 text-gray-400" />
                                 </Button>
                               </div>
                             </div>
-                            <p className="text-xs font-mono neon-text">
+                            <p className="text-xs font-mono text-white">
                               {isVisible ? address.address : truncateAddress(address.address)}
                             </p>
                           </div>
