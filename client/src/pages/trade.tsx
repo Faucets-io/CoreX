@@ -256,6 +256,7 @@ export default function Trade() {
 
   const executeTradeMutation = useMutation({
     mutationFn: async (data: { type: 'buy' | 'sell'; amount: string }) => {
+      console.log('Executing trade:', data);
       const response = await fetch('/api/trades/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -268,20 +269,26 @@ export default function Trade() {
         }),
       });
 
+      console.log('Trade response status:', response.status);
+
       if (!response.ok) {
         const error = await response.json();
+        console.error('Trade error:', error);
         throw new Error(error.message || 'Trade execution failed');
       }
 
-      return response.json();
+      const result = await response.json();
+      console.log('Trade success:', result);
+      return result;
     },
     onSuccess: (data) => {
+      console.log('Trade executed successfully:', data);
       setLocalTradeHistory(prev => [{...data, token: selectedToken.symbol}, ...prev].slice(0, 50));
       queryClient.invalidateQueries({ queryKey: [`/api/token-balances/${user.id}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/trades/history', user.id, selectedToken.symbol] });
 
       toast({
-        title: "Trade Executed",
+        title: "✅ Trade Executed",
         description: `Successfully ${data.type === 'buy' ? 'bought' : 'sold'} ${data.amount} ${selectedToken.symbol}`,
       });
 
@@ -289,8 +296,9 @@ export default function Trade() {
       setSellAmount('');
     },
     onError: (error: Error) => {
+      console.error('Trade mutation error:', error);
       toast({
-        title: "Trade Failed",
+        title: "❌ Trade Failed",
         description: error.message,
         variant: "destructive",
       });
