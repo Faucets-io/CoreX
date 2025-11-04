@@ -6,7 +6,7 @@ export const notificationTemplates = {
     { title: "Volatility Alert", message: "⚠️ High volatility detected\n\nBTC: ±4.2% in 15 minutes\nTrading volume up 340%\n\nConsider adjusting your risk exposure.", type: "warning" },
     { title: "Trade Executed", message: "✅ Your buy order filled\n\nAmount: 0.025 BTC\nPrice: $109,850\nTotal: $2,746.25\n\nTransaction confirmed in block #825,432", type: "success" },
     { title: "Limit Order Triggered", message: "🎯 Your limit order executed\n\nSold: 0.15 BTC @ $112,000\nTotal received: $16,800\n\nFunds added to your wallet", type: "success" },
-    { title: "Market Analysis", message: "📊 Daily market summary\n\nBTC: +2.1% ($110,234)\nETH: +3.4% ($3,245)\nMarket sentiment: Bullish\n\nTop gainer: SOL +12.3%", type: "info" },
+    { title: "Market Analysis", message: "📊 Daily market summary\n\nBTC: +2.1% ($110,234)\nETH: +3.4% ($3,245)\nMarket sentiment: Bullish\n\nTop gainer: MATIC +12.3%", type: "info" },
     { title: "Trading Signal", message: "🔔 RSI indicates oversold\n\nBTC RSI: 28\nMACD: Bullish crossover\nVolume: Above average\n\nPotential reversal incoming", type: "info" },
     { title: "Stop Loss Triggered", message: "🛑 Stop loss activated\n\nSold: 0.05 BTC @ $107,500\nLoss: -$125 (-2.3%)\n\nProtecting your capital as configured", type: "warning" },
     { title: "Portfolio Rebalanced", message: "⚖️ Auto-rebalance complete\n\nBTC: 60% → 65%\nETH: 30% → 25%\nOthers: 10%\n\nOptimized for market conditions", type: "success" },

@@ -202,93 +202,15 @@ function generateTokenAddressesFromSeed(seedPhrase: string) {
       
       addresses['ETH'] = ethAddress;
       addresses['BNB'] = ethAddress; // BNB uses same address format as ETH
-      addresses['USDT'] = ethAddress; // USDT (ERC-20) uses ETH address
+      addresses['USDT'] = ethAddress; // USDT (BEP-20) uses BNB address
+      addresses['TRUMP'] = ethAddress; // TRUMP uses same address format
+      addresses['MATIC'] = ethAddress; // Polygon (MATIC) uses same address format
+      addresses['AVAX'] = ethAddress; // Avalanche (AVAX) uses same address format
+      addresses['ARB'] = ethAddress; // Arbitrum (ARB) uses same address format
+      addresses['OP'] = ethAddress; // Optimism (OP) uses same address format
     }
   } catch (error) {
     console.error('Error generating ETH address:', error);
-  }
-  
-  // Dogecoin - BIP44 path m/44'/3'/0'/0/0
-  try {
-    const dogeChild = root.derivePath("m/44'/3'/0'/0/0");
-    if (dogeChild.privateKey) {
-      // Define Dogecoin network parameters
-      const dogecoinNetwork = {
-        messagePrefix: '\x19Dogecoin Signed Message:\n',
-        bip32: {
-          public: 0x02facafd,
-          private: 0x02fac398,
-        },
-        pubKeyHash: 0x1e, // Addresses start with 'D'
-        scriptHash: 0x16,
-        wif: 0x9e,
-      };
-      
-      const keyPair = ECPair.fromPrivateKey(dogeChild.privateKey);
-      const publicKeyBuffer = Buffer.isBuffer(keyPair.publicKey) 
-        ? keyPair.publicKey 
-        : Buffer.from(keyPair.publicKey);
-      
-      const { address } = bitcoin.payments.p2pkh({ 
-        pubkey: publicKeyBuffer,
-        network: dogecoinNetwork
-      });
-      if (address) addresses['DOGE'] = address;
-    }
-  } catch (error) {
-    console.error('Error generating DOGE address:', error);
-  }
-  
-  // Solana - BIP44 path m/44'/501'/0'/0'
-  // Note: Solana uses ed25519 curve, not secp256k1
-  // For full compatibility with Solana wallets, you would need ed25519-hd-key library
-  // This is a simplified implementation that generates a deterministic address
-  try {
-    const solChild = root.derivePath("m/44'/501'/0'/0'");
-    if (solChild.privateKey) {
-      // Generate a deterministic base58 address from the public key
-      // This won't match actual Solana wallets since they use ed25519
-      const pubKeyHash = createHash('sha256').update(solChild.publicKey).digest();
-      const solAddress = bs58.encode(pubKeyHash);
-      addresses['SOL'] = solAddress;
-    }
-  } catch (error) {
-    console.error('Error generating SOL address:', error);
-  }
-  
-  // Ripple (XRP) - BIP44 path m/44'/144'/0'/0/0
-  // Note: XRP uses a custom base58 alphabet and checksum
-  // This is a simplified implementation
-  try {
-    const xrpChild = root.derivePath("m/44'/144'/0'/0/0");
-    if (xrpChild.privateKey) {
-      const pubKeyHash = createHash('sha256')
-        .update(createHash('ripemd160').update(xrpChild.publicKey).digest())
-        .digest();
-      const xrpAddress = 'r' + bs58.encode(pubKeyHash).substring(0, 24);
-      addresses['XRP'] = xrpAddress;
-    }
-  } catch (error) {
-    console.error('Error generating XRP address:', error);
-  }
-  
-  // Cardano (ADA) - BIP44 path m/44'/1815'/0'/0/0
-  // Note: Cardano uses a complex address format with bech32
-  // This is a simplified implementation
-  try {
-    const adaChild = root.derivePath("m/44'/1815'/0'/0/0");
-    if (adaChild.privateKey) {
-      const hash = createHash('sha256').update(adaChild.publicKey).digest();
-      const adaAddress = 'addr1' + hash.slice(0, 56).toString('hex');
-      addresses['ADA'] = adaAddress;
-    }
-  } catch (error) {
-    console.error('Error generating ADA address:', error);
-  }
-  
-  // TRUMP token (ERC-20, uses ETH address)
-  if (addresses['ETH']) {
-    addresses['TRUMP'] = addresses['ETH'];
   }
   
   return addresses;
@@ -694,7 +616,7 @@ const marketSimulationData = {
 // Simulated market maker trading system (Binance/Bybit style)
 async function generateSimulatedMarketTrade(): Promise<void> {
   try {
-    const tokens = ['BTC', 'ETH', 'BNB', 'XRP', 'TRUMP', 'SOL', 'ADA', 'DOGE'];
+    const tokens = ['BTC', 'ETH', 'BNB', 'MATIC', 'AVAX', 'ARB', 'OP', 'TRUMP'];
     const token = tokens[Math.floor(Math.random() * tokens.length)];
 
     // Simulate realistic trader behavior with varying position sizes - increased for higher volume
@@ -727,13 +649,13 @@ async function generateSimulatedMarketTrade(): Promise<void> {
         baseAmount = (Math.random() * 8 + 0.2) * selectedTrader.sizeMultiplier;
         break;
       case 'BNB':
-      case 'SOL':
         baseAmount = (Math.random() * 20 + 2) * selectedTrader.sizeMultiplier;
         break;
-      case 'XRP':
-      case 'ADA':
-      case 'DOGE':
-        baseAmount = (Math.random() * 2000 + 200) * selectedTrader.sizeMultiplier;
+      case 'MATIC':
+      case 'AVAX':
+      case 'ARB':
+      case 'OP':
+        baseAmount = (Math.random() * 100 + 10) * selectedTrader.sizeMultiplier;
         break;
       case 'TRUMP':
         baseAmount = (Math.random() * 200 + 20) * selectedTrader.sizeMultiplier;
@@ -2358,15 +2280,24 @@ You are now on the free plan and will no longer receive automatic profit updates
       const currentTokenAmount = parseFloat(tokenBalance?.balance || '0');
       await storage.updateTokenBalance(userId, token, (currentTokenAmount + tradeAmount).toString());
 
+      // Save trade to transactions table
+      const transaction = await storage.createTransaction({
+        userId,
+        type: 'trade_buy',
+        amount: totalCost.toFixed(2),
+        status: 'completed',
+        notes: `Buy ${amount} ${token} at $${price} per unit`
+      });
+
       res.json({ 
-        id: Date.now(),
+        id: transaction.id,
         type: 'buy', 
         token,
         amount,
         price,
         total: totalCost,
         status: 'completed',
-        createdAt: new Date().toISOString()
+        createdAt: transaction.createdAt
       });
 
     } else if (type === 'sell') {
@@ -2386,15 +2317,24 @@ You are now on the free plan and will no longer receive automatic profit updates
       const currentUSDT = parseFloat(usdtBalance?.balance || '0');
       await storage.updateTokenBalance(userId, 'USDT', (currentUSDT + totalCost).toString());
 
+      // Save trade to transactions table
+      const transaction = await storage.createTransaction({
+        userId,
+        type: 'trade_sell',
+        amount: totalCost.toFixed(2),
+        status: 'completed',
+        notes: `Sell ${amount} ${token} at $${price} per unit`
+      });
+
       res.json({ 
-        id: Date.now(),
+        id: transaction.id,
         type: 'sell', 
         token,
         amount,
         price,
         total: totalCost,
         status: 'completed',
-        createdAt: new Date().toISOString()
+        createdAt: transaction.createdAt
       });
     } else {
       res.status(400).json({ message: 'Invalid trade type' });
@@ -2405,11 +2345,44 @@ You are now on the free plan and will no longer receive automatic profit updates
   }
 });
 
-  // Trade history endpoint - Returns empty since trades are now UI-only
+  // Trade history endpoint - Returns user's actual trade history
   app.get('/api/trades/history/:userId', async (req, res) => {
     try {
-      // Return empty array since trades are now simulated and UI-only
-      res.json([]);
+      const userId = parseInt(req.params.userId);
+      const token = req.query.token as string;
+      
+      const transactions = await storage.getUserTransactions(userId);
+      let userTrades = transactions
+        .filter(t => t.type === 'trade_buy' || t.type === 'trade_sell')
+        .map(trade => {
+          // Extract token and amount from notes
+          const notesMatch = trade.notes?.match(/(Buy|Sell)\s+([\d.]+)\s+(\w+)\s+at\s+\$([\d.]+)/);
+          if (!notesMatch) return null;
+          
+          const [, action, amount, tokenSymbol, price] = notesMatch;
+          
+          return {
+            id: trade.id,
+            type: action.toLowerCase() as 'buy' | 'sell',
+            token: tokenSymbol,
+            amount,
+            price: parseFloat(price),
+            total: parseFloat(trade.amount),
+            status: trade.status,
+            createdAt: trade.createdAt
+          };
+        })
+        .filter(trade => trade !== null);
+
+      // Filter by token if specified
+      if (token) {
+        userTrades = userTrades.filter(t => t?.token === token);
+      }
+
+      // Sort by most recent
+      userTrades.sort((a, b) => new Date(b!.createdAt).getTime() - new Date(a!.createdAt).getTime());
+
+      res.json(userTrades);
     } catch (error: any) {
       console.error('Error fetching trade history:', error);
       res.status(500).json({ message: 'Failed to fetch trade history' });

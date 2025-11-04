@@ -40,11 +40,11 @@ const SUPPORTED_TOKENS: Token[] = [
   { symbol: 'BTC', name: 'Bitcoin', tradingViewSymbol: 'BINANCE:BTCUSDT', coinGeckoId: 'bitcoin' },
   { symbol: 'ETH', name: 'Ethereum', tradingViewSymbol: 'BINANCE:ETHUSDT', coinGeckoId: 'ethereum' },
   { symbol: 'BNB', name: 'BNB', tradingViewSymbol: 'BINANCE:BNBUSDT', coinGeckoId: 'binancecoin' },
-  { symbol: 'XRP', name: 'Ripple', tradingViewSymbol: 'BINANCE:XRPUSDT', coinGeckoId: 'ripple' },
+  { symbol: 'MATIC', name: 'Polygon', tradingViewSymbol: 'BINANCE:MATICUSDT', coinGeckoId: 'matic-network' },
+  { symbol: 'AVAX', name: 'Avalanche', tradingViewSymbol: 'BINANCE:AVAXUSDT', coinGeckoId: 'avalanche-2' },
+  { symbol: 'ARB', name: 'Arbitrum', tradingViewSymbol: 'BINANCE:ARBUSDT', coinGeckoId: 'arbitrum' },
+  { symbol: 'OP', name: 'Optimism', tradingViewSymbol: 'BINANCE:OPUSDT', coinGeckoId: 'optimism' },
   { symbol: 'TRUMP', name: 'TRUMP', tradingViewSymbol: 'BINANCE:TRUMPUSDT', coinGeckoId: 'official-trump' },
-  { symbol: 'SOL', name: 'Solana', tradingViewSymbol: 'BINANCE:SOLUSDT', coinGeckoId: 'solana' },
-  { symbol: 'ADA', name: 'Cardano', tradingViewSymbol: 'BINANCE:ADAUSDT', coinGeckoId: 'cardano' },
-  { symbol: 'DOGE', name: 'Dogecoin', tradingViewSymbol: 'BINANCE:DOGEUSDT', coinGeckoId: 'dogecoin' },
 ];
 
 function TokenBalanceDisplay({ userId, selectedToken, currentPrice }: { userId: number; selectedToken: string; currentPrice: number }) {
@@ -204,6 +204,14 @@ export default function Trade() {
     refetchInterval: 3000,
   });
 
+  // Fetch user trade history
+  const { data: userTradeHistory, refetch: refetchUserHistory } = useQuery<TradeOrder[]>({
+    queryKey: ['/api/trades/history', user.id, selectedToken.symbol],
+    queryFn: () => fetch(`/api/trades/history/${user.id}?token=${selectedToken.symbol}`).then(res => res.json()),
+    enabled: !!user?.id,
+    refetchInterval: 5000,
+  });
+
   const executeTradeMutation = useMutation({
     mutationFn: async (data: { type: 'buy' | 'sell'; amount: string }) => {
       const response = await fetch('/api/trades/execute', {
@@ -228,6 +236,7 @@ export default function Trade() {
     onSuccess: (data) => {
       setLocalTradeHistory(prev => [{...data, token: selectedToken.symbol}, ...prev].slice(0, 50));
       queryClient.invalidateQueries({ queryKey: [`/api/token-balances/${user.id}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/trades/history', user.id, selectedToken.symbol] });
 
       toast({
         title: "Trade Executed",
@@ -272,6 +281,7 @@ export default function Trade() {
 
   const handleRefresh = () => {
     refetchTrades();
+    refetchUserHistory();
     queryClient.invalidateQueries({ queryKey: [`/api/token-balances/${user.id}`] });
     toast({
       title: "Refreshed",
@@ -770,14 +780,14 @@ export default function Trade() {
                       border: '1px solid rgba(0, 255, 153, 0.3)'
                     }}
                   >
-                    {localTradeHistory.length} Trades
+                    {userTradeHistory?.length || 0} Trades
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                {localTradeHistory && localTradeHistory.length > 0 ? (
+                {userTradeHistory && userTradeHistory.length > 0 ? (
                   <div className="space-y-3">
-                    {localTradeHistory.slice(0, 10).map((trade) => (
+                    {userTradeHistory.slice(0, 10).map((trade) => (
                       <div 
                         key={trade.id} 
                         className="flex items-center justify-between p-4 rounded-lg transition-all hover:scale-[1.01]" 

@@ -15,6 +15,8 @@ export function ActiveInvestmentsList() {
     queryKey: ['/api/investments/user', user?.id],
     enabled: !!user?.id,
     refetchInterval: 5000,
+    staleTime: 0, // Always fetch fresh data
+    refetchOnMount: 'always', // Always refetch when component mounts
   });
 
   const { data: investmentPlans } = useQuery<InvestmentPlan[]>({

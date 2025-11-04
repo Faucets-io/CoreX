@@ -21,8 +21,8 @@ const cryptoLogos = [
   { name: "ETH", color: "#627EEA", delay: 0.5 },
   { name: "USDT", color: "#26A17B", delay: 1 },
   { name: "BNB", color: "#F3BA2F", delay: 1.5 },
-  { name: "XRP", color: "#23292F", delay: 2 },
-  { name: "SOL", color: "#14F195", delay: 2.5 },
+  { name: "MATIC", color: "#8247E5", delay: 2 },
+  { name: "AVAX", color: "#E84142", delay: 2.5 },
 ];
 
 export default function Deposit() {
@@ -33,7 +33,7 @@ export default function Deposit() {
   const [copied, setCopied] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
   const [transactionHash, setTransactionHash] = useState("");
-  const [selectedToken, setSelectedToken] = useState<"BTC" | "ETH" | "BNB">("BTC");
+  const [selectedToken, setSelectedToken] = useState<"BTC" | "ETH" | "BNB" | "USDT">("BTC");
   const { data: priceData } = useBitcoinPrice();
   const [vantaEffect, setVantaEffect] = useState<any>(null);
   const vantaRef = useRef<HTMLDivElement>(null);
@@ -125,11 +125,13 @@ export default function Deposit() {
   const btcAddress = tokenAddresses?.find(t => t.token === 'BTC')?.address || user.bitcoinAddress;
   const ethAddress = tokenAddresses?.find(t => t.token === 'ETH')?.address;
   const bnbAddress = tokenAddresses?.find(t => t.token === 'BNB')?.address;
+  const usdtAddress = tokenAddresses?.find(t => t.token === 'USDT')?.address;
 
   const tokens = [
-    { symbol: "BTC", name: "Bitcoin", address: btcAddress, color: "bg-bitcoin" },
-    { symbol: "ETH", name: "Ethereum", address: ethAddress, color: "bg-blue-500" },
-    { symbol: "BNB", name: "Binance Coin", address: bnbAddress, color: "bg-yellow-500" },
+    { symbol: "BTC", name: "Bitcoin", address: btcAddress, color: "bg-bitcoin", network: "Bitcoin" },
+    { symbol: "ETH", name: "Ethereum", address: ethAddress, color: "bg-blue-500", network: "Ethereum (ERC-20)" },
+    { symbol: "BNB", name: "Binance Coin", address: bnbAddress, color: "bg-yellow-500", network: "BNB Smart Chain (BEP-20)" },
+    { symbol: "USDT", name: "Tether USD", address: usdtAddress, color: "bg-green-500", network: "BNB Smart Chain (BEP-20)" },
   ];
 
   const currentToken = tokens.find(t => t.symbol === selectedToken);
@@ -288,7 +290,7 @@ export default function Deposit() {
                     <p className="text-xs font-semibold text-[#00FF80]">Important:</p>
                     <ul className="text-xs text-[#00FF80]/60 space-y-1">
                       <li>• Send only {currentToken.symbol} to this address</li>
-                      <li>• Network: {currentToken.symbol === "BTC" ? "Bitcoin" : currentToken.symbol === "ETH" ? "Ethereum (ERC-20)" : "BNB Smart Chain (BEP-20)"}</li>
+                      <li>• Network: {currentToken.network}</li>
                       <li>• Minimum deposit: $10 USD</li>
                       <li>• Your balance updates after confirmation</li>
                     </ul>
@@ -367,7 +369,7 @@ export default function Deposit() {
                 <div>
                   <h4 className="font-medium text-[#00FF80] mb-2">How to Deposit</h4>
                   <ul className="text-sm text-[#00FF80]/60 space-y-1.5">
-                    <li>1. Select your token (BTC, ETH, or BNB)</li>
+                    <li>1. Select your token (BTC, ETH, BNB, or USDT)</li>
                     <li>2. Copy your deposit address</li>
                     <li>3. Send crypto from your external wallet</li>
                     <li>4. Submit deposit form with amount</li>
