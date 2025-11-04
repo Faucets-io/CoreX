@@ -722,6 +722,14 @@ export default function Management() {
                 <Send className="w-4 h-4 mr-2" />
                 Send Notifications
               </Button>
+              <Button
+                onClick={() => setLocation('/profile-pic-preview')}
+                variant="outline"
+                className="w-full border-[#00FF80] text-[#00FF80] hover:bg-[#00FF80]/10"
+              >
+                <Users className="w-4 h-4 mr-2" />
+                View Profile Picture
+              </Button>
             </div>
           </CardContent>
         </Card>
