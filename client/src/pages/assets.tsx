@@ -23,6 +23,10 @@ const TOKEN_LOGO_URLS: Record<string, string> = {
   XRP: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png',
   ADA: 'https://assets.coingecko.com/coins/images/975/large/cardano.png',
   DOGE: 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png',
+  MATIC: 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png',
+  AVAX: 'https://assets.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png',
+  ARB: 'https://assets.coingecko.com/coins/images/16547/large/photo_2023-03-29_21.47.00.jpeg',
+  OP: 'https://assets.coingecko.com/coins/images/25244/large/Optimism.png',
   TRUMP: 'https://assets.coingecko.com/coins/images/41446/large/photo_2025-01-18_03-57-00.jpg'
 };
 
@@ -391,7 +395,9 @@ export default function Assets() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {tokenBalances.map((balance) => {
+                  {tokenBalances
+                    .filter(balance => tokenAddresses?.some(a => a.token === balance.tokenSymbol))
+                    .map((balance) => {
                     const address = tokenAddresses?.find(a => a.token === balance.tokenSymbol);
                     const isVisible = showAddresses[balance.tokenSymbol];
                     const tokenPrice = tokenPrices?.[balance.tokenSymbol]?.price || 0;
