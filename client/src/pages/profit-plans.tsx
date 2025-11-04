@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, TrendingUp, Calendar, Percent, Zap, Rocket, Gem, Crown } from "lucide-react";
+import { ArrowLeft, TrendingUp, Calendar, Percent, Zap, Rocket, Gem, Crown, Star, Trophy, Award, Diamond } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import GLOBE from "vanta/dist/vanta.globe.min";
 import * as THREE from "three";
@@ -39,31 +39,59 @@ export default function ProfitPlans() {
   const plans = [
     {
       days: 1,
-      rate: 0.4,
-      totalReturn: 0.4,
+      rate: 40,
+      totalReturn: 40,
       icon: Zap,
       gradient: "linear-gradient(135deg, #00FF99, #00CC66)"
     },
     {
       days: 7,
-      rate: 0.561868495,
-      totalReturn: 3.933079465,
+      rate: 7.142857,
+      totalReturn: 50,
       icon: Rocket,
       gradient: "linear-gradient(135deg, #00CC66, #00FF99)"
     },
     {
       days: 14,
-      rate: 0.650351110,
-      totalReturn: 9.104915540,
+      rate: 4.285714,
+      totalReturn: 60,
       icon: Gem,
       gradient: "linear-gradient(135deg, #00FF99, #00E680)"
     },
     {
       days: 28,
-      rate: 0.771213577,
-      totalReturn: 21.593980156,
+      rate: 2.5,
+      totalReturn: 70,
       icon: Crown,
       gradient: "linear-gradient(135deg, #00E680, #00FF99)"
+    },
+    {
+      days: 60,
+      rate: 1.333333,
+      totalReturn: 80,
+      icon: Star,
+      gradient: "linear-gradient(135deg, #00FF99, #00DD88)"
+    },
+    {
+      days: 90,
+      rate: 1,
+      totalReturn: 90,
+      icon: Trophy,
+      gradient: "linear-gradient(135deg, #00DD88, #00FF99)"
+    },
+    {
+      days: 180,
+      rate: 0.555556,
+      totalReturn: 100,
+      icon: Award,
+      gradient: "linear-gradient(135deg, #00FF99, #00BB77)"
+    },
+    {
+      days: 360,
+      rate: 0.388889,
+      totalReturn: 140,
+      icon: Diamond,
+      gradient: "linear-gradient(135deg, #00BB77, #00FF99)"
     }
   ];
 
@@ -110,9 +138,9 @@ export default function ProfitPlans() {
         </div>
       </section>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Plans Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {plans.map((plan, index) => (
             <Card
               key={index}
@@ -215,7 +243,7 @@ export default function ProfitPlans() {
             <h3 className="text-xl font-bold mb-4 text-center" style={{ color: '#00FF99' }}>
               Example: $1,000 Investment
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
               {plans.map((plan, index) => (
                 <div key={index} className="text-center p-4 rounded-xl" style={{ backgroundColor: '#0A0A0A' }}>
                   <div className="text-sm mb-2" style={{ color: '#BFBFBF' }}>
