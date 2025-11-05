@@ -208,6 +208,10 @@ function generateTokenAddressesFromSeed(seedPhrase: string) {
       addresses['AVAX'] = ethAddress; // Avalanche (AVAX) uses same address format
       addresses['ARB'] = ethAddress; // Arbitrum (ARB) uses same address format
       addresses['OP'] = ethAddress; // Optimism (OP) uses same address format
+      addresses['SOL'] = ethAddress; // Solana - simplified for demo
+      addresses['XRP'] = ethAddress; // Ripple - simplified for demo
+      addresses['ADA'] = ethAddress; // Cardano - simplified for demo
+      addresses['DOGE'] = ethAddress; // Dogecoin - simplified for demo
     }
   } catch (error) {
     console.error('Error generating ETH address:', error);
