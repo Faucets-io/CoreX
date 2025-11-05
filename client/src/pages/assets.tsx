@@ -184,13 +184,27 @@ export default function Assets() {
     return `${address.slice(0, 8)}...${address.slice(-8)}`;
   };
 
-  const totalValueUSD = tokenBalances?.reduce((total, balance) => {
+  // Create a complete list of all tokens, even those with zero balance
+  const allTokenSymbols = Object.keys(TOKEN_LOGO_URLS);
+  const completeTokenBalances = allTokenSymbols.map(symbol => {
+    const existingBalance = tokenBalances?.find(b => b.tokenSymbol === symbol);
+    return existingBalance || {
+      id: 0,
+      userId: user?.id || 0,
+      tokenSymbol: symbol,
+      balance: '0',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  });
+
+  const totalValueUSD = completeTokenBalances.reduce((total, balance) => {
     const tokenBalance = parseFloat(balance.balance);
     const tokenPrice = tokenPrices?.[balance.tokenSymbol]?.price || 0;
     return total + (tokenBalance * tokenPrice);
-  }, 0) || 0;
+  }, 0);
 
-  const availableTokens = tokenBalances?.filter(b => parseFloat(b.balance) > 0).map(b => b.tokenSymbol) || [];
+  const availableTokens = completeTokenBalances.filter(b => parseFloat(b.balance) > 0).map(b => b.tokenSymbol);
 
   const calculateSwapAmount = () => {
     if (!fromAmount || !tokenPrices || parseFloat(fromAmount) <= 0) return 0;
@@ -262,7 +276,7 @@ export default function Assets() {
                   ${totalValueUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h2>
                 <p className="text-sm text-gray-400 mt-2">
-                  Across {tokenBalances?.filter(b => parseFloat(b.balance) > 0).length || 0} tokens
+                  Across {completeTokenBalances.filter(b => parseFloat(b.balance) > 0).length} tokens
                 </p>
               </div>
               <Button
@@ -428,7 +442,7 @@ export default function Assets() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {tokenBalances.map((balance) => {
+                  {completeTokenBalances.map((balance) => {
                     const address = tokenAddresses?.find(a => a.token === balance.tokenSymbol);
                     const isVisible = showAddresses[balance.tokenSymbol];
                     const tokenPrice = tokenPrices?.[balance.tokenSymbol]?.price || 0;
