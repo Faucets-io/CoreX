@@ -93,48 +93,73 @@ export default function AdminMarketing() {
                 <svg id="banner-1" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <linearGradient id="bgGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#0A0A0A" />
-                      <stop offset="50%" stopColor="#1A1A1A" />
+                      <stop offset="0%" stopColor="#050505" />
+                      <stop offset="30%" stopColor="#0F0F0F" />
+                      <stop offset="70%" stopColor="#1A1A1A" />
                       <stop offset="100%" stopColor="#0A0A0A" />
                     </linearGradient>
                     <linearGradient id="fluxGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
                       <stop offset="0%" stopColor="#00FF80" />
+                      <stop offset="50%" stopColor="#00E6FF" />
                       <stop offset="100%" stopColor="#00CCFF" />
                     </linearGradient>
+                    <linearGradient id="accentGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#00FF80" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#00CCFF" stopOpacity="0.1" />
+                    </linearGradient>
                     <filter id="glow1">
-                      <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                      <feGaussianBlur stdDeviation="5" result="coloredBlur" />
+                      <feMerge>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                    <filter id="strongGlow1">
+                      <feGaussianBlur stdDeviation="8" result="coloredBlur" />
                       <feMerge>
                         <feMergeNode in="coloredBlur" />
                         <feMergeNode in="SourceGraphic" />
                       </feMerge>
                     </filter>
                     <radialGradient id="circleGlow1" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#00FF80" stopOpacity="0.4" />
+                      <stop offset="0%" stopColor="#00FF80" stopOpacity="0.6" />
+                      <stop offset="50%" stopColor="#00CCFF" stopOpacity="0.3" />
                       <stop offset="100%" stopColor="#00FF80" stopOpacity="0" />
                     </radialGradient>
+                    <pattern id="grid1" width="40" height="40" patternUnits="userSpaceOnUse">
+                      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00FF80" strokeWidth="0.5" opacity="0.1"/>
+                    </pattern>
                   </defs>
                   <rect width="1200" height="400" fill="url(#bgGrad1)" />
-                  <circle cx="200" cy="200" r="150" fill="url(#circleGlow1)" />
-                  <circle cx="1000" cy="200" r="150" fill="url(#circleGlow1)" />
-                  <g transform="translate(150, 120)">
-                    <path d="M 100 40 L 140 80 L 135 100 L 140 120 L 100 160 L 60 120 L 65 100 L 60 80 Z" fill="url(#fluxGrad1)" filter="url(#glow1)" stroke="#00FF80" strokeWidth="2" />
-                    <path d="M 60 80 L 30 90 L 40 100 L 60 95 Z" fill="#00CCFF" filter="url(#glow1)" stroke="#00CCFF" strokeWidth="1.5" opacity="0.8" />
-                    <path d="M 140 80 L 170 90 L 160 100 L 140 95 Z" fill="#00CCFF" filter="url(#glow1)" stroke="#00CCFF" strokeWidth="1.5" opacity="0.8" />
-                    <ellipse cx="100" cy="70" rx="15" ry="12" fill="#00CCFF" opacity="0.6" />
-                    <circle cx="85" cy="150" r="8" fill="#00FF80" filter="url(#glow1)" />
-                    <circle cx="115" cy="150" r="8" fill="#00FF80" filter="url(#glow1)" />
-                    <text x="100" y="105" fontFamily="Orbitron, sans-serif" fontSize="14" fontWeight="700" fill="#FFFFFF" textAnchor="middle">FT</text>
+                  <rect width="1200" height="400" fill="url(#grid1)" opacity="0.3" />
+                  <circle cx="200" cy="200" r="180" fill="url(#circleGlow1)" />
+                  <circle cx="1000" cy="200" r="180" fill="url(#circleGlow1)" />
+                  <rect x="50" y="30" width="1100" height="340" rx="20" fill="none" stroke="url(#fluxGrad1)" strokeWidth="2" opacity="0.3" />
+                  <g transform="translate(120, 100)">
+                    <path d="M 100 40 L 140 80 L 135 100 L 140 120 L 100 160 L 60 120 L 65 100 L 60 80 Z" fill="url(#fluxGrad1)" filter="url(#strongGlow1)" stroke="#00FF80" strokeWidth="3" />
+                    <path d="M 60 80 L 30 90 L 40 100 L 60 95 Z" fill="#00CCFF" filter="url(#glow1)" stroke="#00CCFF" strokeWidth="2" opacity="0.9" />
+                    <path d="M 140 80 L 170 90 L 160 100 L 140 95 Z" fill="#00CCFF" filter="url(#glow1)" stroke="#00CCFF" strokeWidth="2" opacity="0.9" />
+                    <ellipse cx="100" cy="70" rx="18" ry="14" fill="#00CCFF" opacity="0.7" filter="url(#glow1)" />
+                    <circle cx="85" cy="150" r="9" fill="#00FF80" filter="url(#strongGlow1)" />
+                    <circle cx="115" cy="150" r="9" fill="#00FF80" filter="url(#strongGlow1)" />
+                    <text x="100" y="108" fontFamily="Orbitron, sans-serif" fontSize="16" fontWeight="700" fill="#FFFFFF" textAnchor="middle">FT</text>
                   </g>
-                  <g transform="translate(450, 140)">
-                    <text x="0" y="0" fontFamily="Orbitron, sans-serif" fontSize="72" fontWeight="700" fill="url(#fluxGrad1)" filter="url(#glow1)">Flux</text>
-                    <text x="220" y="0" fontFamily="Orbitron, sans-serif" fontSize="72" fontWeight="700" fill="#FFFFFF">Trade</text>
+                  <g transform="translate(420, 120)">
+                    <text x="0" y="0" fontFamily="Orbitron, sans-serif" fontSize="78" fontWeight="700" fill="url(#fluxGrad1)" filter="url(#strongGlow1)" letterSpacing="2">Flux</text>
+                    <text x="240" y="0" fontFamily="Orbitron, sans-serif" fontSize="78" fontWeight="700" fill="#FFFFFF" letterSpacing="2">Trade</text>
+                    <line x1="0" y1="15" x2="500" y2="15" stroke="url(#fluxGrad1)" strokeWidth="2" opacity="0.4" />
                   </g>
-                  <text x="600" y="240" fontFamily="Orbitron, sans-serif" fontSize="28" fontWeight="600" fill="#FFFFFF" textAnchor="middle" opacity="0.9">Join 10,000+ Happy Investors</text>
-                  <g transform="translate(300, 280)">
-                    <text x="0" y="0" fontFamily="Inter, sans-serif" fontSize="20" fontWeight="500" fill="#00FF80">✓ Secure Trading</text>
-                    <text x="250" y="0" fontFamily="Inter, sans-serif" fontSize="20" fontWeight="500" fill="#00FF80">✓ Real-time Charts</text>
-                    <text x="520" y="0" fontFamily="Inter, sans-serif" fontSize="20" fontWeight="500" fill="#00FF80">✓ Multiple Coins</text>
+                  <text x="600" y="235" fontFamily="Orbitron, sans-serif" fontSize="32" fontWeight="700" fill="#FFFFFF" textAnchor="middle" filter="url(#glow1)">Join 10,000+ Happy Investors</text>
+                  <rect x="350" y="255" width="500" height="60" rx="30" fill="url(#accentGrad1)" stroke="url(#fluxGrad1)" strokeWidth="2" />
+                  <g transform="translate(270, 285)">
+                    <circle cx="30" cy="0" r="5" fill="#00FF80" filter="url(#glow1)" />
+                    <text x="45" y="6" fontFamily="Inter, sans-serif" fontSize="22" fontWeight="600" fill="#00FF80">Secure Trading</text>
+                    <circle cx="280" cy="0" r="5" fill="#00CCFF" filter="url(#glow1)" />
+                    <text x="295" y="6" fontFamily="Inter, sans-serif" fontSize="22" fontWeight="600" fill="#00CCFF">Real-time Charts</text>
+                    <circle cx="540" cy="0" r="5" fill="#00FF80" filter="url(#glow1)" />
+                    <text x="555" y="6" fontFamily="Inter, sans-serif" fontSize="22" fontWeight="600" fill="#00FF80">Multi-Coin Support</text>
                   </g>
+                  <rect x="100" y="350" width="1000" height="1" fill="url(#fluxGrad1)" opacity="0.3" />
                 </svg>
               </div>
             </CardContent>
@@ -157,24 +182,34 @@ export default function AdminMarketing() {
             <CardContent>
               <div className="bg-[#0A0A0A] rounded-lg p-4">
                 <svg id="banner-2" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="1200" height="400" fill="#0A0A0A" />
-                  <circle cx="150" cy="200" r="180" fill="url(#circleGlow1)" />
-                  <circle cx="1050" cy="200" r="180" fill="url(#circleGlow1)" />
-                  <g transform="translate(80, 100)">
-                    <path d="M 100 40 L 140 80 L 135 100 L 140 120 L 100 160 L 60 120 L 65 100 L 60 80 Z" fill="url(#fluxGrad1)" filter="url(#glow1)" stroke="#00FF80" strokeWidth="2" />
-                    <path d="M 60 80 L 30 90 L 40 100 L 60 95 Z" fill="#00CCFF" filter="url(#glow1)" stroke="#00CCFF" strokeWidth="1.5" opacity="0.8" />
-                    <path d="M 140 80 L 170 90 L 160 100 L 140 95 Z" fill="#00CCFF" filter="url(#glow1)" stroke="#00CCFF" strokeWidth="1.5" opacity="0.8" />
-                    <ellipse cx="100" cy="70" rx="15" ry="12" fill="#00CCFF" opacity="0.6" />
-                    <circle cx="85" cy="150" r="8" fill="#00FF80" filter="url(#glow1)" />
-                    <circle cx="115" cy="150" r="8" fill="#00FF80" filter="url(#glow1)" />
-                    <text x="100" y="105" fontFamily="Orbitron, sans-serif" fontSize="14" fontWeight="700" fill="#FFFFFF" textAnchor="middle">FT</text>
+                  <rect width="1200" height="400" fill="url(#bgGrad1)" />
+                  <rect width="1200" height="400" fill="url(#grid1)" opacity="0.2" />
+                  <circle cx="150" cy="200" r="200" fill="url(#circleGlow1)" />
+                  <circle cx="1050" cy="200" r="200" fill="url(#circleGlow1)" />
+                  <path d="M 0 200 Q 300 100 600 200 T 1200 200" stroke="url(#fluxGrad1)" strokeWidth="3" fill="none" opacity="0.2" />
+                  <g transform="translate(60, 90)">
+                    <path d="M 100 40 L 140 80 L 135 100 L 140 120 L 100 160 L 60 120 L 65 100 L 60 80 Z" fill="url(#fluxGrad1)" filter="url(#strongGlow1)" stroke="#00FF80" strokeWidth="3" />
+                    <path d="M 60 80 L 30 90 L 40 100 L 60 95 Z" fill="#00CCFF" filter="url(#glow1)" stroke="#00CCFF" strokeWidth="2" opacity="0.9" />
+                    <path d="M 140 80 L 170 90 L 160 100 L 140 95 Z" fill="#00CCFF" filter="url(#glow1)" stroke="#00CCFF" strokeWidth="2" opacity="0.9" />
+                    <ellipse cx="100" cy="70" rx="18" ry="14" fill="#00CCFF" opacity="0.7" filter="url(#glow1)" />
+                    <circle cx="85" cy="150" r="9" fill="#00FF80" filter="url(#strongGlow1)" />
+                    <circle cx="115" cy="150" r="9" fill="#00FF80" filter="url(#strongGlow1)" />
+                    <text x="100" y="108" fontFamily="Orbitron, sans-serif" fontSize="16" fontWeight="700" fill="#FFFFFF" textAnchor="middle">FT</text>
                   </g>
-                  <g transform="translate(350, 120)">
-                    <text x="0" y="0" fontFamily="Orbitron, sans-serif" fontSize="80" fontWeight="700" fill="url(#fluxGrad1)" filter="url(#glow1)">Flux</text>
-                    <text x="250" y="0" fontFamily="Orbitron, sans-serif" fontSize="80" fontWeight="700" fill="#FFFFFF">Trade</text>
+                  <g transform="translate(330, 105)">
+                    <text x="0" y="0" fontFamily="Orbitron, sans-serif" fontSize="86" fontWeight="700" fill="url(#fluxGrad1)" filter="url(#strongGlow1)" letterSpacing="3">Flux</text>
+                    <text x="270" y="0" fontFamily="Orbitron, sans-serif" fontSize="86" fontWeight="700" fill="#FFFFFF" letterSpacing="3">Trade</text>
                   </g>
-                  <text x="600" y="230" fontFamily="Orbitron, sans-serif" fontSize="36" fontWeight="700" fill="#FFFFFF" textAnchor="middle">Trade Smarter, Not Harder</text>
-                  <text x="600" y="280" fontFamily="Inter, sans-serif" fontSize="24" fontWeight="500" fill="#00FF80" textAnchor="middle">Start Your Crypto Journey Today</text>
+                  <rect x="200" y="210" width="800" height="80" rx="40" fill="#0A0A0A" fillOpacity="0.8" stroke="url(#fluxGrad1)" strokeWidth="3" />
+                  <text x="600" y="248" fontFamily="Orbitron, sans-serif" fontSize="38" fontWeight="700" fill="url(#fluxGrad1)" textAnchor="middle" filter="url(#glow1)">Trade Smarter, Not Harder</text>
+                  <text x="600" y="330" fontFamily="Inter, sans-serif" fontSize="28" fontWeight="600" fill="#FFFFFF" textAnchor="middle" opacity="0.9">Start Your Crypto Journey Today</text>
+                  <g transform="translate(400, 350)">
+                    <circle cx="0" cy="0" r="3" fill="#00FF80" filter="url(#glow1)" />
+                    <circle cx="100" cy="0" r="3" fill="#00CCFF" filter="url(#glow1)" />
+                    <circle cx="200" cy="0" r="3" fill="#00FF80" filter="url(#glow1)" />
+                    <circle cx="300" cy="0" r="3" fill="#00CCFF" filter="url(#glow1)" />
+                    <circle cx="400" cy="0" r="3" fill="#00FF80" filter="url(#glow1)" />
+                  </g>
                 </svg>
               </div>
             </CardContent>
