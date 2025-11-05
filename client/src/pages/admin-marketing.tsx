@@ -75,22 +75,22 @@ export default function AdminMarketing() {
           <h2 className="text-3xl font-bold text-white mb-6">Banners (1200x400)</h2>
 
           {/* Banner 1 - Original with 10,000+ investors */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Banner 1 - Join Happy Investors</CardTitle>
+                <CardTitle className="text-white text-sm">Banner 1 - Join Happy Investors</CardTitle>
                 <Button
                   onClick={() => downloadSVG('banner-1', 'fluxtrade-banner-1.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="banner-1" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2">
+                <svg id="banner-1" width="100%" height="auto" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <linearGradient id="bgGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stopColor="#050505" />
@@ -166,22 +166,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Banner 2 - Trade Smarter */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Banner 2 - Trade Smarter</CardTitle>
+                <CardTitle className="text-white text-sm">Banner 2 - Trade Smarter</CardTitle>
                 <Button
                   onClick={() => downloadSVG('banner-2', 'fluxtrade-banner-2.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="banner-2" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2">
+                <svg id="banner-2" width="100%" height="auto" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="1200" height="400" fill="url(#bgGrad1)" />
                   <rect width="1200" height="400" fill="url(#grid1)" opacity="0.2" />
                   <circle cx="150" cy="200" r="200" fill="url(#circleGlow1)" />
@@ -216,22 +216,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Banner 3 - Trusted Platform */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Banner 3 - Trusted Platform</CardTitle>
+                <CardTitle className="text-white text-sm">Banner 3 - Trusted Platform</CardTitle>
                 <Button
                   onClick={() => downloadSVG('banner-3', 'fluxtrade-banner-3.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="banner-3" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2">
+                <svg id="banner-3" width="100%" height="auto" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="1200" height="400" fill="#0A0A0A" />
                   <g transform="translate(400, 100)">
                     <text x="0" y="0" fontFamily="Orbitron, sans-serif" fontSize="68" fontWeight="700" fill="url(#fluxGrad1)" filter="url(#glow1)">Flux</text>
@@ -259,22 +259,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Banner 4 - Investment Excellence */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Banner 4 - Investment Excellence</CardTitle>
+                <CardTitle className="text-white text-sm">Banner 4 - Investment Excellence</CardTitle>
                 <Button
                   onClick={() => downloadSVG('banner-4', 'fluxtrade-banner-4.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="banner-4" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2">
+                <svg id="banner-4" width="100%" height="auto" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="1200" height="400" fill="url(#bgGrad1)" />
                   <g transform="translate(480, 80)">
                     <text x="0" y="0" fontFamily="Orbitron, sans-serif" fontSize="64" fontWeight="700" fill="url(#fluxGrad1)" filter="url(#glow1)">Flux</text>
@@ -290,22 +290,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Banner 5 - BTC, ETH & More */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Banner 5 - Multi-Coin Trading</CardTitle>
+                <CardTitle className="text-white text-sm">Banner 5 - Multi-Coin Trading</CardTitle>
                 <Button
                   onClick={() => downloadSVG('banner-5', 'fluxtrade-banner-5.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="banner-5" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2">
+                <svg id="banner-5" width="100%" height="auto" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="1200" height="400" fill="#0A0A0A" />
                   <g transform="translate(400, 100)">
                     <text x="0" y="0" fontFamily="Orbitron, sans-serif" fontSize="70" fontWeight="700" fill="url(#fluxGrad1)" filter="url(#glow1)">Flux</text>
@@ -328,22 +328,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Banner 6 - 24/7 Trading */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Banner 6 - 24/7 Trading</CardTitle>
+                <CardTitle className="text-white text-sm">Banner 6 - 24/7 Trading</CardTitle>
                 <Button
                   onClick={() => downloadSVG('banner-6', 'fluxtrade-banner-6.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="banner-6" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2">
+                <svg id="banner-6" width="100%" height="auto" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="1200" height="400" fill="url(#bgGrad1)" />
                   <circle cx="250" cy="200" r="160" fill="url(#circleGlow1)" />
                   <g transform="translate(170, 110)">
@@ -364,22 +364,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Banner 7 - Maximize Profits */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Banner 7 - Maximize Profits</CardTitle>
+                <CardTitle className="text-white text-sm">Banner 7 - Maximize Profits</CardTitle>
                 <Button
                   onClick={() => downloadSVG('banner-7', 'fluxtrade-banner-7.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="banner-7" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2">
+                <svg id="banner-7" width="100%" height="auto" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="1200" height="400" fill="#0A0A0A" />
                   <g transform="translate(350, 80)">
                     <text x="0" y="0" fontFamily="Orbitron, sans-serif" fontSize="76" fontWeight="700" fill="url(#fluxGrad1)" filter="url(#glow1)">Flux</text>
@@ -397,22 +397,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Banner 8 - Secure & Simple */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Banner 8 - Secure & Simple</CardTitle>
+                <CardTitle className="text-white text-sm">Banner 8 - Secure & Simple</CardTitle>
                 <Button
                   onClick={() => downloadSVG('banner-8', 'fluxtrade-banner-8.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="banner-8" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2">
+                <svg id="banner-8" width="100%" height="auto" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="1200" height="400" fill="url(#bgGrad1)" />
                   <g transform="translate(420, 110)">
                     <text x="0" y="0" fontFamily="Orbitron, sans-serif" fontSize="66" fontWeight="700" fill="url(#fluxGrad1)" filter="url(#glow1)">Flux</text>
@@ -432,22 +432,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Banner 9 - Start Today */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Banner 9 - Start Today</CardTitle>
+                <CardTitle className="text-white text-sm">Banner 9 - Start Today</CardTitle>
                 <Button
                   onClick={() => downloadSVG('banner-9', 'fluxtrade-banner-9.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="banner-9" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2">
+                <svg id="banner-9" width="100%" height="auto" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="1200" height="400" fill="#0A0A0A" />
                   <circle cx="180" cy="200" r="170" fill="url(#circleGlow1)" />
                   <circle cx="1020" cy="200" r="170" fill="url(#circleGlow1)" />
@@ -469,22 +469,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Banner 10 - Future of Finance */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Banner 10 - Future of Finance</CardTitle>
+                <CardTitle className="text-white text-sm">Banner 10 - Future of Finance</CardTitle>
                 <Button
                   onClick={() => downloadSVG('banner-10', 'fluxtrade-banner-10.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="banner-10" width="1200" height="400" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2">
+                <svg id="banner-10" width="100%" height="auto" viewBox="0 0 1200 400" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="1200" height="400" fill="url(#bgGrad1)" />
                   <g transform="translate(360, 90)">
                     <text x="0" y="0" fontFamily="Orbitron, sans-serif" fontSize="72" fontWeight="700" fill="url(#fluxGrad1)" filter="url(#glow1)">Flux</text>
@@ -503,22 +503,22 @@ export default function AdminMarketing() {
           <h2 className="text-3xl font-bold text-white mb-6 mt-12">Posters (800x800)</h2>
 
           {/* Poster 1 - Join Happy Investors */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Poster 1 - Happy Investors</CardTitle>
+                <CardTitle className="text-white text-sm">Poster 1 - Happy Investors</CardTitle>
                 <Button
                   onClick={() => downloadSVG('poster-1', 'fluxtrade-poster-1.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="poster-1" width="800" height="800" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2 max-w-md mx-auto">
+                <svg id="poster-1" width="100%" height="auto" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <linearGradient id="bgGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stopColor="#0A0A0A" />
@@ -574,22 +574,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Poster 2 - Trade Crypto */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Poster 2 - Trade Crypto</CardTitle>
+                <CardTitle className="text-white text-sm">Poster 2 - Trade Crypto</CardTitle>
                 <Button
                   onClick={() => downloadSVG('poster-2', 'fluxtrade-poster-2.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="poster-2" width="800" height="800" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2 max-w-md mx-auto">
+                <svg id="poster-2" width="100%" height="auto" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="800" height="800" fill="#0A0A0A" />
                   <circle cx="400" cy="300" r="280" fill="url(#circleGlow2)" />
                   <g transform="translate(280, 100) scale(1.3)">
@@ -611,22 +611,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Poster 3 - Secure Wallets */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Poster 3 - Secure Wallets</CardTitle>
+                <CardTitle className="text-white text-sm">Poster 3 - Secure Wallets</CardTitle>
                 <Button
                   onClick={() => downloadSVG('poster-3', 'fluxtrade-poster-3.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="poster-3" width="800" height="800" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2 max-w-md mx-auto">
+                <svg id="poster-3" width="100%" height="auto" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="800" height="800" fill="url(#bgGrad2)" />
                   <g transform="translate(400, 180)">
                     <text x="0" y="0" fontFamily="Orbitron, sans-serif" fontSize="92" fontWeight="700" fill="url(#fluxGrad2)" filter="url(#glow2)" textAnchor="middle">Flux</text>
@@ -652,22 +652,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Poster 4 - Investment Plans */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Poster 4 - Investment Plans</CardTitle>
+                <CardTitle className="text-white text-sm">Poster 4 - Investment Plans</CardTitle>
                 <Button
                   onClick={() => downloadSVG('poster-4', 'fluxtrade-poster-4.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="poster-4" width="800" height="800" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2 max-w-md mx-auto">
+                <svg id="poster-4" width="100%" height="auto" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="800" height="800" fill="#0A0A0A" />
                   <circle cx="400" cy="200" r="220" fill="url(#circleGlow2)" />
                   <g transform="translate(400, 140)">
@@ -696,22 +696,22 @@ export default function AdminMarketing() {
           </Card>
 
           {/* Poster 5 - Join Community */}
-          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-8">
+          <Card className="bg-[#1A1A1A]/80 backdrop-blur-xl border-2 border-[#2A2A2A] mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Poster 5 - Join Community</CardTitle>
+                <CardTitle className="text-white text-sm">Poster 5 - Join Community</CardTitle>
                 <Button
                   onClick={() => downloadSVG('poster-5', 'fluxtrade-poster-5.svg')}
-                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black"
+                  className="bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black text-xs h-8"
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="bg-[#0A0A0A] rounded-lg p-4">
-                <svg id="poster-5" width="800" height="800" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-[#0A0A0A] rounded-lg p-2 max-w-md mx-auto">
+                <svg id="poster-5" width="100%" height="auto" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect width="800" height="800" fill="url(#bgGrad2)" />
                   <circle cx="400" cy="400" r="300" fill="url(#circleGlow2)" />
                   <g transform="translate(240, 120) scale(1.5)">
