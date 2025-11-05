@@ -42,7 +42,7 @@ const SUPPORTED_TOKENS: Token[] = [
   { symbol: 'BTC', name: 'Bitcoin', tradingViewSymbol: 'BINANCE:BTCUSDT', coinGeckoId: 'bitcoin' },
   { symbol: 'ETH', name: 'Ethereum', tradingViewSymbol: 'BINANCE:ETHUSDT', coinGeckoId: 'ethereum' },
   { symbol: 'BNB', name: 'BNB', tradingViewSymbol: 'BINANCE:BNBUSDT', coinGeckoId: 'binancecoin' },
-  { symbol: 'USDT', name: 'Tether (BEP-20)', tradingViewSymbol: 'BINANCE:USDCUSDT', coinGeckoId: 'tether' },
+  { symbol: 'USDT', name: 'USDT (BEP-20)', tradingViewSymbol: 'BINANCE:USDCUSDT', coinGeckoId: 'tether' },
   { symbol: 'MATIC', name: 'Polygon', tradingViewSymbol: 'BINANCE:MATICUSDT', coinGeckoId: 'matic-network' },
   { symbol: 'AVAX', name: 'Avalanche', tradingViewSymbol: 'BINANCE:AVAXUSDT', coinGeckoId: 'avalanche-2' },
   { symbol: 'ARB', name: 'Arbitrum', tradingViewSymbol: 'BINANCE:ARBUSDT', coinGeckoId: 'arbitrum' },

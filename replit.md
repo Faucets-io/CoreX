@@ -119,7 +119,7 @@ Preferred communication style: Simple, everyday language.
 - Ethereum addresses use proper Keccak-256 hashing on uncompressed secp256k1 public keys
 - All EVM-compatible tokens share the same address derived from the ETH derivation path
 - All addresses generated from single BIP39 mnemonic seed phrase
-- USDT specifically uses BEP-20 (Binance Smart Chain) network
+- USDT specifically uses BEP-20 (Binance Smart Chain) network, not native Tetherrk
 
 **UI Component Libraries:**
 - Radix UI primitives (accordion, dialog, dropdown, etc.)
