@@ -161,38 +161,40 @@ export default function Trade() {
     const container = document.getElementById('tradingview_chart');
     if (!container) return;
 
+    // Clear container and wait a bit for proper cleanup
     container.innerHTML = '';
-
-    const script = document.createElement('script');
-    script.src = 'https://s3.tradingview.com/tv.js';
-    script.async = true;
-    script.onload = () => {
-      if (window.TradingView) {
-        new window.TradingView.widget({
-          autosize: true,
-          symbol: selectedToken.tradingViewSymbol,
-          interval: "D",
-          timezone: "Etc/UTC",
-          theme: "dark",
-          style: "1",
-          locale: "en",
-          toolbar_bg: "#0a0a0a",
-          enable_publishing: false,
-          hide_side_toolbar: false,
-          allow_symbol_change: true,
-          container_id: "tradingview_chart",
-          backgroundColor: "#0a0a0a",
-          gridColor: "#1a1a1a",
-          height: 600,
-        });
-      }
-    };
-    document.head.appendChild(script);
+    
+    const timer = setTimeout(() => {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/tv.js';
+      script.async = true;
+      script.onload = () => {
+        if (window.TradingView && container) {
+          new window.TradingView.widget({
+            autosize: true,
+            symbol: selectedToken.tradingViewSymbol,
+            interval: "D",
+            timezone: "Etc/UTC",
+            theme: "dark",
+            style: "1",
+            locale: "en",
+            toolbar_bg: "#0a0a0a",
+            enable_publishing: false,
+            hide_side_toolbar: false,
+            allow_symbol_change: true,
+            container_id: "tradingview_chart",
+            backgroundColor: "#0a0a0a",
+            gridColor: "#1a1a1a",
+            height: 600,
+          });
+        }
+      };
+      document.head.appendChild(script);
+    }, 100);
 
     return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
+      clearTimeout(timer);
+      container.innerHTML = '';
     };
   }, [selectedToken]);
 
