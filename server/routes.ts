@@ -392,11 +392,11 @@ async function fetchAllTokenPrices() {
       'BTC': 'bitcoin',
       'ETH': 'ethereum',
       'BNB': 'binancecoin',
-      'XRP': 'ripple',
-      'SOL': 'solana',
-      'ADA': 'cardano',
-      'DOGE': 'dogecoin',
       'USDT': 'tether',
+      'MATIC': 'matic-network',
+      'AVAX': 'avalanche-2',
+      'ARB': 'arbitrum',
+      'OP': 'optimism',
       'TRUMP': 'official-trump'
     };
 
@@ -428,11 +428,11 @@ async function fetchAllTokenPrices() {
       'BTC': { price: 105000, change24h: 0 },
       'ETH': { price: 3200, change24h: 0 },
       'BNB': { price: 600, change24h: 0 },
-      'XRP': { price: 2.5, change24h: 0 },
-      'SOL': { price: 190, change24h: 0 },
-      'ADA': { price: 0.95, change24h: 0 },
-      'DOGE': { price: 0.35, change24h: 0 },
       'USDT': { price: 1.0, change24h: 0 },
+      'MATIC': { price: 0.45, change24h: 0 },
+      'AVAX': { price: 35, change24h: 0 },
+      'ARB': { price: 0.75, change24h: 0 },
+      'OP': { price: 1.8, change24h: 0 },
       'TRUMP': { price: 15.0, change24h: 0 }
     };
   }
