@@ -13,6 +13,7 @@ import Register from "@/pages/register";
 import Management from "@/pages/admin";
 import ManagementTransactions from "@/pages/admin-transactions";
 import ManagementNotifications from "@/pages/admin-notifications";
+import AdminMarketing from "@/pages/admin-marketing"; // Import the new admin marketing page
 import Investment from "@/pages/investment";
 import HowToInvest from "@/pages/how-to-invest";
 import ProfitPlans from "@/pages/profit-plans";
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/admin" component={Management} />
       <Route path="/admin-transactions" component={ManagementTransactions} />
       <Route path="/admin-notifications" component={ManagementNotifications} />
+      <Route path="/admin-marketing" component={AdminMarketing} /> {/* Add the new admin marketing route */}
       <Route path="/Hello10122" component={Management} />
       <Route path="/investment" component={Investment} />
       <Route path="/how-to-invest" component={HowToInvest} />

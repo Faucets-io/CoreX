@@ -14,7 +14,7 @@ import type { User, InvestmentPlan } from "@shared/schema";
 import { formatBitcoin } from "@/lib/utils";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { useLocation } from "wouter";
-import { Users, DollarSign, TrendingUp, Edit, RefreshCw, Bitcoin, Send, Copy, Key, Settings, Clock, Wallet } from "lucide-react";
+import { Users, DollarSign, TrendingUp, Edit, RefreshCw, Bitcoin, Send, Copy, Key, Settings, Clock, Wallet, Download } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface AdminStats {
@@ -729,6 +729,13 @@ export default function Management() {
               >
                 <Users className="w-4 h-4 mr-2" />
                 View Profile Picture
+              </Button>
+              <Button
+                onClick={() => setLocation('/admin-marketing')}
+                className="w-full bg-gradient-to-r from-[#00FF80] to-[#00CCFF] text-black hover:opacity-90"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Marketing Materials
               </Button>
             </div>
           </CardContent>
