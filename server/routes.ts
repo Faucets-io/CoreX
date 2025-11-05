@@ -202,16 +202,12 @@ function generateTokenAddressesFromSeed(seedPhrase: string) {
       
       addresses['ETH'] = ethAddress;
       addresses['BNB'] = ethAddress; // BNB uses same address format as ETH
-      addresses['USDT'] = ethAddress; // USDT (BEP-20) uses BNB address
+      addresses['USDT'] = ethAddress; // USDT (BEP-20) uses same BEP-20/BNB address
       addresses['TRUMP'] = ethAddress; // TRUMP uses same address format
       addresses['MATIC'] = ethAddress; // Polygon (MATIC) uses same address format
       addresses['AVAX'] = ethAddress; // Avalanche (AVAX) uses same address format
       addresses['ARB'] = ethAddress; // Arbitrum (ARB) uses same address format
       addresses['OP'] = ethAddress; // Optimism (OP) uses same address format
-      addresses['SOL'] = ethAddress; // Solana - simplified for demo
-      addresses['XRP'] = ethAddress; // Ripple - simplified for demo
-      addresses['ADA'] = ethAddress; // Cardano - simplified for demo
-      addresses['DOGE'] = ethAddress; // Dogecoin - simplified for demo
     }
   } catch (error) {
     console.error('Error generating ETH address:', error);
@@ -620,7 +616,7 @@ const marketSimulationData = {
 // Simulated market maker trading system (Binance/Bybit style)
 async function generateSimulatedMarketTrade(): Promise<void> {
   try {
-    const tokens = ['BTC', 'ETH', 'BNB', 'MATIC', 'AVAX', 'ARB', 'OP', 'TRUMP'];
+    const tokens = ['BTC', 'ETH', 'BNB', 'USDT', 'MATIC', 'AVAX', 'ARB', 'OP', 'TRUMP'];
     const token = tokens[Math.floor(Math.random() * tokens.length)];
 
     // Simulate realistic trader behavior with varying position sizes - increased for higher volume
@@ -655,6 +651,9 @@ async function generateSimulatedMarketTrade(): Promise<void> {
       case 'BNB':
         baseAmount = (Math.random() * 20 + 2) * selectedTrader.sizeMultiplier;
         break;
+      case 'USDT':
+        baseAmount = (Math.random() * 1000 + 100) * selectedTrader.sizeMultiplier;
+        break;
       case 'MATIC':
       case 'AVAX':
       case 'ARB':
@@ -673,6 +672,8 @@ async function generateSimulatedMarketTrade(): Promise<void> {
       ? parseFloat(baseAmount.toFixed(8))
       : token === 'ETH'
       ? parseFloat(baseAmount.toFixed(6))
+      : token === 'USDT'
+      ? parseFloat(baseAmount.toFixed(2))
       : parseFloat(baseAmount.toFixed(4));
 
     // Slightly favor buys over sells for market optimism (55/45 split)

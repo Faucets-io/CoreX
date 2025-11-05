@@ -20,10 +20,6 @@ const TOKEN_LOGO_URLS: Record<string, string> = {
   ETH: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
   BNB: 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png',
   USDT: 'https://assets.coingecko.com/coins/images/325/large/Tether.png',
-  SOL: 'https://assets.coingecko.com/coins/images/4128/large/solana.png',
-  XRP: 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png',
-  ADA: 'https://assets.coingecko.com/coins/images/975/large/cardano.png',
-  DOGE: 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png',
   MATIC: 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png',
   AVAX: 'https://assets.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png',
   ARB: 'https://assets.coingecko.com/coins/images/16547/large/photo_2023-03-29_21.47.00.jpeg',
@@ -358,7 +354,7 @@ export default function Assets() {
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent className="bg-[#1A1A1A] border-[#00FF80]/30">
-                          {['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'MATIC', 'AVAX', 'ARB', 'OP', 'TRUMP'].map(token => (
+                          {['BTC', 'ETH', 'BNB', 'USDT', 'MATIC', 'AVAX', 'ARB', 'OP', 'TRUMP'].map(token => (
                             <SelectItem key={token} value={token}>
                               <div className="flex items-center gap-2">
                                 <TokenIcon symbol={token} size="sm" />
