@@ -428,9 +428,7 @@ export default function Assets() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {tokenBalances
-                    .filter(balance => tokenAddresses?.some(a => a.token === balance.tokenSymbol))
-                    .map((balance) => {
+                  {tokenBalances.map((balance) => {
                     const address = tokenAddresses?.find(a => a.token === balance.tokenSymbol);
                     const isVisible = showAddresses[balance.tokenSymbol];
                     const tokenPrice = tokenPrices?.[balance.tokenSymbol]?.price || 0;
