@@ -80,7 +80,7 @@ export default function Investment() {
                 className="w-full h-12 rounded-xl border-[#00FF80]/30 text-[#00FF80] hover:bg-[#00FF80]/10 font-semibold">
                 Create Account
               </Button>
-              <Button onClick={() => setLocation('/')} variant="ghost" className="w-full text-gray-400 hover:text-white">
+              <Button onClick={() => setLocation('/home')} variant="ghost" className="w-full text-gray-400 hover:text-white">
                 Back to Home
               </Button>
             </div>

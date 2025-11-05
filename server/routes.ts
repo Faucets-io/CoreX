@@ -1235,7 +1235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         // Initialize token balances if they don't exist
-        const tokensToInitialize = ['BTC', 'ETH', 'BNB', 'USDT', 'SOL', 'XRP', 'ADA', 'DOGE', 'TRUMP'];
+        const tokensToInitialize = ['BTC', 'ETH', 'BNB', 'USDT', 'MATIC', 'AVAX', 'ARB', 'OP', 'TRUMP'];
         for (const token of tokensToInitialize) {
           try {
             const existingBalance = await storage.getUserTokenBalance(userId, token);

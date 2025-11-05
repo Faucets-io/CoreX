@@ -61,7 +61,7 @@ export default function Management() {
 
   // Only redirect if not admin and not backdoor access
   if (!user?.isAdmin && !isBackdoorAccess && user !== null) {
-    setLocation('/');
+    setLocation('/home');
     return null;
   }
 
