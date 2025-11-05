@@ -242,11 +242,15 @@ export default function Trade() {
     queryKey: ['/api/trades/all', selectedToken.symbol],
     queryFn: async () => {
       const response = await fetch(`/api/trades/all?token=${selectedToken.symbol}`);
+      if (!response.ok) {
+        console.error('Failed to fetch trades:', response.status);
+        return [];
+      }
       const data = await response.json();
-      console.log(`Fetched ${data?.length || 0} trades for ${selectedToken.symbol}`);
-      return data;
+      console.log(`Fetched ${data?.length || 0} trades for ${selectedToken.symbol}`, data);
+      return data || [];
     },
-    refetchInterval: 500,
+    refetchInterval: 1000,
   });
 
   // Fetch user trade history

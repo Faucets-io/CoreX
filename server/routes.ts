@@ -2409,22 +2409,24 @@ You are now on the free plan and will no longer receive automatic profit updates
     try {
       const token = req.query.token as string || 'BTC';
 
-      // Only get simulated market trades (not real user trades)
-      const systemUser = await storage.getUser(marketSimulationData.systemUserId);
-      if (!systemUser) {
-        return res.json([]);
-      }
-
+      // Get recent simulated market trades from the last 5 minutes
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      
       const transactions = await storage.getUserTransactions(marketSimulationData.systemUserId);
       const marketTrades = transactions
-        .filter(t => (t.type === 'trade_buy' || t.type === 'trade_sell'))
         .filter(t => {
+          // Only get trade_buy and trade_sell transactions
+          if (t.type !== 'trade_buy' && t.type !== 'trade_sell') return false;
+          
+          // Filter by recent trades (last 5 minutes)
+          if (new Date(t.createdAt) < fiveMinutesAgo) return false;
+          
           // Filter by token if mentioned in notes
           if (t.notes) {
             // Match "Market buy: X TOKEN" or "Market sell: X TOKEN"
             const tokenMatch = t.notes.match(/Market\s+(buy|sell):\s+[\d.]+\s+(\w+)/i);
-            if (tokenMatch) {
-              return tokenMatch[2] === token;
+            if (tokenMatch && tokenMatch[2] === token) {
+              return true;
             }
           }
           return false;
@@ -2448,6 +2450,7 @@ You are now on the free plan and will no longer receive automatic profit updates
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 200);
 
+      console.log(`Returning ${recentTrades.length} trades for ${token}`);
       res.json(recentTrades);
     } catch (error: any) {
       console.error('Error fetching market trades:', error);
